@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Definitions for Gradients -->
+  <defs>
+    <!-- Cup Gradient (Warm Amber / Masala Chai) -->
+    <linearGradient id="cupGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E76F51" />
+      <stop offset="100%" stop-color="#D81159" />
+    </linearGradient>
+    
+    <!-- Liquid / Chai Tea Gradient -->
+    <linearGradient id="chaiGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F4A261" />
+      <stop offset="100%" stop-color="#E76F51" />
+    </linearGradient>
+
+    <!-- Steam Gradient -->
+    <linearGradient id="steamGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#F4A261" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#E76F51" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#D81159" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Shadow/Glow -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F4A261" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#F4A261" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Ambient Glow Background (Warm and inviting) -->
+  <circle cx="256" cy="360" r="160" fill="url(#glow)" />
+
+  <!-- Steam / Chat Waves (Charcha) -->
+  <!-- We'll craft three beautiful wavy paths representing rising steam, styled like conversation threads -->
+  <!-- Left Steam Wave -->
+  <path d="M 200 240 C 180 180, 220 140, 200 80 C 190 50, 210 30, 205 10" 
+        fill="none" stroke="url(#steamGrad)" stroke-width="12" stroke-linecap="round" />
+        
+  <!-- Center Steam Wave (Slightly taller, representing a chat/voice wave) -->
+  <path d="M 256 240 C 236 170, 276 130, 256 70 C 246 40, 266 20, 261 0" 
+        fill="none" stroke="url(#steamGrad)" stroke-width="14" stroke-linecap="round" />
+
+  <!-- Right Steam Wave -->
+  <path d="M 312 240 C 292 190, 332 150, 312 90 C 302 60, 322 40, 317 20" 
+        fill="none" stroke="url(#steamGrad)" stroke-width="12" stroke-linecap="round" />
+
+  <!-- The Chai Cup (Cutting Glass or Ceramic Kulhad Hybrid) -->
+  <!-- Saucer (Elegant base) -->
+  <path d="M 120 400 C 120 420, 392 420, 392 400 C 392 390, 120 390, 120 400 Z" 
+        fill="url(#cupGrad)" opacity="0.9" />
+
+  <!-- Cup Shadow on Saucer -->
+  <ellipse cx="256" cy="396" rx="90" ry="10" fill="#2B1A13" opacity="0.4" />
+
+  <!-- Cup Body -->
+  <!-- Custom path for a beautifully curved ceramic cup -->
+  <path d="M 150 260 
+           C 150 340, 170 380, 256 380 
+           C 342 380, 362 340, 362 260 
+           Z" 
+        fill="url(#cupGrad)" />
+
+  <!-- Tea Surface (Chai Liquid inside the cup) -->
+  <ellipse cx="256" cy="260" rx="106" ry="18" fill="url(#chaiGrad)" />
+
+  <!-- Tea Rim highlight -->
+  <ellipse cx="256" cy="260" rx="106" ry="18" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.3" />
+
+  <!-- Cup Handle (Perfect ear shape on the right side) -->
+  <path d="M 358 280 
+           C 410 280, 420 340, 350 350" 
+        fill="none" stroke="url(#cupGrad)" stroke-width="20" stroke-linecap="round" />
+
+  <!-- Cup Highlight / Glossy Shine (Gives a premium glass/ceramic feel) -->
+  <path d="M 170 275 
+           C 165 310, 180 350, 220 365" 
+        fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.4" />
+
+  <!-- Tiny Chat Bubble details to symbolize "Charcha" (Subtle but extremely clever) -->
+  <!-- A small glowing speech bubble dot near the steam -->
+  <circle cx="230" cy="110" r="6" fill="#F4A261" opacity="0.8" />
+  <circle cx="285" cy="150" r="8" fill="#E76F51" opacity="0.9" />
+  <circle cx="330" cy="75" r="5" fill="#D81159" opacity="0.7" />
+</svg>
