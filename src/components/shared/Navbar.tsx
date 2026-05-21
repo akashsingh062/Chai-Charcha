@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
-  const { user, setUser, userData } = useAuth();
+  const { user, setUser, userData, handelSignOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,6 +46,8 @@ const Navbar = () => {
     e.preventDefault();
     console.log("Searching for:", searchQuery);
   };
+
+  
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-[var(--nav-bg)] border-b border-[var(--nav-border)] text-[var(--foreground)] shadow-lg backdrop-blur-md transition-all duration-300">
@@ -178,7 +180,7 @@ const Navbar = () => {
                       <a href="#profile" className="block px-4 py-2 text-sm text-[var(--text-secondary)] rounded-lg hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-colors">Your Profile</a>
                       <a href="#settings" className="block px-4 py-2 text-sm text-[var(--text-secondary)] rounded-lg hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-colors">Settings</a>
                       <button 
-                        onClick={() => { setUser(false); setProfileMenuOpen(false); }}
+                        onClick={() => { handelSignOut(); setProfileMenuOpen(false); }}
                         className="w-full text-left block px-4 py-2 text-sm text-spicy-paprika hover:bg-[var(--btn-icon-hover-bg)] rounded-lg transition-colors cursor-pointer"
                       >
                         Sign Out
@@ -314,7 +316,7 @@ const Navbar = () => {
                 </a>
 
                 <button 
-                  onClick={() => { setUser(false); setMobileMenuOpen(false); }}
+                   onClick={() => { handelSignOut(); setMobileMenuOpen(false); }}
                   className="flex w-full items-center justify-center rounded-full border border-spicy-paprika/20 bg-spicy-paprika/5 py-2.5 text-sm font-semibold text-spicy-paprika cursor-pointer"
                 >
                   Sign Out
