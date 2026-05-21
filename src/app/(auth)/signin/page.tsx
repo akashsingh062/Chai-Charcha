@@ -14,11 +14,8 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Field-specific validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
-  // Global submission error
   const [globalError, setGlobalError] = useState("");
-  // Password visibility toggle
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,7 +141,7 @@ export default function SignInPage() {
           {/* Identifier Input (Username/Email) */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
-              Username or Email
+              Email
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-secondary)]/70">
@@ -167,7 +164,7 @@ export default function SignInPage() {
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="aarav@domain.com or aarav_codes"
+                placeholder="Input Your Email"
                 className={`w-full pl-10 pr-4 py-3 bg-[var(--input-bg)] border ${errors.identifier ? "border-red-500" : "border-[var(--input-border)]"} rounded-xl text-[var(--foreground)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:border-[var(--input-focus-border)] focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:bg-[var(--input-focus-bg)] transition-all duration-200`}
               />
             </div>

@@ -55,15 +55,14 @@ export default function SignUpPage() {
           password,
           name,
           username, // Pass custom fields if configured, fallback schema populates avatar automatically
+          image: `https://api.dicebear.com/6.x/avataaars/svg?seed=${username}`,
           avatar: `https://api.dicebear.com/6.x/avataaars/svg?seed=${username}`,
           bio: "",
           role: "member",
           karma: 0,
           joinedCommunities: [],
           callbackURL: "/",
-        } as Parameters<typeof authClient.signUp.email>[0] & {
-          username: string;
-        },
+        } as unknown as Parameters<typeof authClient.signUp.email>[0],
         {
           onRequest: () => {
             setLoading(true);
@@ -178,7 +177,7 @@ export default function SignUpPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Aarav Sharma"
+                placeholder="Your Full Name"
                 className={`w-full pl-10 pr-4 py-3 bg-[var(--input-bg)] border ${errors.name ? "border-red-500" : "border-[var(--input-border)]"} rounded-xl text-[var(--foreground)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:border-[var(--input-focus-border)] focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:bg-[var(--input-focus-bg)] transition-all duration-200`}
               />
             </div>
@@ -202,7 +201,7 @@ export default function SignUpPage() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="aarav_codes"
+                placeholder="Username"
                 className={`w-full pl-8 pr-4 py-3 bg-[var(--input-bg)] border ${errors.username ? "border-red-500" : "border-[var(--input-border)]"} rounded-xl text-[var(--foreground)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:border-[var(--input-focus-border)] focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:bg-[var(--input-focus-bg)] transition-all duration-200`}
               />
             </div>
@@ -239,7 +238,7 @@ export default function SignUpPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="aarav@domain.com"
+                placeholder="Enter Your Email"
                 className={`w-full pl-10 pr-4 py-3 bg-[var(--input-bg)] border ${errors.email ? "border-red-500" : "border-[var(--input-border)]"} rounded-xl text-[var(--foreground)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:border-[var(--input-focus-border)] focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:bg-[var(--input-focus-bg)] transition-all duration-200`}
               />
             </div>

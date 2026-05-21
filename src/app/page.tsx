@@ -432,8 +432,12 @@ export default function Home() {
               {/* Quick Post Creator Box */}
               <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-background)] p-4 shadow-sm transition-all duration-300">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] text-xs font-bold text-[var(--profile-avatar-text)] shadow-sm">
-                    {userData?.avatar || "JD"}
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] text-xs font-bold text-[var(--profile-avatar-text)] shadow-sm overflow-hidden">
+                    {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) ? (
+                      <img src={userData.avatar} alt={userData.name} className="h-full w-full object-cover" />
+                    ) : (
+                      userData?.avatar || "JD"
+                    )}
                   </div>
                   <button
                     onClick={() => setIsModalOpen(true)}
@@ -487,8 +491,12 @@ export default function Home() {
                       {/* Author card & Category tag */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] text-2xs font-bold text-[var(--profile-avatar-text)] shadow-sm">
-                            {thread.author.avatar}
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] text-2xs font-bold text-[var(--profile-avatar-text)] shadow-sm overflow-hidden">
+                            {thread.author.avatar && (thread.author.avatar.startsWith("http") || thread.author.avatar.startsWith("/")) ? (
+                              <img src={thread.author.avatar} alt={thread.author.name} className="h-full w-full object-cover" />
+                            ) : (
+                              thread.author.avatar
+                            )}
                           </div>
                           <div className="flex flex-col">
                             <span className="text-xs font-semibold text-[var(--foreground)]">{thread.author.name}</span>

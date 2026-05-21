@@ -14,6 +14,23 @@ export interface UserProfile {
   reputation: number;
 }
 
+// Extended Better-Auth User Interface
+interface ExtendedUser {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  image?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  username?: string;
+  avatar?: string;
+  bio?: string;
+  role?: string;
+  karma?: number;
+  reputation?: number;
+}
+
 // Auth Context Type
 interface AuthContextType {
   user: boolean;
@@ -35,6 +52,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [mounted, setMounted] = useState(false);
 
   const router = useRouter();
+
+  // Retrieve active session from better-auth and alias to sessionData to avoid collisions
+  const { data: sessionData } = authClient.useSession(); 
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (sessionData) {
+        setUserState(true);
+        localStorage.setItem("isLoggedIn", "true");
+        const dbUser = sessionData.user as unknown as ExtendedUser;
+        if (dbUser) {
+          setUserDataState({
+            name: dbUser.name,
+            email: dbUser.email,
+            role: dbUser.role || "member",
+            avatar: dbUser.avatar || dbUser.image || 'https://avatar.iran.liara.run/public/boy?username=' + (dbUser.username || dbUser.name),
+            reputation: typeof dbUser.reputation === 'number' ? dbUser.reputation : 342,
+          });
+        }
+      } else if (mounted && sessionData === null) {
+        setUserState(false);
+        localStorage.setItem("isLoggedIn", "false");
+        setUserDataState(null);
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [sessionData, mounted]);
 
   useEffect(() => {
     const savedAuth = localStorage.getItem("isLoggedIn");

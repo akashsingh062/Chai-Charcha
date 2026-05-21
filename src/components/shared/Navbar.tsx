@@ -161,8 +161,12 @@ const Navbar = () => {
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                     className="flex items-center gap-2 rounded-full border border-[var(--profile-border)] bg-[var(--profile-bg)] p-1.5 pr-3 transition-all duration-200 hover:border-[var(--profile-hover-border)] hover:bg-[var(--profile-hover-bg)] cursor-pointer"
                   >
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] text-xs font-bold text-[var(--profile-avatar-text)] shadow-sm">
-                      {userData?.avatar || "JD"}
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] text-xs font-bold text-[var(--profile-avatar-text)] shadow-sm overflow-hidden">
+                      {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) ? (
+                        <img src={userData.avatar} alt={userData.name} className="h-full w-full object-cover" />
+                      ) : (
+                        userData?.avatar || "JD"
+                      )}
                     </div>
                     <span className="text-xs font-semibold text-[var(--text-role)]">{userData?.name || "Developer"}</span>
                     <svg className={`h-3 w-3 text-[var(--btn-icon-text)] transition-transform duration-200 ${profileMenuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
@@ -286,8 +290,12 @@ const Navbar = () => {
             {user ? (
               <div className="flex flex-col gap-4 pt-2">
                 <div className="flex items-center gap-3 px-2 py-1">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] font-bold text-[var(--profile-avatar-text)] text-sm">
-                    {userData?.avatar || "JD"}
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] font-bold text-[var(--profile-avatar-text)] text-sm overflow-hidden">
+                    {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) ? (
+                      <img src={userData.avatar} alt={userData.name} className="h-full w-full object-cover" />
+                    ) : (
+                      userData?.avatar || "JD"
+                    )}
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold text-[var(--foreground)]">{userData?.name || "Developer"}</span>
