@@ -30,14 +30,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Auth Provider
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Defining states to access across all components
-  const [user, setUserState] = useState<boolean>(true);
-  const [userData, setUserDataState] = useState<UserProfile | null>({
-    name: "Aarav Dev",
-    email: "chai_lover@dev.in",
-    role: "Full Stack Engineer",
-    avatar: "AD",
-    reputation: 342,
-  });
+  const [user, setUserState] = useState<boolean>(false);
+  const [userData, setUserDataState] = useState<UserProfile | null>(null);
   const [mounted, setMounted] = useState(false);
 
   const router = useRouter();
@@ -59,6 +53,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           setUserDataState(null);
         }
+      } else {
+        setUserState(false);
+        setUserDataState(null);
       }
       setMounted(true);
     }, 0);
@@ -99,9 +96,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Values to be provided to the context
   const value = {
-    user: mounted ? user : true,
+    user: mounted ? user : false,
     setUser,
-    userData,
+    userData: mounted ? userData : null,
     login,
     logout,
     handelSignOut,

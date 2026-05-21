@@ -4,10 +4,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/context/AuthContext";
 import { signupSchema } from "@/lib/Schemas/signupSchema";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -68,6 +70,7 @@ export default function SignUpPage() {
           },
           onSuccess: () => {
             setLoading(false);
+            login();
             router.push("/");
             router.refresh();
           },

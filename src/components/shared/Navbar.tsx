@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
-  const { user, setUser, userData, handelSignOut } = useAuth();
+  const { user, userData, handelSignOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -191,18 +191,18 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <button 
-                  onClick={() => setUser(true)}
-                  className="rounded-full px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition-all duration-200 hover:text-[var(--btn-icon-hover-text)] hover:bg-[var(--btn-secondary-hover-bg)] cursor-pointer"
+                <Link 
+                  href="/signin"
+                  className="rounded-full px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition-all duration-200 hover:text-[var(--btn-icon-hover-text)] hover:bg-[var(--btn-secondary-hover-bg)]"
                 >
                   Log In
-                </button>
-                <button 
-                  onClick={() => setUser(true)}
-                  className="rounded-full bg-orange px-5 py-2 text-sm font-bold text-ink-black shadow-lg shadow-orange/10 transition-all duration-200 hover:bg-orange-600 hover:shadow-orange/20 active:scale-95 cursor-pointer"
+                </Link>
+                <Link 
+                  href="/signup"
+                  className="rounded-full bg-orange px-5 py-2 text-sm font-bold text-ink-black shadow-lg shadow-orange/10 transition-all duration-200 hover:bg-orange-600 hover:shadow-orange/20 active:scale-95"
                 >
                   Sign Up
-                </button>
+                </Link>
               </div>
             )}
           </div>
@@ -324,18 +324,20 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="flex flex-col gap-3 pt-2">
-                <button 
-                  onClick={() => { setUser(true); setMobileMenuOpen(false); }}
-                  className="w-full rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] py-3 text-sm font-semibold text-[var(--foreground)] transition-all hover:bg-[var(--btn-secondary-hover-bg)] active:scale-95 cursor-pointer"
+                <Link 
+                  href="/signin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] py-3 text-sm font-semibold text-[var(--foreground)] transition-all hover:bg-[var(--btn-secondary-hover-bg)] active:scale-95"
                 >
                   Log In
-                </button>
-                <button 
-                  onClick={() => { setUser(true); setMobileMenuOpen(false); }}
-                  className="w-full rounded-full bg-orange py-3 text-sm font-bold text-ink-black shadow-lg shadow-orange/10 transition-all hover:bg-orange-600 active:scale-95 cursor-pointer"
+                </Link>
+                <Link 
+                  href="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center rounded-full bg-orange py-3 text-sm font-bold text-ink-black shadow-lg shadow-orange/10 transition-all hover:bg-orange-600 active:scale-95"
                 >
                   Sign Up
-                </button>
+                </Link>
               </div>
             )}
 

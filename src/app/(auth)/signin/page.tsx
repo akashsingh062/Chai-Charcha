@@ -4,10 +4,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/context/AuthContext";
 import { loginSchema } from "@/lib/Schemas/loginSchema";
 
 export default function SignInPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,6 +56,7 @@ export default function SignInPage() {
           },
           onSuccess: () => {
             setLoading(false);
+            login();
             router.push("/");
             router.refresh();
           },
