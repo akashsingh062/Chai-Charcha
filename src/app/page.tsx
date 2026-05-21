@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 interface Thread {
   id: string;
@@ -255,12 +256,12 @@ export default function Home() {
                 </svg>
               </button>
               
-              <a
+              <Link
                 href="#public-preview"
                 className="flex items-center justify-center rounded-full border border-[var(--btn-secondary-border)] hover:bg-[var(--btn-secondary-hover-bg)] px-8 py-4 text-base font-semibold transition-all duration-200"
               >
                 Browse Discussions
-              </a>
+              </Link>
             </div>
 
             {/* Tech badging grid */}

@@ -177,8 +177,8 @@ const Navbar = () => {
                         <p className="text-xs text-dust-grey">Signed in as</p>
                         <p className="text-sm font-semibold truncate text-[var(--foreground)]">{userData?.email || "chai_lover@dev.in"}</p>
                       </div>
-                      <a href="#profile" className="block px-4 py-2 text-sm text-[var(--text-secondary)] rounded-lg hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-colors">Your Profile</a>
-                      <a href="#settings" className="block px-4 py-2 text-sm text-[var(--text-secondary)] rounded-lg hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-colors">Settings</a>
+                      <Link href="#profile" className="block px-4 py-2 text-sm text-[var(--text-secondary)] rounded-lg hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-colors">Your Profile</Link>
+                      <Link href="#settings" className="block px-4 py-2 text-sm text-[var(--text-secondary)] rounded-lg hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-colors">Settings</Link>
                       <button 
                         onClick={() => { handelSignOut(); setProfileMenuOpen(false); }}
                         className="w-full text-left block px-4 py-2 text-sm text-spicy-paprika hover:bg-[var(--btn-icon-hover-bg)] rounded-lg transition-colors cursor-pointer"
@@ -307,13 +307,13 @@ const Navbar = () => {
                   <span>Create New Post</span>
                 </button>
 
-                <a 
+                <Link 
                   href="#profile" 
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex w-full items-center justify-center rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] py-2.5 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--btn-icon-hover-text)]"
                 >
                   Your Profile
-                </a>
+                </Link>
 
                 <button 
                    onClick={() => { handelSignOut(); setMobileMenuOpen(false); }}
