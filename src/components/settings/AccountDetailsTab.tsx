@@ -1,14 +1,10 @@
 "use client";
 
 import React from "react";
+import { DbUser } from "@/types/user";
 
 interface AccountDetailsTabProps {
-  user: {
-    email: string;
-    createdAt: string;
-    role?: string;
-    karma?: number;
-  } | null;
+  user: DbUser | null;
 }
 
 export const AccountDetailsTab: React.FC<AccountDetailsTabProps> = ({ user }) => {

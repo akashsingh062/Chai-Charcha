@@ -9,11 +9,11 @@ interface ThreadCardProps {
 
 export const ThreadCard: React.FC<ThreadCardProps> = ({ thread, onVote, onTagClick }) => {
   return (
-    <article className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-background)] p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-orange/20 transition-all duration-300">
+    <article className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-orange/20 transition-all duration-300">
       {/* Author card & Category tag */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] text-2xs font-bold text-[var(--profile-avatar-text)] shadow-sm overflow-hidden">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-2xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden">
             {thread.author.avatar && (thread.author.avatar.startsWith("http") || thread.author.avatar.startsWith("/")) ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={thread.author.avatar} alt={thread.author.name} className="h-full w-full object-cover" />
@@ -22,7 +22,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({ thread, onVote, onTagCli
             )}
           </div>
           <div className="flex flex-col">
-            <span className="text-xs font-semibold text-[var(--foreground)]">{thread.author.name}</span>
+            <span className="text-xs font-semibold text-(--foreground)">{thread.author.name}</span>
             <span className="text-[10px] text-dust-grey font-mono leading-none mt-0.5">{thread.author.role}</span>
           </div>
         </div>
@@ -37,10 +37,10 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({ thread, onVote, onTagCli
       </div>
 
       {/* Title & Excerpt */}
-      <h3 className="text-base sm:text-lg font-extrabold mt-3.5 tracking-tight text-[var(--foreground)] leading-snug">
+      <h3 className="text-base sm:text-lg font-extrabold mt-3.5 tracking-tight text-(--foreground) leading-snug">
         {thread.title}
       </h3>
-      <p className="mt-2 text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-3">
+      <p className="mt-2 text-xs sm:text-sm text-(--text-secondary) leading-relaxed line-clamp-3">
         {thread.excerpt}
       </p>
 
@@ -50,7 +50,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({ thread, onVote, onTagCli
           <span 
             key={tag} 
             onClick={() => onTagClick?.(tag)}
-            className="text-[10px] font-semibold text-[var(--link-color)] hover:text-[var(--link-hover-color)] transition-colors cursor-pointer"
+            className="text-[10px] font-semibold text-(--link-color) hover:text-(--link-hover-color) transition-colors cursor-pointer"
           >
             #{tag}
           </span>
@@ -58,16 +58,16 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({ thread, onVote, onTagCli
       </div>
 
       {/* Bottom Footer Interactions */}
-      <div className="mt-5 pt-4 border-t border-[var(--divider-color)] flex items-center justify-between text-xs text-dust-grey">
+      <div className="mt-5 pt-4 border-t border-(--divider-color) flex items-center justify-between text-xs text-dust-grey">
         
         {/* Interactive Upvote & Downvote component */}
-        <div className="flex items-center gap-1 bg-[var(--profile-bg)] border border-[var(--profile-border)] rounded-full p-0.5">
+        <div className="flex items-center gap-1 bg-(--profile-bg) border border-(--profile-border) rounded-full p-0.5">
           <button
             onClick={() => onVote(thread.id, "up")}
             className={`p-1.5 rounded-full transition-colors cursor-pointer ${
               thread.userVoted === "up"
                 ? "bg-spicy-paprika text-floral-white shadow-sm"
-                : "hover:bg-[var(--btn-icon-hover-bg)] hover:text-spicy-paprika"
+                : "hover:bg-(--btn-icon-hover-bg) hover:text-spicy-paprika"
             }`}
             aria-label="Upvote"
           >
@@ -81,7 +81,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({ thread, onVote, onTagCli
               ? "text-spicy-paprika font-black"
               : thread.userVoted === "down"
               ? "text-stormy-teal font-black"
-              : "text-[var(--text-role)]"
+              : "text-(--text-role)"
           }`}>
             {thread.upvotes}
           </span>
@@ -91,7 +91,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({ thread, onVote, onTagCli
             className={`p-1.5 rounded-full transition-colors cursor-pointer ${
               thread.userVoted === "down"
                 ? "bg-stormy-teal text-floral-white shadow-sm"
-                : "hover:bg-[var(--btn-icon-hover-bg)] hover:text-stormy-teal"
+                : "hover:bg-(--btn-icon-hover-bg) hover:text-stormy-teal"
             }`}
             aria-label="Downvote"
           >
