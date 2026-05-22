@@ -106,13 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUserState(val);
     localStorage.setItem("isLoggedIn", String(val));
     if (val) {
-      setUserDataState({
-        name: "Aarav Dev",
-        email: "chai_lover@dev.in",
-        role: "Full Stack Engineer",
-        avatar: "AD",
-        reputation: 342,
-      });
+      setUserDataState(userData);
     } else {
       setUserDataState(null);
     }

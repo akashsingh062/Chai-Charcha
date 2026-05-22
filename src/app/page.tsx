@@ -177,8 +177,8 @@ export default function Home() {
       author: {
         name: userData?.name || "Developer",
         avatar: userData?.avatar || "JD",
-        role: userData?.role || "Full Stack Engineer",
-        reputation: (userData?.reputation || 256) + 10,
+        role: userData?.role || "member",
+        reputation: userData?.reputation !== undefined ? userData.reputation : 342,
       },
       category: newCategory,
       tags: tagsArray.length > 0 ? tagsArray : ["general"],

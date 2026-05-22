@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useAuth } from "@/context/AuthContext";
 import { loginSchema } from "@/lib/Schemas/loginSchema";
@@ -17,6 +17,13 @@ export default function SignInPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalError, setGlobalError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const { userData } = useAuth();
+  useEffect(() => {
+    if (userData) {
+      redirect("/");
+    }
+  }, [userData, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

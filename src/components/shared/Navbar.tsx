@@ -128,7 +128,7 @@ const Navbar = () => {
               )}
             </button>
 
-            {user ? (
+            {user && userData ? (
               <div className="flex items-center gap-4">
                 {/* Create Post Button */}
                 <button 
@@ -287,19 +287,19 @@ const Navbar = () => {
             </form>
 
             {/* Mobile Actions Zone */}
-            {user ? (
+            {user && userData ? (
               <div className="flex flex-col gap-4 pt-2">
                 <div className="flex items-center gap-3 px-2 py-1">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] font-bold text-[var(--profile-avatar-text)] text-sm overflow-hidden">
                     {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) ? (
                       <img src={userData.avatar} alt={userData.name} className="h-full w-full object-cover" />
                     ) : (
-                      userData?.avatar || "JD"
+                      userData?.avatar || userData.name.substring(0,2).toUpperCase()
                     )}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-[var(--foreground)]">{userData?.name || "Developer"}</span>
-                    <span className="text-xs text-[var(--text-secondary)]">{userData?.email || "chai_lover@dev.in"}</span>
+                    <span className="text-sm font-semibold text-[var(--foreground)]">{userData?.name}</span>
+                    <span className="text-xs text-[var(--text-secondary)]">{userData?.email}</span>
                   </div>
                 </div>
 
