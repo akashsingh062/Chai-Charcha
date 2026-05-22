@@ -88,13 +88,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const isLoggedIn = savedAuth === "true";
         setUserState(isLoggedIn);
         if (isLoggedIn) {
-          setUserDataState({
-            name: "Aarav Dev",
-            email: "chai_lover@dev.in",
-            role: "Full Stack Engineer",
-            avatar: "AD",
-            reputation: 342,
-          });
+          setUserDataState(userData);
         } else {
           setUserDataState(null);
         }
