@@ -28,7 +28,7 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
   return (
     <aside className="lg:col-span-3 flex flex-col gap-6">
       {/* Navigation Filters */}
-      <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-background)] p-4 shadow-sm transition-all duration-300">
+      <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300">
         <h2 className="px-2 text-xs font-bold uppercase tracking-wider text-dust-grey/80 mb-3">Categories</h2>
         <nav className="flex flex-col gap-1">
           {["All", "Tech & Architecture", "Career Prep"].map((cat) => (
@@ -38,7 +38,7 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
               className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-all cursor-pointer ${
                 activeCategory === cat
                   ? "bg-spicy-paprika/10 text-spicy-paprika border-l-3 border-spicy-paprika pl-2"
-                  : "text-[var(--text-secondary)] hover:bg-[var(--btn-secondary-hover-bg)]"
+                  : "text-(--text-secondary) hover:bg-(--btn-secondary-hover-bg)"
               }`}
             >
               <span>
@@ -48,7 +48,7 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
                   ? "🛠️ Tech & Architecture"
                   : "💼 Career Prep"}
               </span>
-              <span className="rounded-full bg-[var(--profile-bg)] border border-[var(--profile-border)] px-2 py-0.5 text-2xs text-[var(--text-role)]">
+              <span className="rounded-full bg-(--profile-bg) border border-(--profile-border) px-2 py-0.5 text-2xs text-(--text-role)">
                 {getCount(cat)}
               </span>
             </button>
@@ -57,14 +57,14 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
       </div>
 
       {/* Hot Tags Widget */}
-      <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-background)] p-4 shadow-sm transition-all duration-300">
+      <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300">
         <h2 className="px-2 text-xs font-bold uppercase tracking-wider text-dust-grey/80 mb-3">Trending Tags</h2>
         <div className="flex flex-wrap gap-2">
           {["nextjs", "react19", "systemdesign", "career", "remote-jobs", "css", "node"].map((tag) => (
             <button
               key={tag}
               onClick={() => setSearchQuery(tag)}
-              className="rounded-full border border-[var(--card-border)] bg-[var(--background)] hover:border-spicy-paprika/40 hover:text-spicy-paprika px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-all cursor-pointer"
+              className="rounded-full border border-(--card-border) bg-(--background) hover:border-spicy-paprika/40 hover:text-spicy-paprika px-3 py-1.5 text-xs font-medium text-(--text-secondary) transition-all cursor-pointer"
             >
               #{tag}
             </button>
