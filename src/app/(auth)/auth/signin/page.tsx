@@ -91,15 +91,15 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-[var(--background)] text-[var(--foreground)] px-4 overflow-hidden py-16 transition-colors duration-300">
+    <div className="relative flex items-center justify-center min-h-screen bg-(--background) text-(--foreground) px-4 overflow-hidden py-16 transition-colors duration-300">
       {/* Ambient Chai Glow Background Elements */}
       <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-linear-to-b from-[#D97706]/15 to-transparent rounded-full filter blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-linear-to-t from-[#F59E0B]/10 to-transparent rounded-full filter blur-[120px] pointer-events-none" />
 
-      <div className="relative w-full max-w-md bg-[var(--card-background)]/80 backdrop-blur-xl border border-[var(--card-border)] shadow-2xl rounded-2xl p-8 sm:p-10 transition-all duration-300 hover:border-[var(--input-focus-border)]/50">
+      <div className="relative w-full max-w-md bg-(--card-background)/80 backdrop-blur-xl border border-(--card-border) shadow-2xl rounded-2xl p-8 sm:p-10 transition-all duration-300 hover:border-(--input-focus-border)/50">
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--link-color)] mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-pulse">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-(--input-bg) border border-(--input-border) text-(--link-color) mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-pulse">
             {/* Steaming Chai Cup SVG */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -117,16 +117,16 @@ export default function SignInPage() {
               <path strokeLinecap="round" d="M9 1v2M12 1v2M15 1v2" />
             </svg>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--link-color)] bg-clip-text text-transparent">
+          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-(--foreground) via-(--foreground) to-(--link-color) bg-clip-text text-transparent">
             Chai Charcha
           </h1>
-          <p className="text-[var(--text-secondary)] text-sm mt-2">
+          <p className="text-(--text-secondary) text-sm mt-2">
             Brew code, share thoughts, & spark discussions.
           </p>
         </div>
 
         {/* Subtitle */}
-        <h2 className="text-xl font-bold text-center text-[var(--foreground)] mb-6">
+        <h2 className="text-xl font-bold text-center text-(--foreground) mb-6">
           Welcome back!
         </h2>
 
@@ -135,7 +135,7 @@ export default function SignInPage() {
           <button
             type="button"
             onClick={() => handleSocialSignIn("google")}
-            className="flex items-center justify-center py-2.5 px-4 rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] hover:border-[var(--input-focus-border)] transition-all duration-200 font-medium text-sm cursor-pointer"
+            className="flex items-center justify-center py-2.5 px-4 rounded-xl border border-(--input-border) bg-(--input-bg) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) hover:border-(--input-focus-border) transition-all duration-200 font-medium text-sm cursor-pointer"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -148,9 +148,9 @@ export default function SignInPage() {
           <button
             type="button"
             onClick={() => handleSocialSignIn("github")}
-            className="flex items-center justify-center py-2.5 px-4 rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] hover:border-[var(--input-focus-border)] transition-all duration-200 font-medium text-sm cursor-pointer"
+            className="flex items-center justify-center py-2.5 px-4 rounded-xl border border-(--input-border) bg-(--input-bg) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) hover:border-(--input-focus-border) transition-all duration-200 font-medium text-sm cursor-pointer"
           >
-            <svg className="w-5 h-5 mr-2 text-[var(--foreground)]" viewBox="0 0 24 24" fill="currentColor">
+            <svg className="w-5 h-5 mr-2 text-(--foreground)" viewBox="0 0 24 24" fill="currentColor">
               <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.577.688.48C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
             </svg>
             GitHub
@@ -160,10 +160,10 @@ export default function SignInPage() {
         {/* Divider */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-[var(--card-border)]"></div>
+            <div className="w-full border-t border-(--card-border)"></div>
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-[var(--card-background)] px-2 text-[var(--text-secondary)]">
+            <span className="bg-(--card-background) px-2 text-(--text-secondary)">
               Or continue with
             </span>
           </div>
@@ -193,11 +193,11 @@ export default function SignInPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email or Username Input */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-(--text-secondary) mb-2">
               Email or Username
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-secondary)]/70">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-(--text-secondary)/70">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -218,7 +218,7 @@ export default function SignInPage() {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="you@domain.com or username"
-                className={`w-full pl-10 pr-4 py-3 bg-[var(--input-bg)] border ${errors.identifier ? "border-red-500" : "border-[var(--input-border)]"} rounded-xl text-[var(--foreground)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:border-[var(--input-focus-border)] focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:bg-[var(--input-focus-bg)] transition-all duration-200`}
+                className={`w-full pl-10 pr-4 py-3 bg-(--input-bg) border ${errors.identifier ? "border-red-500" : "border-(--input-border)"} rounded-xl text-(--foreground) placeholder-(--text-secondary)/50 focus:outline-none focus:border-(--input-focus-border) focus:ring-2 focus:ring-(--input-focus-ring) focus:bg-(--input-focus-bg) transition-all duration-200`}
               />
             </div>
             {errors.identifier && (
@@ -231,16 +231,16 @@ export default function SignInPage() {
           {/* Password Input */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-(--text-secondary)">
                 Password
               </label>
               {/* Placeholder for future Forgot Password integration */}
-              <span className="text-xs text-[var(--text-secondary)]/60 select-none">
+              <span className="text-xs text-(--text-secondary)/60 select-none">
                 Forgot password?
               </span>
             </div>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-secondary)]/70">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-(--text-secondary)/70">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -261,13 +261,13 @@ export default function SignInPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`w-full pl-10 pr-10 py-3 bg-[var(--input-bg)] border ${errors.password ? "border-red-500" : "border-[var(--input-border)]"} rounded-xl text-[var(--foreground)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:border-[var(--input-focus-border)] focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:bg-[var(--input-focus-bg)] transition-all duration-200`}
+                className={`w-full pl-10 pr-10 py-3 bg-(--input-bg) border ${errors.password ? "border-red-500" : "border-(--input-border)"} rounded-xl text-(--foreground) placeholder-(--text-secondary)/50 focus:outline-none focus:border-(--input-focus-border) focus:ring-2 focus:ring-(--input-focus-ring) focus:bg-(--input-focus-bg) transition-all duration-200`}
               />
               {/* Toggle Visibility */}
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--text-secondary)]/70 hover:text-[var(--foreground)] transition-colors"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-(--text-secondary)/70 hover:text-(--foreground) transition-colors"
               >
                 {showPassword ? (
                   <svg
@@ -351,11 +351,11 @@ export default function SignInPage() {
         </form>
 
         {/* Footer Switcher */}
-        <div className="mt-8 text-center text-sm text-[var(--text-secondary)] border-t border-[var(--card-border)] pt-6">
+        <div className="mt-8 text-center text-sm text-(--text-secondary) border-t border-(--card-border) pt-6">
           Don&apos;t have an account?{" "}
           <Link
             href="/auth/signup"
-            className="text-[var(--link-color)] hover:text-[var(--link-hover-color)] font-semibold transition-colors duration-200"
+            className="text-(--link-color) hover:text-(--link-hover-color) font-semibold transition-colors duration-200"
           >
             Sign Up here
           </Link>

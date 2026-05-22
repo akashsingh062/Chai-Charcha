@@ -94,6 +94,7 @@
 
 
 @theme {
+  --font-size-2xs: 0.625rem;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 

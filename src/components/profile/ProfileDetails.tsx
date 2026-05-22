@@ -46,7 +46,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user, isLoading,
           </div>
 
           {/* Stats grid */}
-          <div className="grid grid-cols-3 gap-4 border-t border-(--divider-color) pt-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-(--divider-color) pt-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="text-center space-y-2">
                 <div className="h-4 bg-(--profile-bg) rounded-md w-1/2 mx-auto"></div>
@@ -168,11 +168,11 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user, isLoading,
           )}
 
           {/* Interactive Stats Grid */}
-          <div className="grid grid-cols-3 gap-4 border-t border-(--divider-color) pt-6 mt-2">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-(--divider-color) pt-6 mt-2">
             
             {/* Reputation/Karma */}
-            <div className="text-center p-3 rounded-2xl bg-(--profile-bg)/30 border border-(--card-border) hover:border-orange/20 transition-all group">
-              <span className="block text-2xs font-extrabold text-dust-grey uppercase tracking-wider mb-1">
+            <div className="text-center p-2 sm:p-3 rounded-2xl bg-(--profile-bg)/30 border border-(--card-border) hover:border-orange/20 transition-all group">
+              <span className="block text-[9px] sm:text-2xs font-extrabold text-dust-grey uppercase tracking-wider mb-1 truncate">
                 Reputation
               </span>
               <span className="text-lg sm:text-xl font-black font-mono text-orange group-hover:scale-105 transition-transform inline-block">
@@ -181,8 +181,8 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user, isLoading,
             </div>
 
             {/* Posts Created */}
-            <div className="text-center p-3 rounded-2xl bg-(--profile-bg)/30 border border-(--card-border) hover:border-spicy-paprika/20 transition-all group">
-              <span className="block text-2xs font-extrabold text-dust-grey uppercase tracking-wider mb-1">
+            <div className="text-center p-2 sm:p-3 rounded-2xl bg-(--profile-bg)/30 border border-(--card-border) hover:border-spicy-paprika/20 transition-all group">
+              <span className="block text-[9px] sm:text-2xs font-extrabold text-dust-grey uppercase tracking-wider mb-1 truncate">
                 Charchas
               </span>
               <span className="text-lg sm:text-xl font-black font-mono text-spicy-paprika group-hover:scale-105 transition-transform inline-block">
@@ -191,8 +191,8 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user, isLoading,
             </div>
 
             {/* Communities */}
-            <div className="text-center p-3 rounded-2xl bg-(--profile-bg)/30 border border-(--card-border) hover:border-purple-500/20 transition-all group">
-              <span className="block text-2xs font-extrabold text-dust-grey uppercase tracking-wider mb-1">
+            <div className="text-center p-2 sm:p-3 rounded-2xl bg-(--profile-bg)/30 border border-(--card-border) hover:border-purple-500/20 transition-all group">
+              <span className="block text-[9px] sm:text-2xs font-extrabold text-dust-grey uppercase tracking-wider mb-1 truncate">
                 Guilds
               </span>
               <span className="text-lg sm:text-xl font-black font-mono text-purple-400 group-hover:scale-105 transition-transform inline-block">

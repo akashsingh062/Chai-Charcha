@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   // Retrieve active session from better-auth and alias to sessionData to avoid collisions
-  const { data: sessionData } = authClient.useSession(); 
+  const { data: sessionData, refetch } = authClient.useSession(); 
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -85,16 +85,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const savedAuth = localStorage.getItem("isLoggedIn");
     const timer = setTimeout(() => {
       if (savedAuth !== null) {
-        const isLoggedIn = savedAuth === "true";
-        setUserState(isLoggedIn);
-        if (isLoggedIn) {
-          setUserDataState(userData);
-        } else {
-          setUserDataState(null);
-        }
+        setUserState(savedAuth === "true");
       } else {
         setUserState(false);
-        setUserDataState(null);
       }
       setMounted(true);
     }, 0);
@@ -105,14 +98,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const setUser = (val: boolean) => {
     setUserState(val);
     localStorage.setItem("isLoggedIn", String(val));
-    if (val) {
-      setUserDataState(userData);
-    } else {
+    if (!val) {
       setUserDataState(null);
     }
   };
 
-  const login = () => setUser(true);
+  const login = () => {
+    setUser(true);
+    refetch();
+  };
   const logout = () => setUser(false);
 
   const handelSignOut = async () => {
