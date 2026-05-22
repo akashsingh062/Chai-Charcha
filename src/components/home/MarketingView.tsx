@@ -15,7 +15,12 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
         
         {/* Tagline Badge */}
         <div className="inline-flex items-center gap-1.5 rounded-full border border-spicy-paprika/30 bg-spicy-paprika/5 px-4 py-1.5 text-xs font-semibold text-spicy-paprika mb-8 animate-pulse">
-          <span>☕ India&apos;s Ultimate Dev Chai Club</span>
+          <svg className="w-3.5 h-3.5 text-spicy-paprika shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2v-4z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
+          </svg>
+          <span>India&apos;s Ultimate Dev Chai Club</span>
         </div>
 
         {/* Main Headline */}
@@ -70,8 +75,12 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Pillar 1 */}
             <div className="flex flex-col p-6 rounded-2xl border border-(--card-border) bg-(--background) hover:border-spicy-paprika/30 transition-all duration-300 group">
-              <div className="h-12 w-12 rounded-xl bg-spicy-paprika/10 flex items-center justify-center text-2xl text-spicy-paprika mb-4 group-hover:scale-110 transition-transform duration-300">
-                ☕
+              <div className="h-12 w-12 rounded-xl bg-spicy-paprika/10 flex items-center justify-center text-spicy-paprika mb-4 group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2v-4z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
+                </svg>
               </div>
               <h3 className="text-lg font-bold text-(--foreground)">Chai & Real Talks</h3>
               <p className="mt-2 text-sm text-(--text-secondary) leading-relaxed">
@@ -81,8 +90,10 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
 
             {/* Pillar 2 */}
             <div className="flex flex-col p-6 rounded-2xl border border-(--card-border) bg-(--background) hover:border-vivid-tangerine/30 transition-all duration-300 group">
-              <div className="h-12 w-12 rounded-xl bg-vivid-tangerine/10 flex items-center justify-center text-2xl text-vivid-tangerine mb-4 group-hover:scale-110 transition-transform duration-300">
-                💰
+              <div className="h-12 w-12 rounded-xl bg-vivid-tangerine/10 flex items-center justify-center text-vivid-tangerine mb-4 group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
               <h3 className="text-lg font-bold text-(--foreground)">Career Parity & Wages</h3>
               <p className="mt-2 text-sm text-(--text-secondary) leading-relaxed">
@@ -92,8 +103,11 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
 
             {/* Pillar 3 */}
             <div className="flex flex-col p-6 rounded-2xl border border-(--card-border) bg-(--background) hover:border-stormy-teal/30 transition-all duration-300 group">
-              <div className="h-12 w-12 rounded-xl bg-stormy-teal/10 flex items-center justify-center text-2xl text-stormy-teal mb-4 group-hover:scale-110 transition-transform duration-300">
-                🇮🇳
+              <div className="h-12 w-12 rounded-xl bg-stormy-teal/10 flex items-center justify-center text-stormy-teal mb-4 group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
               </div>
               <h3 className="text-lg font-bold text-(--foreground)">City Guilds & AMAs</h3>
               <p className="mt-2 text-sm text-(--text-secondary) leading-relaxed">
@@ -115,9 +129,13 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
         <div className="relative rounded-2xl border border-(--card-border) bg-(--card-background) p-4 sm:p-6 overflow-hidden">
           {/* Overlay Prompt */}
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-linear-to-t from-(--card-background) via-(--card-background)/90 to-(--card-background)/50 p-6 text-center">
-            <div className="rounded-2xl border border-(--nav-border) bg-(--nav-bg) p-8 max-w-md shadow-2xl backdrop-blur-md">
-              <span className="text-3xl">🔒</span>
-              <h3 className="text-xl font-bold mt-4 text-(--foreground)">Join the Discussion</h3>
+            <div className="rounded-2xl border border-(--nav-border) bg-(--nav-bg) p-8 max-w-md shadow-2xl backdrop-blur-md flex flex-col items-center">
+              <div className="h-12 w-12 rounded-xl bg-orange/10 border border-orange/20 flex items-center justify-center text-orange shadow-inner mb-2">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mt-2 text-(--foreground)">Join the Discussion</h3>
               <p className="mt-2 text-xs sm:text-sm text-(--text-secondary) leading-relaxed">
                 Ready to share your experiences, upvote great ideas, or ask your own burning dev questions? Log in instantly.
               </p>

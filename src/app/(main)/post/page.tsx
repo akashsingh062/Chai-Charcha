@@ -1,21 +1,67 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { SAMPLE_POSTS, Thread, Comment } from "./postData";
+import { Thread, Comment } from "./postData";
 import { CommentSection } from "../../../components/post/CommentSection";
 import { 
   insertReply, 
   updateComment, 
   removeComment, 
-  voteComment, 
+  updateCommentVote, 
   findNodeAndGetCount 
 } from "../../../components/post/commentHelpers";
+import { authClient } from "@/lib/auth-client";
+import axiosInstance from "@/lib/axios";
 
 const MyPostPage = () => {
-  const [posts, setPosts] = useState<Thread[]>(SAMPLE_POSTS);
-
+  const { data: sessionData, isPending } = authClient.useSession();
+  const [posts, setPosts] = useState<Thread[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedThreads, setExpandedThreads] = useState<Record<string, boolean>>({});
+
+  const fetchMyPosts = React.useCallback(async () => {
+    if (!sessionData?.user) return;
+    try {
+      setIsLoading(true);
+      const res = await axiosInstance.get("/api/posts");
+      if (res.data?.posts) {
+        const myPosts = res.data.posts.filter((post: Thread) => {
+          return (
+            post.author?.id === sessionData.user.id ||
+            post.author?.username === sessionData.user.username ||
+            post.author?.name === sessionData.user.name
+          );
+        });
+        setPosts(myPosts);
+      }
+    } catch (err) {
+      console.error("Error fetching my posts:", err);
+      setError("Failed to fetch discussions.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [sessionData]);
+
+  useEffect(() => {
+    if (isPending) return;
+    if (!sessionData?.user) {
+      setIsLoading(false);
+      return;
+    }
+    fetchMyPosts();
+  }, [sessionData, isPending, fetchMyPosts]);
+
+  useEffect(() => {
+    const handleNewPost = () => {
+      fetchMyPosts();
+    };
+    window.addEventListener("new-post-created", handleNewPost);
+    return () => {
+      window.removeEventListener("new-post-created", handleNewPost);
+    };
+  }, [fetchMyPosts]);
 
   const handleToggleComments = (threadId: string) => {
     setExpandedThreads((prev) => ({
@@ -24,162 +70,201 @@ const MyPostPage = () => {
     }));
   };
 
-  const handleVote = (id: string, type: "up" | "down") => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id !== id) return post;
+  const handleVote = async (id: string, type: "up" | "down") => {
+    try {
+      const res = await axiosInstance.post("/api/votes", {
+        targetId: id,
+        targetType: "Post",
+        voteType: type,
+      });
 
-        const currentVote = post.userVoted;
-        let upvoteChange = 0;
+      if (res.data?.success) {
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => {
+            if (post.id !== id) return post;
+            return {
+              ...post,
+              upvotes: res.data.score,
+              userVoted: res.data.userVoted,
+            };
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Voting error:", err);
+    }
+  };
 
-        if (type === "up") {
-          if (currentVote === "up") {
-            upvoteChange = -1;
-            return { ...post, upvotes: post.upvotes + upvoteChange, userVoted: null };
-          } else if (currentVote === "down") {
-            upvoteChange = 2;
-            return { ...post, upvotes: post.upvotes + upvoteChange, userVoted: "up" };
-          } else {
-            upvoteChange = 1;
-            return { ...post, upvotes: post.upvotes + upvoteChange, userVoted: "up" };
+  const handleAddComment = async (threadId: string, text: string) => {
+    try {
+      const res = await axiosInstance.post("/api/comments", {
+        postId: threadId,
+        content: text,
+      });
+
+      if (res.data?.comment) {
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => {
+            if (post.id !== threadId) return post;
+            const currentComments = post.comments || [];
+            return {
+              ...post,
+              commentsCount: post.commentsCount + 1,
+              comments: [...currentComments, res.data.comment],
+            };
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
+  };
+
+  const handleAddReply = async (threadId: string, commentId: string, text: string) => {
+    try {
+      const res = await axiosInstance.post("/api/comments", {
+        postId: threadId,
+        content: text,
+        parentId: commentId,
+      });
+
+      if (res.data?.comment) {
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => {
+            if (post.id !== threadId) return post;
+            const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const inserted = insertReply(updatedComments, commentId, res.data.comment);
+            if (inserted) {
+              return {
+                ...post,
+                commentsCount: post.commentsCount + 1,
+                comments: updatedComments,
+              };
+            }
+            return post;
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error adding reply:", err);
+    }
+  };
+
+  const handleEditSubmit = async (threadId: string, commentId: string, text: string) => {
+    try {
+      const res = await axiosInstance.put(`/api/comments/${commentId}`, {
+        content: text,
+      });
+
+      if (res.data?.comment) {
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => {
+            if (post.id !== threadId) return post;
+            const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const updated = updateComment(updatedComments, commentId, text);
+            if (updated) {
+              return {
+                ...post,
+                comments: updatedComments,
+              };
+            }
+            return post;
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error editing comment:", err);
+    }
+  };
+
+  const handleDeleteComment = async (threadId: string, commentId: string) => {
+    try {
+      const res = await axiosInstance.delete(`/api/comments/${commentId}`);
+      const deletedCount = res.data?.deletedCount || 1;
+
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post.id !== threadId) return post;
+          const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+          const removed = removeComment(updatedComments, commentId);
+          if (removed) {
+            return {
+              ...post,
+              commentsCount: Math.max(0, post.commentsCount - deletedCount),
+              comments: updatedComments,
+            };
           }
-        } else {
-          if (currentVote === "down") {
-            upvoteChange = 1;
-            return { ...post, upvotes: post.upvotes + upvoteChange, userVoted: null };
-          } else if (currentVote === "up") {
-            upvoteChange = -2;
-            return { ...post, upvotes: post.upvotes + upvoteChange, userVoted: "down" };
-          } else {
-            upvoteChange = -1;
-            return { ...post, upvotes: post.upvotes + upvoteChange, userVoted: "down" };
-          }
-        }
-      })
-    );
+          return post;
+        })
+      );
+    } catch (err) {
+      console.error("Error deleting comment:", err);
+    }
   };
 
-  const handleAddComment = (threadId: string, text: string) => {
-    const newComment: Comment = {
-      id: `c_${Date.now()}`,
-      author: {
-        name: "Akash Singh",
-        avatar: "AS",
-        role: "Lead Engineer",
-      },
-      content: text,
-      upvotes: 0,
-      timeAgo: "Just now",
-      replies: [],
-    };
+  const handleCommentVote = async (threadId: string, commentId: string) => {
+    try {
+      const res = await axiosInstance.post("/api/votes", {
+        targetId: commentId,
+        targetType: "Comment",
+        voteType: "up",
+      });
 
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id !== threadId) return post;
-        const currentComments = post.comments || [];
-        return {
-          ...post,
-          commentsCount: post.commentsCount + 1,
-          comments: [...currentComments, newComment],
-        };
-      })
-    );
+      if (res.data?.success) {
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => {
+            if (post.id !== threadId) return post;
+            const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const voted = updateCommentVote(updatedComments, commentId, res.data.upvotes);
+            if (voted) {
+              return {
+                ...post,
+                comments: updatedComments,
+              };
+            }
+            return post;
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error upvoting comment:", err);
+    }
   };
 
-  const handleAddReply = (threadId: string, commentId: string, text: string) => {
-    const newReply: Comment = {
-      id: `r_${Date.now()}`,
-      author: {
-        name: "Akash Singh",
-        avatar: "AS",
-        role: "Lead Engineer",
-      },
-      content: text,
-      upvotes: 0,
-      timeAgo: "Just now",
-      replies: [],
-    };
-
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id !== threadId) return post;
-        
-        const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
-        const inserted = insertReply(updatedComments, commentId, newReply);
-        
-        if (inserted) {
-          return {
-            ...post,
-            commentsCount: post.commentsCount + 1,
-            comments: updatedComments,
-          };
-        }
-        return post;
-      })
+  if (isPending || isLoading) {
+    return (
+      <div className="min-h-screen bg-(--nav-bg) text-(--foreground) flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-orange border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-dust-grey">Pouring your chai and loading discussions...</p>
+        </div>
+      </div>
     );
-  };
+  }
 
-  const handleEditSubmit = (threadId: string, commentId: string, text: string) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id !== threadId) return post;
-        
-        const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
-        const updated = updateComment(updatedComments, commentId, text);
-        
-        if (updated) {
-          return {
-            ...post,
-            comments: updatedComments,
-          };
-        }
-        return post;
-      })
+  if (!sessionData?.user) {
+    return (
+      <div className="min-h-screen bg-(--nav-bg) text-(--foreground) flex items-center justify-center p-4">
+        <div className="text-center py-16 px-6 max-w-sm rounded-2xl border border-dashed border-(--input-border) bg-(--input-bg)/30 flex flex-col items-center justify-center">
+          <div className="text-orange mb-3">
+            <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2v-4z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
+            </svg>
+          </div>
+          <h3 className="text-base font-bold mt-2 text-(--foreground)">Access Denied</h3>
+          <p className="text-xs text-(--text-secondary) mt-1">Please pull up a chair and Log In to view your charchas.</p>
+          <Link 
+            href="/auth/signin"
+            className="inline-flex items-center gap-1.5 rounded-full bg-spicy-paprika px-5 py-2.5 text-xs font-bold text-floral-white shadow-md shadow-spicy-paprika/15 mt-6 hover:bg-spicy-paprika-600 transition-all active:scale-95 cursor-pointer"
+          >
+            Log In
+          </Link>
+        </div>
+      </div>
     );
-  };
-
-  const handleDeleteComment = (threadId: string, commentId: string) => {
-    let deletedCount = 0;
-
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id !== threadId) return post;
-        
-        const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
-        deletedCount = findNodeAndGetCount(updatedComments, commentId);
-        
-        const removed = removeComment(updatedComments, commentId);
-        
-        if (removed) {
-          return {
-            ...post,
-            commentsCount: Math.max(0, post.commentsCount - deletedCount),
-            comments: updatedComments,
-          };
-        }
-        return post;
-      })
-    );
-  };
-
-  const handleCommentVote = (threadId: string, commentId: string) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id !== threadId) return post;
-        
-        const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
-        const voted = voteComment(updatedComments, commentId);
-        
-        if (voted) {
-          return {
-            ...post,
-            comments: updatedComments,
-          };
-        }
-        return post;
-      })
-    );
-  };
+  }
 
   const totalUpvotes = posts.reduce((acc, curr) => acc + curr.upvotes, 0);
   const totalViews = posts.reduce((acc, curr) => acc + curr.views, 0);
@@ -245,9 +330,15 @@ const MyPostPage = () => {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         <div className="flex flex-col gap-6">
           {posts.length === 0 ? (
-            <div className="text-center py-16 rounded-2xl border border-dashed border-(--input-border) bg-(--input-bg)/30">
-              <span className="text-4xl">☕</span>
-              <h3 className="text-base font-bold mt-4 text-(--foreground)">No charchas found</h3>
+            <div className="text-center py-16 rounded-2xl border border-dashed border-(--input-border) bg-(--input-bg)/30 flex flex-col items-center justify-center">
+              <div className="text-orange mb-3">
+                <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2v-4z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
+                </svg>
+              </div>
+              <h3 className="text-base font-bold mt-2 text-(--foreground)">No charchas found</h3>
               <p className="text-xs text-(--text-secondary) mt-1">You haven&apos;t started any conversations yet.</p>
               <Link 
                 href="/"
@@ -276,9 +367,22 @@ const MyPostPage = () => {
                       </div>
 
                       <span className={`rounded-full text-[10px] font-bold border px-2 py-0.5 ${
-                        thread.category === "Tech & Architecture"
-                          ? "bg-stormy-teal/10 text-stormy-teal border-stormy-teal/25"
-                          : "bg-spicy-paprika/10 text-spicy-paprika border-spicy-paprika/25"
+                        (() => {
+                          const cat = thread.category.toLowerCase().trim();
+                          if (cat === "tech & architecture" || cat === "tech") {
+                            return "bg-stormy-teal/10 text-stormy-teal border-stormy-teal/25";
+                          }
+                          if (cat === "career prep" || cat === "career") {
+                            return "bg-spicy-paprika/10 text-spicy-paprika border-spicy-paprika/25";
+                          }
+                          if (cat === "general charcha" || cat === "general") {
+                            return "bg-orange/10 text-orange border-orange/25";
+                          }
+                          if (cat === "showcase") {
+                            return "bg-vivid-tangerine/10 text-vivid-tangerine border-vivid-tangerine/25";
+                          }
+                          return "bg-brandy/10 text-brandy-700 border-brandy-700/25";
+                        })()
                       }`}>
                         {thread.category}
                       </span>
@@ -364,7 +468,10 @@ const MyPostPage = () => {
                           <span>{thread.commentsCount} replies</span>
                         </button>
                         
-                        <span className="hidden sm:inline font-medium text-(--text-role)">
+                        <span 
+                          title={thread.createdAt ? new Date(thread.createdAt).toLocaleString() : undefined}
+                          className="hidden sm:inline font-medium text-(--text-role) cursor-help hover:text-orange transition-colors"
+                        >
                           {thread.timeAgo}
                         </span>
                       </div>

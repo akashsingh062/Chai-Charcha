@@ -8,17 +8,24 @@ interface CreatePostModalProps {
 export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSubmit }) => {
   const [newTitle, setNewTitle] = useState("");
   const [newExcerpt, setNewExcerpt] = useState("");
-  const [newCategory, setNewCategory] = useState("Tech & Architecture");
+  const [selectedCategory, setSelectedCategory] = useState("Tech & Architecture");
+  const [customCategory, setCustomCategory] = useState("");
   const [newTagsStr, setNewTagsStr] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newExcerpt.trim()) return;
+
+    const categoryToSend = selectedCategory === "Other" ? customCategory.trim() : selectedCategory;
+    if (selectedCategory === "Other" && !customCategory.trim()) {
+      alert("Please specify a custom category name.");
+      return;
+    }
     
     onSubmit({
       title: newTitle,
       excerpt: newExcerpt,
-      category: newCategory,
+      category: categoryToSend || "General Charcha",
       tagsStr: newTagsStr,
     });
   };
@@ -64,14 +71,38 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
             <label htmlFor="category" className="text-xs font-bold text-dust-grey uppercase tracking-wider">Category</label>
             <select
               id="category"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                if (e.target.value !== "Other") {
+                  setCustomCategory("");
+                }
+              }}
               className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) cursor-pointer"
             >
-              <option value="Tech & Architecture">🛠️ Tech & Architecture</option>
-              <option value="Career Prep">💼 Career Prep</option>
+              <option value="Tech & Architecture">Tech & Architecture</option>
+              <option value="Career Prep">Career Prep</option>
+              <option value="General Charcha">General Charcha</option>
+              <option value="Showcase">Showcase</option>
+              <option value="Other">Other (Specify...)</option>
             </select>
           </div>
+
+          {/* Custom Category input */}
+          {selectedCategory === "Other" && (
+            <div className="flex flex-col gap-1.5 animate-fade-in">
+              <label htmlFor="customCategory" className="text-xs font-bold text-dust-grey uppercase tracking-wider">Specify Category</label>
+              <input
+                type="text"
+                id="customCategory"
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                placeholder="e.g. DevOps & Cloud"
+                className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) placeholder-dust-grey/50 outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) focus:ring-1 focus:ring-(--input-focus-ring)"
+                required
+              />
+            </div>
+          )}
 
           {/* Excerpt Textarea */}
           <div className="flex flex-col gap-1.5">

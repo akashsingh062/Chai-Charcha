@@ -38,6 +38,7 @@ export interface DBPost {
   downvotes: mongoose.Types.ObjectId[];
   commentCount: number;
   community?: mongoose.Types.ObjectId | null;
+  category?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -83,6 +84,7 @@ export function buildCommentTree(comments: DBComment[], parentId: string | null 
         content: comment.content,
         upvotes: comment.upvotes?.length || 0,
         timeAgo: formatTimeAgo(comment.createdAt),
+        createdAt: comment.createdAt ? comment.createdAt.toISOString() : undefined,
         replies,
       };
     });
@@ -106,12 +108,13 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
       role: post.author?.role || "Member",
       reputation: post.author?.karma || 0,
     },
-    category: "Tech & Architecture", // Mock category default matching main page display styles
+    category: post.category || "Tech & Architecture",
     tags: post.tags || [],
     upvotes: (post.upvotes?.length || 0) - (post.downvotes?.length || 0), // Net score
     commentsCount: post.commentCount || 0,
     views: 120, // Static mock for view metrics
     timeAgo: formatTimeAgo(post.createdAt),
+    createdAt: post.createdAt ? post.createdAt.toISOString() : undefined,
     userVoted,
     comments: buildCommentTree(commentsList),
   };

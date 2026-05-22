@@ -43,8 +43,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="#meetups" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
-                  Local Meetups 🇮🇳
+                <Link href="#meetups" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors flex items-center gap-1">
+                  <span>Local Meetups</span>
+                  <svg className="w-3 h-3 text-dust-grey shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
                 </Link>
               </li>
               <li>
@@ -149,7 +153,15 @@ const Footer = () => {
 
         <div className="mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] text-dust-grey">
           <div className="flex items-center gap-2">
-            <span>© 2026 Chai Charcha. Crafted with ☕ for Indian Developers.</span>
+            <span className="flex items-center gap-1">
+              © 2026 Chai Charcha. Crafted with
+              <svg className="w-3.5 h-3.5 text-orange shrink-0 inline-block align-text-bottom mx-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2v-4z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
+              </svg>
+              for Indian Developers.
+            </span>
           </div>
           
           <div className="flex items-center gap-4">

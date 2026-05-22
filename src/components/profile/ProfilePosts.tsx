@@ -148,9 +148,15 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
 
   if (posts.length === 0) {
     return (
-      <div className="text-center py-12 px-6 rounded-2xl border border-dashed border-(--card-border) bg-(--card-background)/30">
-        <span className="text-3xl">☕</span>
-        <h3 className="text-base font-bold mt-4 text-(--foreground)">No charchas yet</h3>
+      <div className="text-center py-12 px-6 rounded-2xl border border-dashed border-(--card-border) bg-(--card-background)/30 flex flex-col items-center justify-center">
+        <div className="text-orange mb-2">
+          <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2v-4z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
+          </svg>
+        </div>
+        <h3 className="text-base font-bold mt-2 text-(--foreground)">No charchas yet</h3>
         <p className="text-xs text-dust-grey mt-2 max-w-xs mx-auto leading-relaxed">
           You haven&apos;t started any technical discussions yet. Head over to the home page to start a new charcha!
         </p>
@@ -257,7 +263,12 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
                 </svg>
                 <span>{post.commentsCount} replies</span>
               </span>
-              <span>{post.timeAgo}</span>
+              <span 
+                title={post.createdAt ? new Date(post.createdAt).toLocaleString() : undefined}
+                className="cursor-help hover:text-orange transition-colors"
+              >
+                {post.timeAgo}
+              </span>
             </div>
           </div>
         </article>

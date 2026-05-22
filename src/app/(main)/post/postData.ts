@@ -8,6 +8,7 @@ export interface Comment {
   content: string;
   upvotes: number;
   timeAgo: string;
+  createdAt?: string;
   replies?: Comment[];
 }
 
@@ -29,6 +30,7 @@ export interface Thread {
   commentsCount: number;
   views: number;
   timeAgo: string;
+  createdAt?: string;
   userVoted?: "up" | "down" | null;
   comments?: Comment[];
 }

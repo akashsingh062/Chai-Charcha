@@ -57,7 +57,7 @@ export async function POST(req: Request) {
           post.downvotes = post.downvotes.filter((id) => !id.equals(userIdObj));
         } else {
           // Add downvote, remove upvote if present
-          post.downvotes = post.downvotes.filter((id) => !id.equals(userIdObj));
+          post.downvotes.push(userIdObj);
           post.upvotes = post.upvotes.filter((id) => !id.equals(userIdObj));
         }
       }

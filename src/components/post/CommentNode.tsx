@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Comment } from "../../app/(main)/post/postData";
 
 export interface CommentNodeProps {
@@ -36,6 +36,7 @@ export const CommentNode = ({
 }: CommentNodeProps) => {
   const isEditing = activeEditCommentId === comment.id;
   const isReplying = activeReplyCommentId === comment.id;
+  const [showReplies, setShowReplies] = useState(true);
 
   // Track draft values locally
   const replyVal = replyInputs[comment.id] || "";
@@ -74,7 +75,7 @@ export const CommentNode = ({
           >
             {comment.author.avatar}
           </div>
-          {comment.replies && comment.replies.length > 0 && (
+          {comment.replies && comment.replies.length > 0 && showReplies && (
             <div className="w-0.5 flex-1 bg-linear-to-b from-orange/20 to-transparent my-1 border-dashed border-l border-orange/10 group-hover:from-orange/30 transition-all duration-300" />
           )}
         </div>
@@ -98,7 +99,12 @@ export const CommentNode = ({
                 {comment.author.role}
               </span>
             </div>
-            <span className="text-[8.5px] text-(--text-role) font-mono">{comment.timeAgo}</span>
+            <span 
+              title={comment.createdAt ? new Date(comment.createdAt).toLocaleString() : undefined}
+              className="text-[8.5px] text-(--text-role) font-mono cursor-help hover:text-orange transition-colors"
+            >
+              {comment.timeAgo}
+            </span>
           </div>
 
           {isEditing ? (
@@ -154,6 +160,15 @@ export const CommentNode = ({
                   </svg>
                   <span>Reply</span>
                 </button>
+
+                {comment.replies && comment.replies.length > 0 && (
+                  <button 
+                    onClick={() => setShowReplies(!showReplies)}
+                    className="flex items-center gap-1 text-[9.5px] font-bold text-(--text-role) hover:text-orange transition-all cursor-pointer bg-(--nav-bg)/90 hover:bg-orange/10 hover:border-orange/20 px-3 py-1 rounded-full border border-(--input-border)/50 shadow-3xs"
+                  >
+                    <span>{showReplies ? "▲ Hide Replies" : `▼ Show Replies (${comment.replies.length})`}</span>
+                  </button>
+                )}
               </div>
 
               <div className="flex items-center gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -212,7 +227,7 @@ export const CommentNode = ({
         </form>
       )}
 
-      {comment.replies && comment.replies.length > 0 && (
+      {comment.replies && comment.replies.length > 0 && showReplies && (
         <div className="flex flex-col gap-4 mt-1.5 ml-4 pl-7 border-l-2 border-dashed border-orange/15 hover:border-orange/25 transition-colors duration-300">
           {comment.replies.map((reply) => (
             <CommentNode 

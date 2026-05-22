@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
-  const { user, userData, handelSignOut } = useAuth();
+  const { user, userData, handelSignOut, setIsCreatePostOpen } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -132,7 +132,7 @@ const Navbar = () => {
               <div className="flex items-center gap-4">
                 {/* Create Post Button */}
                 <button 
-                  onClick={() => alert("Simulated: Create Post Clicked!")}
+                  onClick={() => setIsCreatePostOpen(true)}
                   className="flex items-center gap-1.5 rounded-full bg-spicy-paprika px-4 py-2 text-sm font-semibold text-floral-white shadow-lg shadow-spicy-paprika/20 transition-all duration-200 hover:bg-spicy-paprika-600 hover:shadow-spicy-paprika/30 active:scale-95 cursor-pointer"
                 >
                   <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
@@ -310,7 +310,7 @@ const Navbar = () => {
                 <hr className="border-(--divider-color)" />
 
                 <button 
-                  onClick={() => { alert("Simulated: Create Post Clicked!"); setMobileMenuOpen(false); }}
+                  onClick={() => { setIsCreatePostOpen(true); setMobileMenuOpen(false); }}
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-spicy-paprika py-3 text-sm font-semibold text-floral-white shadow-md shadow-spicy-paprika/15 transition-all active:scale-95 cursor-pointer"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">

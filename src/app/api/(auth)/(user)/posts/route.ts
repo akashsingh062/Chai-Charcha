@@ -82,6 +82,7 @@ export async function POST(req: Request) {
       content: validatedData.data.content,
       media: validatedData.data.media || [],
       tags: validatedData.data.tags || [],
+      category: validatedData.data.category || "Tech & Architecture",
       community: validatedData.data.community || null,
       upvotes: [],
       downvotes: [],

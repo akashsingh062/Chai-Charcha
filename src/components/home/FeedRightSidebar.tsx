@@ -48,9 +48,15 @@ export const FeedRightSidebar: React.FC = () => {
         </div>
       </div>
 
-      {/* Chai Break News snippet */}
       <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300 text-2xs leading-relaxed text-(--text-secondary)">
-        <span className="font-bold text-(--foreground)">☕ Chai Break News:</span> In 2026, global remote developer hires in India grew by 45% with major focus on Rust and Next.js frontend core performance. Keep coding!
+        <span className="font-bold text-(--foreground) inline-flex items-center gap-1.5 mb-1">
+          <svg className="w-3.5 h-3.5 text-orange shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2v-4z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
+          </svg>
+          <span>Chai Break News:</span>
+        </span> In 2026, global remote developer hires in India grew by 45% with major focus on Rust and Next.js frontend core performance. Keep coding!
       </div>
     </aside>
   );

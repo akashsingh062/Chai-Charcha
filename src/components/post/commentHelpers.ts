@@ -100,3 +100,20 @@ export const findNodeAndGetCount = (nodes: Comment[], targetId: string): number 
   }
   return 0;
 };
+
+/**
+ * Recursively updates the upvote count of a comment at targetId to the exact count.
+ */
+export const updateCommentVote = (comments: Comment[], targetId: string, exactUpvotes: number): boolean => {
+  for (let i = 0; i < comments.length; i++) {
+    if (comments[i].id === targetId) {
+      comments[i].upvotes = exactUpvotes;
+      return true;
+    }
+    if (comments[i].replies && comments[i].replies!.length > 0) {
+      const found = updateCommentVote(comments[i].replies!, targetId, exactUpvotes);
+      if (found) return true;
+    }
+  }
+  return false;
+};

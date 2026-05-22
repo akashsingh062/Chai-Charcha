@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { AuthProvider } from "@/context/AuthContext";
+import { GlobalCreatePostModal } from "@/components/shared/GlobalCreatePostModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,6 +57,7 @@ export default function RootLayout({
         <AuthProvider>
           <Navbar />
           {children}
+          <GlobalCreatePostModal />
           <Footer />
         </AuthProvider>
       </body>

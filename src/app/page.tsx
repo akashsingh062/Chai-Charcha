@@ -1,87 +1,241 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Thread } from "@/app/(main)/post/postData";
 import { MarketingView } from "@/components/home/MarketingView";
 import { FeedSidebar } from "@/components/home/FeedSidebar";
 import { FeedRightSidebar } from "@/components/home/FeedRightSidebar";
-import { CreatePostModal } from "@/components/home/CreatePostModal";
 import { DiscussionFeed } from "@/components/home/DiscussionFeed";
-import { INITIAL_THREADS } from "@/components/home/initialThreads";
+import axiosInstance from "@/lib/axios";
+import { 
+  insertReply, 
+  updateComment, 
+  removeComment, 
+  updateCommentVote 
+} from "@/components/post/commentHelpers";
 
 export default function Home() {
-  const { user, login, userData } = useAuth();
-  const [threads, setThreads] = useState<Thread[]>(INITIAL_THREADS);
+  const { user, login, userData, setIsCreatePostOpen } = useAuth();
+  const [threads, setThreads] = useState<Thread[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<"trending" | "recent">("trending");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loadPosts = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await axiosInstance.get("/api/posts");
+      if (res.data?.posts) {
+        setThreads(res.data.posts);
+      }
+    } catch (err) {
+      console.error("Error loading posts:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    loadPosts();
+  }, [user, loadPosts]);
+
+  useEffect(() => {
+    const handleNewPost = () => {
+      loadPosts();
+    };
+    window.addEventListener("new-post-created", handleNewPost);
+    return () => {
+      window.removeEventListener("new-post-created", handleNewPost);
+    };
+  }, [loadPosts]);
 
   // Handle Dynamic Upvote/Downvote actions
-  const handleVote = (id: string, type: "up" | "down") => {
+  const handleVote = async (id: string, type: "up" | "down") => {
     if (!user) {
       alert("Please pull up a chair and Log In to vote!");
       return;
     }
 
-    setThreads((prevThreads) =>
-      prevThreads.map((t) => {
-        if (t.id !== id) return t;
+    try {
+      const res = await axiosInstance.post("/api/votes", {
+        targetId: id,
+        targetType: "Post",
+        voteType: type,
+      });
 
-        let voteDiff = 0;
-        let nextVote: "up" | "down" | null = null;
-
-        if (t.userVoted === type) {
-          // Undo vote
-          voteDiff = type === "up" ? -1 : 1;
-          nextVote = null;
-        } else {
-          // Applying vote or reversing opposite vote
-          const originalVoteVal = t.userVoted === "up" ? -1 : t.userVoted === "down" ? 1 : 0;
-          const newVoteVal = type === "up" ? 1 : -1;
-          voteDiff = originalVoteVal + newVoteVal;
-          nextVote = type;
-        }
-
-        return {
-          ...t,
-          upvotes: t.upvotes + voteDiff,
-          userVoted: nextVote,
-        };
-      })
-    );
+      if (res.data?.success) {
+        setThreads((prevThreads) =>
+          prevThreads.map((t) => {
+            if (t.id !== id) return t;
+            return {
+              ...t,
+              upvotes: res.data.score,
+              userVoted: res.data.userVoted,
+            };
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error submitting vote:", err);
+    }
   };
 
-  // Handle Thread Submission
-  const handleCreatePost = (post: { title: string; excerpt: string; category: string; tagsStr: string }) => {
-    const tagsArray = post.tagsStr
-      .split(",")
-      .map((t) => t.trim().toLowerCase())
-      .filter((t) => t.length > 0);
+  const handleAddComment = async (threadId: string, text: string) => {
+    try {
+      const res = await axiosInstance.post("/api/comments", {
+        postId: threadId,
+        content: text,
+      });
 
-    const newThread: Thread = {
-      id: String(Date.now()),
-      title: post.title,
-      excerpt: post.excerpt,
-      author: {
-        name: userData?.name || "Developer",
-        avatar: userData?.avatar || "JD",
-        role: userData?.role || "member",
-        reputation: userData?.reputation !== undefined ? userData.reputation : 342,
-      },
-      category: post.category,
-      tags: tagsArray.length > 0 ? tagsArray : ["general"],
-      upvotes: 1,
-      commentsCount: 0,
-      views: 12,
-      timeAgo: "Just now",
-      userVoted: "up",
-    };
-
-    setThreads([newThread, ...threads]);
-    setIsModalOpen(false);
+      if (res.data?.comment) {
+        setThreads((prevThreads) =>
+          prevThreads.map((post) => {
+            if (post.id !== threadId) return post;
+            const currentComments = post.comments || [];
+            return {
+              ...post,
+              commentsCount: post.commentsCount + 1,
+              comments: [...currentComments, res.data.comment],
+            };
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
   };
+
+  const handleAddReply = async (threadId: string, commentId: string, text: string) => {
+    try {
+      const res = await axiosInstance.post("/api/comments", {
+        postId: threadId,
+        content: text,
+        parentId: commentId,
+      });
+
+      if (res.data?.comment) {
+        setThreads((prevThreads) =>
+          prevThreads.map((post) => {
+            if (post.id !== threadId) return post;
+            const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const inserted = insertReply(updatedComments, commentId, res.data.comment);
+            if (inserted) {
+              return {
+                ...post,
+                commentsCount: post.commentsCount + 1,
+                comments: updatedComments,
+              };
+            }
+            return post;
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error adding reply:", err);
+    }
+  };
+
+  const handleEditSubmit = async (threadId: string, commentId: string, text: string) => {
+    try {
+      const res = await axiosInstance.put(`/api/comments/${commentId}`, {
+        content: text,
+      });
+
+      if (res.data?.comment) {
+        setThreads((prevThreads) =>
+          prevThreads.map((post) => {
+            if (post.id !== threadId) return post;
+            const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const updated = updateComment(updatedComments, commentId, text);
+            if (updated) {
+              return {
+                ...post,
+                comments: updatedComments,
+              };
+            }
+            return post;
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error editing comment:", err);
+    }
+  };
+
+  const handleDeleteComment = async (threadId: string, commentId: string) => {
+    try {
+      const res = await axiosInstance.delete(`/api/comments/${commentId}`);
+      const deletedCount = res.data?.deletedCount || 1;
+
+      setThreads((prevThreads) =>
+        prevThreads.map((post) => {
+          if (post.id !== threadId) return post;
+          const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+          const removed = removeComment(updatedComments, commentId);
+          if (removed) {
+            return {
+              ...post,
+              commentsCount: Math.max(0, post.commentsCount - deletedCount),
+              comments: updatedComments,
+            };
+          }
+          return post;
+        })
+      );
+    } catch (err) {
+      console.error("Error deleting comment:", err);
+    }
+  };
+
+  const handleCommentVote = async (threadId: string, commentId: string) => {
+    try {
+      const res = await axiosInstance.post("/api/votes", {
+        targetId: commentId,
+        targetType: "Comment",
+        voteType: "up",
+      });
+
+      if (res.data?.success) {
+        setThreads((prevThreads) =>
+          prevThreads.map((post) => {
+            if (post.id !== threadId) return post;
+            const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const voted = updateCommentVote(updatedComments, commentId, res.data.upvotes);
+            if (voted) {
+              return {
+                ...post,
+                comments: updatedComments,
+              };
+            }
+            return post;
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error upvoting comment:", err);
+    }
+  };
+
+  // Dynamic categories calculation
+  const defaultCategories = ["All", "Tech & Architecture", "Career Prep", "General Charcha", "Showcase"];
+  const extraCategories = Array.from(new Set(threads.map((t) => t.category).filter(Boolean)));
+  const categoriesList = Array.from(new Set([...defaultCategories, ...extraCategories]));
+
+  const categoryCounts = threads.reduce((acc, t) => {
+    if (t.category) {
+      acc[t.category] = (acc[t.category] || 0) + 1;
+    }
+    return acc;
+  }, { "All": threads.length } as Record<string, number>);
+
+  categoriesList.forEach((cat) => {
+    if (categoryCounts[cat] === undefined) {
+      categoryCounts[cat] = 0;
+    }
+  });
 
   // Filter and Sort threads
   const filteredThreads = threads
@@ -95,9 +249,19 @@ export default function Home() {
     })
     .sort((a, b) => {
       if (sortBy === "trending") {
-        return b.upvotes - a.upvotes;
+        if (b.upvotes !== a.upvotes) {
+          return b.upvotes - a.upvotes;
+        }
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return timeB - timeA;
       }
-      return 0; // Natural state / chronological
+      if (sortBy === "recent") {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return timeB - timeA;
+      }
+      return 0;
     });
 
   return (
@@ -118,9 +282,8 @@ export default function Home() {
               setActiveCategory={setActiveCategory}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
-              threadsCountAll={threads.length}
-              threadsCountTech={threads.filter((t) => t.category === "Tech & Architecture").length}
-              threadsCountCareer={threads.filter((t) => t.category === "Career Prep").length}
+              categories={categoriesList}
+              categoryCounts={categoryCounts}
             />
 
             {/* CENTER COLUMN: MAIN FEED (6 Cols on large) */}
@@ -130,8 +293,13 @@ export default function Home() {
               setSortBy={setSortBy}
               onVote={handleVote}
               onTagClick={(tag) => setSearchQuery(tag)}
-              onStartCharcha={() => setIsModalOpen(true)}
+              onStartCharcha={() => setIsCreatePostOpen(true)}
               userData={userData}
+              onAddComment={handleAddComment}
+              onAddReply={handleAddReply}
+              onEditSubmit={handleEditSubmit}
+              onDeleteComment={handleDeleteComment}
+              onCommentVote={handleCommentVote}
             />
 
             {/* RIGHT COLUMN: SIDEBAR WIDGETS (3 Cols on large) */}
@@ -139,14 +307,6 @@ export default function Home() {
 
           </div>
         </div>
-      )}
-
-      {/* 3. DYNAMIC POST CREATION MODAL CONTAINER */}
-      {isModalOpen && (
-        <CreatePostModal
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleCreatePost}
-        />
       )}
 
     </div>

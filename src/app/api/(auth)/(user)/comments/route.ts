@@ -102,6 +102,7 @@ export async function POST(req: Request) {
       content: populatedComment.content,
       upvotes: populatedComment.upvotes?.length || 0,
       timeAgo: formatTimeAgo(populatedComment.createdAt),
+      createdAt: populatedComment.createdAt ? populatedComment.createdAt.toISOString() : undefined,
       replies: [],
     };
 

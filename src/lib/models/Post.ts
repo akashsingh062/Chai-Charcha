@@ -10,6 +10,7 @@ export interface Post extends Document {
     downvotes: mongoose.Types.ObjectId[];
     commentCount: number;
     community?: mongoose.Types.ObjectId | null;
+    category?: string;
 }
 
 export const PostSchema = new Schema<Post>({
@@ -50,6 +51,10 @@ export const PostSchema = new Schema<Post>({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Community',
         default: null
+    },
+    category: {
+        type: String,
+        default: 'Tech & Architecture'
     }
 }, { timestamps: true });
 

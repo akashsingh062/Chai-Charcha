@@ -57,8 +57,11 @@ export const AccountDetailsTab: React.FC<AccountDetailsTabProps> = ({ user }) =>
             <span className="block text-2xs font-extrabold text-dust-grey uppercase tracking-wider">
               System Role
             </span>
-            <span className="font-bold text-orange capitalize block py-2.5 px-4 bg-(--profile-bg)/30 rounded-xl border border-(--card-border)">
-              🛡️ {user.role || "Member"}
+            <span className="font-bold text-orange capitalize flex items-center gap-1.5 py-2.5 px-4 bg-(--profile-bg)/30 rounded-xl border border-(--card-border)">
+              <svg className="w-4 h-4 text-orange shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+              <span>{user.role || "Member"}</span>
             </span>
           </div>
 
@@ -67,8 +70,13 @@ export const AccountDetailsTab: React.FC<AccountDetailsTabProps> = ({ user }) =>
             <span className="block text-2xs font-extrabold text-dust-grey uppercase tracking-wider">
               Karma Reputation Score
             </span>
-            <span className="font-bold text-spicy-paprika block py-2.5 px-4 bg-(--profile-bg)/30 rounded-xl border border-(--card-border)">
-              ☕ {user.karma || 0} Points
+            <span className="font-bold text-spicy-paprika flex items-center gap-1.5 py-2.5 px-4 bg-(--profile-bg)/30 rounded-xl border border-(--card-border)">
+              <svg className="w-4 h-4 text-spicy-paprika shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2v-4z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
+              </svg>
+              <span>{user.karma || 0} Points</span>
             </span>
           </div>
         </div>

@@ -18,12 +18,11 @@ export const postSchema = z.object({
     
     tags: z.array(
         z.string()
-            .min(2, "Tag must be at least 2 characters")
-            .max(25, "Tag must be at most 25 characters")
-            .regex(/^[a-zA-Z0-9_-]+$/, "Tags must contain only letters, numbers, hyphens, and underscores")
+            .min(1, "Tag must be at least 1 character")
+            .max(30, "Tag must be at most 30 characters")
             .trim()
             .lowercase()
-    ).max(5, "You can assign up to 5 tags only").optional().default([]),
+    ).max(10, "You can assign up to 10 tags only").optional().default(["general"]),
     
     community: z.string({
         message: "Community ID must be a valid string"
@@ -31,6 +30,12 @@ export const postSchema = z.object({
         .regex(objectIdRegex, "Invalid Community ID")
         .optional()
         .nullable(),
+    
+    category: z.string({
+        message: "Category must be a valid string"
+    })
+        .optional()
+        .default("Tech & Architecture"),
     
     media: z.array(
         z.string().url("Invalid media URL")

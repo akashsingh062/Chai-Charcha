@@ -39,6 +39,8 @@ interface AuthContextType {
   login: () => void;
   logout: () => void;
   handelSignOut: () => Promise<void>;
+  isCreatePostOpen: boolean;
+  setIsCreatePostOpen: (val: boolean) => void;
 }
 
 // Auth Context
@@ -50,6 +52,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUserState] = useState<boolean>(false);
   const [userData, setUserDataState] = useState<UserProfile | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -129,6 +132,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     login,
     logout,
     handelSignOut,
+    isCreatePostOpen,
+    setIsCreatePostOpen,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

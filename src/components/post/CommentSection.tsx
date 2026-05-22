@@ -24,6 +24,25 @@ export const CommentSection = ({
   const [activeEditCommentId, setActiveEditCommentId] = useState<string | null>(null);
   const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
   const [editInputs, setEditInputs] = useState<Record<string, string>>({});
+  const [commentSort, setCommentSort] = useState<"top" | "newest" | "oldest">("top");
+
+  const sortedComments = React.useMemo(() => {
+    if (!thread.comments) return [];
+    return [...thread.comments].sort((a, b) => {
+      if (commentSort === "top") {
+        return b.upvotes - a.upvotes;
+      }
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      if (commentSort === "newest") {
+        return dateB - dateA;
+      }
+      if (commentSort === "oldest") {
+        return dateA - dateB;
+      }
+      return 0;
+    });
+  }, [thread.comments, commentSort]);
 
   const handleAddCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,39 +71,89 @@ export const CommentSection = ({
 
   return (
     <div className="mt-4 pt-4 border-t border-(--input-border)/50 flex flex-col gap-4 animate-fade-in">
-      <h4 className="text-xs font-black uppercase tracking-widest text-orange flex items-center gap-1.5 pl-1 mb-1">
-        <span>💬</span> Discussion Thread ({thread.commentsCount} comments)
-      </h4>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-1">
+        <h4 className="text-xs font-black uppercase tracking-widest text-orange flex items-center gap-2 pl-1">
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.92 1.613c-.46.505-.15 1.37.536 1.24A9.101 9.101 0 0012 20.25z" />
+          </svg>
+          Discussion Thread ({thread.commentsCount} comments)
+        </h4>
+
+        {/* Comment sorting filters */}
+        {thread.comments && thread.comments.length > 0 && (
+          <div className="flex items-center gap-1 bg-(--input-bg)/40 p-0.5 rounded-lg border border-(--input-border)/40 text-[10px] font-bold self-start sm:self-auto shadow-3xs">
+            <button
+              type="button"
+              onClick={() => setCommentSort("top")}
+              className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                commentSort === "top"
+                  ? "bg-orange text-ink-black shadow-xs"
+                  : "text-(--text-role) hover:text-(--foreground)"
+              }`}
+            >
+              Top Liked
+            </button>
+            <button
+              type="button"
+              onClick={() => setCommentSort("newest")}
+              className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                commentSort === "newest"
+                  ? "bg-orange text-ink-black shadow-xs"
+                  : "text-(--text-role) hover:text-(--foreground)"
+              }`}
+            >
+              Newest
+            </button>
+            <button
+              type="button"
+              onClick={() => setCommentSort("oldest")}
+              className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                commentSort === "oldest"
+                  ? "bg-orange text-ink-black shadow-xs"
+                  : "text-(--text-role) hover:text-(--foreground)"
+              }`}
+            >
+              Oldest
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Primary Comment Input Form */}
       <form 
-        onSubmit={handleAddCommentSubmit} 
-        className="flex items-center gap-2 bg-(--input-bg)/30 p-2 rounded-xl border border-(--input-border)/50 focus-within:border-orange transition-all"
-      >
+         onSubmit={handleAddCommentSubmit} 
+         className="flex items-center gap-2 bg-(--input-bg)/30 p-2 rounded-xl border border-(--input-border)/50 focus-within:border-orange transition-all"
+       >
         <input 
-          type="text" 
-          value={newCommentText}
-          onChange={(e) => setNewCommentText(e.target.value)}
-          placeholder="Ignite a charcha reply..."
-          className="flex-1 bg-transparent px-2.5 py-1 text-xs text-(--foreground) placeholder-dust-grey/70 outline-none"
-        />
+           type="text" 
+           value={newCommentText}
+           onChange={(e) => setNewCommentText(e.target.value)}
+           placeholder="Ignite a charcha reply..."
+           className="flex-1 bg-transparent px-2.5 py-1 text-xs text-(--foreground) placeholder-dust-grey/70 outline-none"
+         />
         <button 
-          type="submit"
-          className="rounded-full bg-orange px-4 py-2 text-xs font-bold text-ink-black shadow-md hover:bg-orange-600 transition-all cursor-pointer"
-        >
+           type="submit"
+           className="rounded-full bg-orange px-4 py-2 text-xs font-bold text-ink-black shadow-md hover:bg-orange-600 transition-all cursor-pointer"
+         >
           Comment
         </button>
       </form>
 
       {/* Recursive Comments list */}
       <div className="flex flex-col gap-4 mt-2">
-        {!thread.comments || thread.comments.length === 0 ? (
-          <div className="text-center py-8 rounded-xl border border-dashed border-(--input-border)/40 bg-(--input-bg)/10">
-            <span className="text-xl">☕</span>
-            <p className="text-[11px] text-(--text-role) italic mt-1.5">No charcha replies yet. Be the first to spark a debate!</p>
+        {sortedComments.length === 0 ? (
+          <div className="text-center py-8 rounded-xl border border-dashed border-(--input-border)/40 bg-(--input-bg)/10 flex flex-col items-center justify-center">
+            <div className="text-orange/60 mb-1.5">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2v-4z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
+              </svg>
+            </div>
+            <p className="text-[11px] text-(--text-role) italic mt-1">No charcha replies yet. Be the first to spark a debate!</p>
           </div>
         ) : (
-          thread.comments.map((comment) => (
+          sortedComments.map((comment) => (
             <CommentNode 
               key={comment.id}
               comment={comment}
