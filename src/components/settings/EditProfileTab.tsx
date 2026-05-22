@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { profileUpdateSchema } from "@/lib/Schemas/profileUpdateSchema";
 import { useAuth } from "@/context/AuthContext";
+import { DbUser } from "@/types/user";
 
 interface EditProfileTabProps {
-  user: any;
-  onProfileUpdate: (updatedUser: any) => void;
+  user: DbUser | null;
+  onProfileUpdate: (updatedUser: DbUser) => void;
   setSuccessMessage: (msg: string) => void;
   setGlobalError: (msg: string) => void;
 }
@@ -19,34 +20,21 @@ export const EditProfileTab: React.FC<EditProfileTabProps> = ({
 }) => {
   const { login } = useAuth();
 
-  // Form states
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [bio, setBio] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [seed, setSeed] = useState("");
+  // Form states initialized directly from user prop
+  const [name, setName] = useState(user?.name || "");
+  const [username, setUsername] = useState(user?.username || "");
+  const [bio, setBio] = useState(user?.bio || "");
+  const [avatar, setAvatar] = useState(user?.avatar || "");
+  const [seed, setSeed] = useState(() => {
+    const avatarUrl = user?.avatar || "";
+    const dicebearMatch = avatarUrl.match(/api\.dicebear\.com\/.*?\/svg\?seed=(.*)/);
+    return dicebearMatch && dicebearMatch[1] ? decodeURIComponent(dicebearMatch[1]) : "";
+  });
 
   // UI/Request states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Sync state with loaded user prop
-  useEffect(() => {
-    if (user) {
-      setName(user.name || "");
-      setUsername(user.username || "");
-      setBio(user.bio || "");
-      
-      const avatarUrl = user.avatar || "";
-      setAvatar(avatarUrl);
-      
-      const dicebearMatch = avatarUrl.match(/api\.dicebear\.com\/.*?\/svg\?seed=(.*)/);
-      if (dicebearMatch && dicebearMatch[1]) {
-        setSeed(decodeURIComponent(dicebearMatch[1]));
-      }
-    }
-  }, [user]);
 
   // Sync avatar url when seed changes
   const handleSeedChange = (newSeed: string) => {

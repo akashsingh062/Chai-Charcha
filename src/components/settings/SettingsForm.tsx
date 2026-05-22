@@ -1,22 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { EditProfileTab } from "./EditProfileTab";
 import { AccountDetailsTab } from "./AccountDetailsTab";
 import { PreferencesTab } from "./PreferencesTab";
 import { DangerZoneTab } from "./DangerZoneTab";
+import { DbUser } from "@/types/user";
 
 export const SettingsForm = () => {
-  const router = useRouter();
-  const { login, handelSignOut } = useAuth();
+  const { handelSignOut } = useAuth();
 
   // Active tab state
   const [activeTab, setActiveTab] = useState<"profile" | "account" | "preferences" | "danger">("profile");
 
   // DB User object
-  const [dbUser, setDbUser] = useState<any>(null);
+  const [dbUser, setDbUser] = useState<DbUser | null>(null);
 
   // UI/Request states
   const [isLoading, setIsLoading] = useState(true);
@@ -151,6 +150,7 @@ export const SettingsForm = () => {
           {/* TAB 1: PROFILE CUSTOMIZATION */}
           {activeTab === "profile" && (
             <EditProfileTab
+              key={dbUser?.username || "loading"}
               user={dbUser}
               onProfileUpdate={(updatedUser) => setDbUser(updatedUser)}
               setSuccessMessage={setSuccessMessage}
