@@ -50,7 +50,7 @@ const Navbar = () => {
   
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-[var(--nav-bg)] border-b border-[var(--nav-border)] text-[var(--foreground)] shadow-lg backdrop-blur-md transition-all duration-300">
+    <nav className="sticky top-0 z-50 w-full bg-(--nav-bg) border-b border-(--nav-border) text-(--foreground) shadow-lg backdrop-blur-md transition-all duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
@@ -67,10 +67,10 @@ const Navbar = () => {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold tracking-tight text-[var(--foreground)] group-hover:text-vivid-tangerine transition-colors duration-300 sm:text-2xl">
+                <span className="text-xl font-bold tracking-tight text-(--foreground) group-hover:text-vivid-tangerine transition-colors duration-300 sm:text-2xl">
                   Chai <span className="text-spicy-paprika">Charcha</span>
                 </span>
-                <span className="hidden sm:inline text-[9px] font-mono tracking-widest text-[var(--nav-subtitle)] uppercase">
+                <span className="hidden sm:inline text-[9px] font-mono tracking-widest text-(--nav-subtitle) uppercase">
                   Indian Developer Forum
                 </span>
               </div>
@@ -99,7 +99,7 @@ const Navbar = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search threads, tags, or developers..."
-                className="block w-full rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] py-2.5 pl-10 pr-4 text-sm text-[var(--foreground)] placeholder-dust-grey/70 outline-none transition-all duration-200 focus:border-[var(--input-focus-border)] focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:bg-[var(--input-focus-bg)]"
+                className="block w-full rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 pl-10 pr-4 text-sm text-(--foreground) placeholder-dust-grey/70 outline-none transition-all duration-200 focus:border-(--input-focus-border) focus:ring-2 focus:ring-(--input-focus-ring) focus:bg-(--input-focus-bg)"
               />
             </div>
           </form>
@@ -110,7 +110,7 @@ const Navbar = () => {
             {/* Theme Toggle Button */}
             <button 
               onClick={toggleTheme}
-              className="rounded-full p-2.5 text-[var(--btn-icon-text)] hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-all duration-200 cursor-pointer"
+              className="rounded-full p-2.5 text-(--btn-icon-text) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-all duration-200 cursor-pointer"
               aria-label="Toggle Theme"
             >
               {!mounted ? (
@@ -144,7 +144,7 @@ const Navbar = () => {
                 {/* Notifications Button */}
                 <button 
                   onClick={() => alert("Simulated: Notifications Clicked!")}
-                  className="relative rounded-full p-2.5 text-[var(--btn-icon-text)] hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-all duration-200 cursor-pointer"
+                  className="relative rounded-full p-2.5 text-(--btn-icon-text) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-all duration-200 cursor-pointer"
                 >
                   <svg className="h-5.5 w-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
@@ -159,33 +159,37 @@ const Navbar = () => {
                 <div className="relative">
                   <button 
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                    className="flex items-center gap-2 rounded-full border border-[var(--profile-border)] bg-[var(--profile-bg)] p-1.5 pr-3 transition-all duration-200 hover:border-[var(--profile-hover-border)] hover:bg-[var(--profile-hover-bg)] cursor-pointer"
+                    className="flex items-center gap-2 rounded-full border border-(--profile-border) bg-(--profile-bg) p-1.5 pr-3 transition-all duration-200 hover:border-(--profile-hover-border) hover:bg-(--profile-hover-bg) cursor-pointer"
                   >
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] text-xs font-bold text-[var(--profile-avatar-text)] shadow-sm overflow-hidden">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden">
                       {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) ? (
-                        <img src={userData.avatar} alt={userData.name} className="h-full w-full object-cover" />
+                        <Image src={userData.avatar} alt={userData.name} width={28} height={28} className="h-full w-full object-cover" />
                       ) : (
                         userData?.avatar || "JD"
                       )}
                     </div>
-                    <span className="text-xs font-semibold text-[var(--text-role)]">{userData?.name || "Developer"}</span>
-                    <svg className={`h-3 w-3 text-[var(--btn-icon-text)] transition-transform duration-200 ${profileMenuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                    <span className="text-xs font-semibold text-(--text-role)">{userData?.name || "Developer"}</span>
+                    <svg className={`h-3 w-3 text-(--btn-icon-text) transition-transform duration-200 ${profileMenuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                     </svg>
                   </button>
 
                   {/* Profile Dropdown Menu */}
                   {profileMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl border border-[var(--dropdown-border)] bg-[var(--dropdown-bg)] p-1 shadow-2xl backdrop-blur-lg">
-                      <div className="px-4 py-2 border-b border-[var(--divider-color)]">
-                        <p className="text-xs text-dust-grey">Signed in as</p>
-                        <p className="text-sm font-semibold truncate text-[var(--foreground)]">{userData?.email || "chai_lover@dev.in"}</p>
-                      </div>
-                      <Link href="#profile" className="block px-4 py-2 text-sm text-[var(--text-secondary)] rounded-lg hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-colors">Your Profile</Link>
-                      <Link href="#settings" className="block px-4 py-2 text-sm text-[var(--text-secondary)] rounded-lg hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-colors">Settings</Link>
+                    <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl border border-(--dropdown-border) bg-(--dropdown-bg) p-1 shadow-2xl backdrop-blur-lg">
+                      <Link href="/" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">Home</Link>
+                      <Link href="/profile" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
+                      About
+                      </Link>
+                      <Link href="/post" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
+                      My Posts
+                      </Link>
+                      <Link href="/settings" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
+                      Settings
+                      </Link>
                       <button 
                         onClick={() => { handelSignOut(); setProfileMenuOpen(false); }}
-                        className="w-full text-left block px-4 py-2 text-sm text-spicy-paprika hover:bg-[var(--btn-icon-hover-bg)] rounded-lg transition-colors cursor-pointer"
+                        className="w-full text-left block px-4 py-2 text-sm text-spicy-paprika hover:bg-(--btn-icon-hover-bg) rounded-lg transition-colors cursor-pointer"
                       >
                         Sign Out
                       </button>
@@ -197,7 +201,7 @@ const Navbar = () => {
               <div className="flex items-center gap-3">
                 <Link 
                   href="/auth/signin"
-                  className="rounded-full px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition-all duration-200 hover:text-[var(--btn-icon-hover-text)] hover:bg-[var(--btn-secondary-hover-bg)]"
+                  className="rounded-full px-4 py-2 text-sm font-semibold text-(--foreground) transition-all duration-200 hover:text-(--btn-icon-hover-text) hover:bg-(--btn-secondary-hover-bg)"
                 >
                   Log In
                 </Link>
@@ -217,7 +221,7 @@ const Navbar = () => {
             {/* Theme Toggle Button for Mobile */}
             <button 
               onClick={toggleTheme}
-              className="rounded-full p-2.5 text-[var(--btn-icon-text)] hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-colors duration-200 cursor-pointer"
+              className="rounded-full p-2.5 text-(--btn-icon-text) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors duration-200 cursor-pointer"
               aria-label="Toggle Theme"
             >
               {!mounted ? (
@@ -245,7 +249,7 @@ const Navbar = () => {
             
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="rounded-lg p-2.5 text-[var(--btn-icon-text)] hover:bg-[var(--btn-icon-hover-bg)] hover:text-[var(--btn-icon-hover-text)] transition-colors duration-200 focus:outline-none cursor-pointer"
+              className="rounded-lg p-2.5 text-(--btn-icon-text) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors duration-200 focus:outline-none cursor-pointer"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
@@ -265,7 +269,7 @@ const Navbar = () => {
 
       {/* Mobile Drawer Overlay / Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-[var(--nav-border)] bg-[var(--nav-bg)] backdrop-blur-xl px-4 py-6 shadow-2xl transition-all duration-300">
+        <div className="md:hidden border-t border-(--nav-border) bg-(--nav-bg) backdrop-blur-xl px-4 py-6 shadow-2xl transition-all duration-300">
           <div className="flex flex-col gap-5">
             
             {/* Mobile Search Bar */}
@@ -281,7 +285,7 @@ const Navbar = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search threads, tags..."
-                  className="block w-full rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] py-2.5 pl-10 pr-4 text-sm text-[var(--foreground)] placeholder-dust-grey/70 outline-none focus:border-[var(--input-focus-border)] focus:bg-[var(--input-focus-bg)]"
+                  className="block w-full rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 pl-10 pr-4 text-sm text-(--foreground) placeholder-dust-grey/70 outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg)"
                 />
               </div>
             </form>
@@ -290,20 +294,20 @@ const Navbar = () => {
             {user && userData ? (
               <div className="flex flex-col gap-4 pt-2">
                 <div className="flex items-center gap-3 px-2 py-1">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--profile-avatar-bg)] font-bold text-[var(--profile-avatar-text)] text-sm overflow-hidden">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-(--profile-avatar-bg) font-bold text-(--profile-avatar-text) text-sm overflow-hidden">
                     {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) ? (
-                      <img src={userData.avatar} alt={userData.name} className="h-full w-full object-cover" />
+                      <Image src={userData.avatar} alt={userData.name} width={40} height={40} className="h-full w-full object-cover" />
                     ) : (
                       userData?.avatar || userData.name.substring(0,2).toUpperCase()
                     )}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-[var(--foreground)]">{userData?.name}</span>
-                    <span className="text-xs text-[var(--text-secondary)]">{userData?.email}</span>
+                    <span className="text-sm font-semibold text-(--foreground)">{userData?.name}</span>
+                    <span className="text-xs text-(--text-secondary)">{userData?.email}</span>
                   </div>
                 </div>
 
-                <hr className="border-[var(--divider-color)]" />
+                <hr className="border-(--divider-color)" />
 
                 <button 
                   onClick={() => { alert("Simulated: Create Post Clicked!"); setMobileMenuOpen(false); }}
@@ -316,11 +320,35 @@ const Navbar = () => {
                 </button>
 
                 <Link 
-                  href="#profile" 
+                  href="/" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex w-full items-center justify-center rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] py-2.5 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--btn-icon-hover-text)]"
+                  className="flex w-full items-center justify-center rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
                 >
-                  Your Profile
+                  Home
+                </Link>
+
+                <Link 
+                  href="/profile" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
+                >
+                  About / Profile
+                </Link>
+
+                <Link 
+                  href="/post" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
+                >
+                  My Posts
+                </Link>
+
+                <Link 
+                  href="/settings" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
+                >
+                  Settings
                 </Link>
 
                 <button 
@@ -335,7 +363,7 @@ const Navbar = () => {
                 <Link 
                   href="/auth/signin"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full text-center rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] py-3 text-sm font-semibold text-[var(--foreground)] transition-all hover:bg-[var(--btn-secondary-hover-bg)] active:scale-95"
+                  className="w-full text-center rounded-full border border-(--input-border) bg-(--input-bg) py-3 text-sm font-semibold text-(--foreground) transition-all hover:bg-(--btn-secondary-hover-bg) active:scale-95"
                 >
                   Log In
                 </Link>
