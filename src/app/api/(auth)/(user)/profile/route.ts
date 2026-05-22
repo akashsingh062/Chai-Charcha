@@ -5,7 +5,7 @@ import connectDB from "@/lib/connectDB";
 import { User } from "@/lib/models/User";
 import { profileUpdateSchema } from "@/lib/Schemas/profileUpdateSchema";
 
-// GET /api/about - Retrieve active user profile
+// GET /api/profile - Retrieve active user profile
 export async function GET() {
   try {
     const session = await auth.api.getSession({
@@ -25,13 +25,13 @@ export async function GET() {
 
     return NextResponse.json({ user: dbUser });
   } catch (error) {
-    console.error("Error in about GET route:", error);
+    console.error("Error in profile GET route:", error);
     const message = error instanceof Error ? error.message : "Internal Server Error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// PUT /api/about - Update user profile details
+// PUT /api/profile - Update user profile details
 export async function PUT(req: Request) {
   try {
     const session = await auth.api.getSession({
@@ -93,7 +93,7 @@ export async function PUT(req: Request) {
       user: dbUser,
     });
   } catch (error) {
-    console.error("Error in about PUT route:", error);
+    console.error("Error in profile PUT route:", error);
     const message = error instanceof Error ? error.message : "Internal Server Error";
     return NextResponse.json({ error: message }, { status: 500 });
   }

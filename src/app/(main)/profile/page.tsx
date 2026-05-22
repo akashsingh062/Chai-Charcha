@@ -44,7 +44,7 @@ export default function ProfilePage() {
     const fetchUserProfile = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch("/api/about");
+        const res = await fetch("/api/profile");
         if (!res.ok) {
           throw new Error("Failed to load user profile");
         }

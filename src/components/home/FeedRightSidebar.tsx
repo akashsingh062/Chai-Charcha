@@ -1,0 +1,57 @@
+import React from "react";
+
+export const FeedRightSidebar: React.FC = () => {
+  return (
+    <aside className="lg:col-span-3 flex flex-col gap-6">
+      {/* Leaderboard Widget */}
+      <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-background)] p-4 shadow-sm transition-all duration-300">
+        <h2 className="px-2 text-xs font-bold uppercase tracking-wider text-dust-grey/80 mb-3">Chai Leaderboard</h2>
+        <div className="flex flex-col gap-3">
+          {[
+            { name: "Karan Johar", points: 640, title: "Principal IC", badge: "🥇" },
+            { name: "Rajesh Kumar", points: 512, title: "ChaiTech CTO", badge: "🥈" },
+            { name: "Amit Sharma", points: 420, title: "Staff Dev", badge: "🥉" },
+            { name: "Priya Patel", points: 380, title: "Frontend Lead", badge: "🔥" },
+          ].map((lead, idx) => (
+            <div key={idx} className="flex items-center justify-between p-1.5 rounded-xl hover:bg-[var(--btn-secondary-hover-bg)] transition-colors">
+              <div className="flex items-center gap-2">
+                <span className="text-sm shrink-0">{lead.badge}</span>
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-[var(--foreground)]">{lead.name}</span>
+                  <span className="text-[9px] text-dust-grey leading-none mt-0.5">{lead.title}</span>
+                </div>
+              </div>
+              <span className="text-2xs font-bold font-mono text-spicy-paprika">+{lead.points} rep</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Upcoming Charchas Widget */}
+      <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-background)] p-4 shadow-sm transition-all duration-300">
+        <h2 className="px-2 text-xs font-bold uppercase tracking-wider text-dust-grey/80 mb-3">Upcoming Meetups</h2>
+        <div className="flex flex-col gap-3">
+          <div className="p-3 rounded-xl border border-[var(--divider-color)] bg-[var(--profile-bg)] hover:border-orange/20 transition-all">
+            <div className="flex items-center gap-1 text-[10px] font-bold text-spicy-paprika">
+              <span className="animate-ping h-1.5 w-1.5 rounded-full bg-spicy-paprika mr-0.5" />
+              <span>LIVE ONLINE AMA</span>
+            </div>
+            <h3 className="text-xs font-extrabold mt-1 text-[var(--foreground)] leading-snug">Scaling React 19 Server Actions to 10M Pageviews</h3>
+            <p className="text-[10px] text-dust-grey mt-2">Today, 7:00 PM IST</p>
+          </div>
+          
+          <div className="p-3 rounded-xl border border-[var(--divider-color)] bg-[var(--profile-bg)] hover:border-orange/20 transition-all">
+            <span className="text-[10px] font-bold text-stormy-teal uppercase tracking-wider">Bangalore Circle</span>
+            <h3 className="text-xs font-extrabold mt-1 text-[var(--foreground)] leading-snug">Offline Chai & Networking Meetup - Indiranagar</h3>
+            <p className="text-[10px] text-dust-grey mt-2">Saturday, 4:00 PM IST</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Chai Break News snippet */}
+      <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-background)] p-4 shadow-sm transition-all duration-300 text-2xs leading-relaxed text-[var(--text-secondary)]">
+        <span className="font-bold text-[var(--foreground)]">☕ Chai Break News:</span> In 2026, global remote developer hires in India grew by 45% with major focus on Rust and Next.js frontend core performance. Keep coding!
+      </div>
+    </aside>
+  );
+};

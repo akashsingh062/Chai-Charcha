@@ -20,6 +20,11 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const onPostsCountChangeRef = React.useRef(onPostsCountChange);
+  useEffect(() => {
+    onPostsCountChangeRef.current = onPostsCountChange;
+  }, [onPostsCountChange]);
+
   useEffect(() => {
     if (!user) return;
 
@@ -44,7 +49,7 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
             );
           });
           setPosts(filtered);
-          onPostsCountChange(filtered.length);
+          onPostsCountChangeRef.current(filtered.length);
         }
       } catch (err: unknown) {
         if (active) {
@@ -63,7 +68,7 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
     return () => {
       active = false;
     };
-  }, [user, onPostsCountChange]);
+  }, [user]);
 
   const handleVote = async (id: string, type: "up" | "down") => {
     try {
