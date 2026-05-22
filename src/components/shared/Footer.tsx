@@ -4,13 +4,11 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-[var(--nav-bg)] border-t border-[var(--nav-border)] text-[var(--foreground)] transition-colors duration-300">
+    <footer className="w-full bg-(--nav-bg) border-t border-(--nav-border) text-(--foreground) transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         
-        {/* Main 4-Column Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-8 border-b border-[var(--divider-color)]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-8 border-b border-(--divider-color)">
           
-          {/* Brand Column (takes 4 grid spaces on large) */}
           <div className="lg:col-span-4 flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2 group w-fit">
               <div className="relative w-9 h-9 transition-transform duration-300 group-hover:rotate-12">
@@ -22,90 +20,85 @@ const Footer = () => {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-bold tracking-tight text-[var(--foreground)] group-hover:text-vivid-tangerine transition-colors">
+                <span className="text-lg font-bold tracking-tight text-(--foreground) group-hover:text-vivid-tangerine transition-colors">
                   Chai <span className="text-spicy-paprika">Charcha</span>
                 </span>
-                <span className="text-[8px] font-mono tracking-widest text-[var(--nav-subtitle)] uppercase">
+                <span className="text-[8px] font-mono tracking-widest text-(--nav-subtitle) uppercase">
                   Indian Developer Forum
                 </span>
               </div>
             </Link>
             
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed max-w-sm">
+            <p className="text-xs text-(--text-secondary) leading-relaxed max-w-sm">
               The premier community-driven hub built by Indian software engineers, for software engineers. Join nested architectural discussions, evaluate remote salaries, and share career advice over code and hot chai.
             </p>
           </div>
 
-          {/* Community Column (takes 2 grid spaces on large) */}
           <div className="lg:col-span-2 flex flex-col gap-3">
             <h3 className="text-xs font-bold uppercase tracking-widest text-dust-grey">Community</h3>
             <ul className="flex flex-col gap-2 text-xs">
               <li>
-                <Link href="#feed" className="text-[var(--text-secondary)] hover:text-spicy-paprika transition-colors">
+                <Link href="#feed" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
                   All Discussions
                 </Link>
               </li>
               <li>
-                <Link href="#meetups" className="text-[var(--text-secondary)] hover:text-spicy-paprika transition-colors">
+                <Link href="#meetups" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
                   Local Meetups 🇮🇳
                 </Link>
               </li>
               <li>
-                <Link href="#tags" className="text-[var(--text-secondary)] hover:text-spicy-paprika transition-colors">
+                <Link href="#tags" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
                   Trending Tags
                 </Link>
               </li>
               <li>
-                <Link href="#leaderboard" className="text-[var(--text-secondary)] hover:text-spicy-paprika transition-colors">
+                <Link href="#leaderboard" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
                   Chai Leaderboard
-               </Link>
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Resources Column (takes 2 grid spaces on large) */}
           <div className="lg:col-span-2 flex flex-col gap-3">
             <h3 className="text-xs font-bold uppercase tracking-widest text-dust-grey">Resources</h3>
             <ul className="flex flex-col gap-2 text-xs">
               <li>
-                <Link href="#conduct" className="text-[var(--text-secondary)] hover:text-stormy-teal transition-colors">
+                <Link href="#conduct" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
                   Code of Conduct
                 </Link>
               </li>
               <li>
-                <Link href="#terms" className="text-[var(--text-secondary)] hover:text-stormy-teal transition-colors">
+                <Link href="#terms" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="#privacy" className="text-[var(--text-secondary)] hover:text-stormy-teal transition-colors">
+                <Link href="#privacy" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="#feedback" className="text-[var(--text-secondary)] hover:text-stormy-teal transition-colors">
+                <Link href="#feedback" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
                   Feedback Portal
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Socials & Connect Column (takes 4 grid spaces on large) */}
           <div className="lg:col-span-4 flex flex-col gap-3">
             <h3 className="text-xs font-bold uppercase tracking-widest text-dust-grey">Connect with the Club</h3>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+            <p className="text-xs text-(--text-secondary) leading-relaxed">
               Stay in the loop with dev AMAs, newsletter releases, and upcoming tech meetups across major cities.
             </p>
             
-            {/* Dynamic Social Icons Grid */}
             <div className="flex items-center gap-3 mt-2">
               
-              {/* GitHub */}
               <Link 
                 href="https://github.com/akashsingh062" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] p-2.5 text-[var(--btn-icon-text)] hover:text-[var(--btn-icon-hover-text)] hover:bg-[var(--btn-icon-hover-bg)] hover:scale-110 active:scale-95 transition-all duration-200"
+                className="rounded-full border border-(--input-border) bg-(--input-bg) p-2.5 text-(--btn-icon-text) hover:text-(--btn-icon-hover-text) hover:bg-(--btn-icon-hover-bg) hover:scale-110 active:scale-95 transition-all duration-200"
                 aria-label="GitHub"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" stroke="none">
@@ -113,12 +106,11 @@ const Footer = () => {
                 </svg>
               </Link>
 
-              {/* Twitter/X */}
               <Link 
                 href="https://twitter.com/akashsingh062" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] p-2.5 text-[var(--btn-icon-text)] hover:text-[var(--btn-icon-hover-text)] hover:bg-[var(--btn-icon-hover-bg)] hover:scale-110 active:scale-95 transition-all duration-200"
+                className="rounded-full border border-(--input-border) bg-(--input-bg) p-2.5 text-(--btn-icon-text) hover:text-(--btn-icon-hover-text) hover:bg-(--btn-icon-hover-bg) hover:scale-110 active:scale-95 transition-all duration-200"
                 aria-label="Twitter"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" stroke="none">
@@ -126,12 +118,11 @@ const Footer = () => {
                 </svg>
               </Link>
 
-              {/* Discord */}
               <Link
                 href="https://discord.com/akashsingh062" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] p-2.5 text-[var(--btn-icon-text)] hover:text-[var(--btn-icon-hover-text)] hover:bg-[var(--btn-icon-hover-bg)] hover:scale-110 active:scale-95 transition-all duration-200"
+                className="rounded-full border border-(--input-border) bg-(--input-bg) p-2.5 text-(--btn-icon-text) hover:text-(--btn-icon-hover-text) hover:bg-(--btn-icon-hover-bg) hover:scale-110 active:scale-95 transition-all duration-200"
                 aria-label="Discord"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" stroke="none">
@@ -139,12 +130,11 @@ const Footer = () => {
                 </svg>
               </Link>
 
-              {/* LinkedIn */}
               <Link 
                 href="https://linkedin.com/akashsingh062" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="rounded-full border border-[var(--input-border)] bg-[var(--input-bg)] p-2.5 text-[var(--btn-icon-text)] hover:text-[var(--btn-icon-hover-text)] hover:bg-[var(--btn-icon-hover-bg)] hover:scale-110 active:scale-95 transition-all duration-200"
+                className="rounded-full border border-(--input-border) bg-(--input-bg) p-2.5 text-(--btn-icon-text) hover:text-(--btn-icon-hover-text) hover:bg-(--btn-icon-hover-bg) hover:scale-110 active:scale-95 transition-all duration-200"
                 aria-label="LinkedIn"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" stroke="none">
@@ -157,17 +147,16 @@ const Footer = () => {
 
         </div>
 
-        {/* Bottom Bar Details */}
         <div className="mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] text-dust-grey">
           <div className="flex items-center gap-2">
             <span>© 2026 Chai Charcha. Crafted with ☕ for Indian Developers.</span>
           </div>
           
           <div className="flex items-center gap-4">
-            <span className="hidden sm:inline border border-[var(--card-border)] bg-[var(--background)] px-2 py-0.5 rounded-md font-mono text-[9px]">
+            <span className="hidden sm:inline border border-(--card-border) bg-(--background) px-2 py-0.5 rounded-md font-mono text-[9px]">
               Next.js 16.2.6 & React 19
             </span>
-            <Link href="#github-repo" className="hover:text-[var(--foreground)] transition-colors">
+            <Link href="#github-repo" className="hover:text-(--foreground) transition-colors">
               Repository
             </Link>
           </div>

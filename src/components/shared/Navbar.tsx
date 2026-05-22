@@ -179,13 +179,13 @@ const Navbar = () => {
                     <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl border border-(--dropdown-border) bg-(--dropdown-bg) p-1 shadow-2xl backdrop-blur-lg">
                       <Link href="/" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">Home</Link>
                       <Link href="/profile" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
-                      About
+                        My Profile
                       </Link>
                       <Link href="/post" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
-                      My Posts
+                        My Posts
                       </Link>
                       <Link href="/settings" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
-                      Settings
+                        Settings
                       </Link>
                       <button 
                         onClick={() => { handelSignOut(); setProfileMenuOpen(false); }}
@@ -301,9 +301,9 @@ const Navbar = () => {
                       userData?.avatar || userData.name.substring(0,2).toUpperCase()
                     )}
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-(--foreground)">{userData?.name}</span>
-                    <span className="text-xs text-(--text-secondary)">{userData?.email}</span>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-(--foreground) truncate">{userData?.name}</span>
+                    <span className="text-xs text-(--text-secondary) truncate" title={userData?.email}>{userData?.email}</span>
                   </div>
                 </div>
 
@@ -332,7 +332,7 @@ const Navbar = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex w-full items-center justify-center rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
                 >
-                  About / Profile
+                  My Profile
                 </Link>
 
                 <Link 
