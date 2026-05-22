@@ -25,15 +25,15 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-lg rounded-2xl border border-[var(--dropdown-border)] bg-[var(--dropdown-bg)] p-6 shadow-2xl backdrop-blur-lg">
+      <div className="w-full max-w-lg rounded-2xl border border-(--dropdown-border) bg-(--dropdown-bg) p-6 shadow-2xl backdrop-blur-lg">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-[var(--divider-color)] pb-3.5">
-          <h2 className="text-lg font-bold text-[var(--foreground)]">Start a New Discussion</h2>
+        <div className="flex items-center justify-between border-b border-(--divider-color) pb-3.5">
+          <h2 className="text-lg font-bold text-(--foreground)">Start a New Discussion</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1.5 hover:bg-[var(--btn-icon-hover-bg)] text-dust-grey hover:text-[var(--foreground)] cursor-pointer"
+            className="rounded-full p-1.5 hover:bg-(--btn-icon-hover-bg) text-dust-grey hover:text-(--foreground) cursor-pointer"
             aria-label="Close modal"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
@@ -54,7 +54,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="e.g. Is anyone else seeing CSS import warnings under Turbopack?"
-              className="block w-full rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-dust-grey/50 outline-none focus:border-[var(--input-focus-border)] focus:bg-[var(--input-focus-bg)] focus:ring-1 focus:ring-[var(--input-focus-ring)]"
+              className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) placeholder-dust-grey/50 outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) focus:ring-1 focus:ring-(--input-focus-ring)"
               required
             />
           </div>
@@ -66,7 +66,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
               id="category"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
-              className="block w-full rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--input-focus-border)] focus:bg-[var(--input-focus-bg)] cursor-pointer"
+              className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) cursor-pointer"
             >
               <option value="Tech & Architecture">🛠️ Tech & Architecture</option>
               <option value="Career Prep">💼 Career Prep</option>
@@ -82,7 +82,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
               onChange={(e) => setNewExcerpt(e.target.value)}
               placeholder="Elaborate on your problem or prompt. Share background context, code structures, or interview setups..."
               rows={4}
-              className="block w-full rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-dust-grey/50 outline-none focus:border-[var(--input-focus-border)] focus:bg-[var(--input-focus-bg)] focus:ring-1 focus:ring-[var(--input-focus-ring)] resize-none"
+              className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) placeholder-dust-grey/50 outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) focus:ring-1 focus:ring-(--input-focus-ring) resize-none"
               required
             />
           </div>
@@ -96,16 +96,16 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
               value={newTagsStr}
               onChange={(e) => setNewTagsStr(e.target.value)}
               placeholder="e.g. react19, nextjs, styling"
-              className="block w-full rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-dust-grey/50 outline-none focus:border-[var(--input-focus-border)] focus:bg-[var(--input-focus-bg)] focus:ring-1 focus:ring-[var(--input-focus-ring)]"
+              className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) placeholder-dust-grey/50 outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) focus:ring-1 focus:ring-(--input-focus-ring)"
             />
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex items-center justify-end gap-3 mt-4 pt-3.5 border-t border-[var(--divider-color)]">
+          <div className="flex items-center justify-end gap-3 mt-4 pt-3.5 border-t border-(--divider-color)">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full px-5 py-2.5 text-sm font-semibold text-[var(--foreground)] hover:bg-[var(--btn-secondary-hover-bg)] cursor-pointer"
+              className="rounded-full px-5 py-2.5 text-sm font-semibold text-(--foreground) hover:bg-(--btn-secondary-hover-bg) cursor-pointer"
             >
               Cancel
             </button>

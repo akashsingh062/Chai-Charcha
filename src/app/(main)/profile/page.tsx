@@ -87,7 +87,7 @@ export default function ProfilePage() {
                   Technical Discussions
                 </h2>
                 {user && (
-                  <span className="rounded-full bg-(--profile-bg) border border-(--profile-border) px-2 py-0.5 text-2xs text-[var(--text-role)] font-semibold">
+                  <span className="rounded-full bg-(--profile-bg) border border-(--profile-border) px-2 py-0.5 text-2xs text-(--text-role) font-semibold">
                     {postCount} {postCount === 1 ? "charcha" : "charchas"}
                   </span>
                 )}
