@@ -120,7 +120,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await authClient.signOut();
       setUser(false);
       setUserDataState(null);
-      router.push("/");
+      router.push("/auth/signin");
       router.refresh();
     } catch (error) {
       console.error("Error signing out:", error);
