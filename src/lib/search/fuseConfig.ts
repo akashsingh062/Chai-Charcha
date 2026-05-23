@@ -1,4 +1,4 @@
-import Fuse, { IFuseOptions } from "fuse.js";
+import type { IFuseOptions } from "fuse.js";
 import { SearchItem } from "@/types/search";
 
 export const FUSE_OPTIONS: IFuseOptions<SearchItem> = {

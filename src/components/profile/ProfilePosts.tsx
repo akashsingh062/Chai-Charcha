@@ -1,7 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Thread } from "@/app/(main)/post/postData";
+import { ThreadCard } from "@/components/home/ThreadCard";
+import axiosInstance from "@/lib/axios";
+import { 
+  insertReply, 
+  updateComment, 
+  removeComment, 
+  updateCommentVote 
+} from "@/components/post/commentHelpers";
 
 interface UserProfileData {
   _id: string;
@@ -25,78 +33,57 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
     onPostsCountChangeRef.current = onPostsCountChange;
   }, [onPostsCountChange]);
 
-  useEffect(() => {
+  // Fetch full user profile details from the DB
+  const fetchUserPosts = useCallback(async () => {
     if (!user) return;
-
-    let active = true;
-
-    const fetchUserPosts = async () => {
-      try {
-        setIsLoading(true);
-        const res = await fetch("/api/posts");
-        if (!res.ok) {
-          throw new Error("Failed to fetch posts");
-        }
-        const data = await res.json();
-        if (active && data?.posts) {
-          // Filter posts where author is the logged-in user
-          // Match by name/username/id to be fully robust
-          const filtered = data.posts.filter((post: Thread) => {
-            return (
-              post.author?.id === user._id ||
-              post.author?.username?.toLowerCase() === user.username.toLowerCase() ||
-              post.author?.name === user.name
-            );
-          });
-          setPosts(filtered);
-          onPostsCountChangeRef.current(filtered.length);
-        }
-      } catch (err: unknown) {
-        if (active) {
-          const msg = err instanceof Error ? err.message : "Error loading posts feed";
-          setError(msg);
-        }
-      } finally {
-        if (active) {
-          setIsLoading(false);
-        }
+    try {
+      setIsLoading(true);
+      const res = await axiosInstance.get("/api/posts?sort=recent");
+      if (res.data?.posts) {
+        // Filter posts where author matches the profiled user
+        const filtered = res.data.posts.filter((post: Thread) => {
+          return (
+            post.author?.id === user._id ||
+            post.author?.username?.toLowerCase() === user.username.toLowerCase() ||
+            post.author?.name === user.name
+          );
+        });
+        setPosts(filtered);
+        onPostsCountChangeRef.current(filtered.length);
       }
-    };
-
-    fetchUserPosts();
-
-    return () => {
-      active = false;
-    };
+    } catch (err: any) {
+      console.error("Error loading user profile posts:", err);
+      setError(err.response?.data?.error || err.message || "Failed to load posts");
+    } finally {
+      setIsLoading(false);
+    }
   }, [user]);
 
+  useEffect(() => {
+    // Wrap async fetch in a setTimeout to prevent cascading render warn
+    const timer = setTimeout(() => {
+      fetchUserPosts();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchUserPosts]);
+
+  // Handle post upvoting / downvoting
   const handleVote = async (id: string, type: "up" | "down") => {
     try {
-      const res = await fetch("/api/votes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          targetId: id,
-          targetType: "Post",
-          voteType: type,
-        }),
+      const res = await axiosInstance.post("/api/votes", {
+        targetId: id,
+        targetType: "Post",
+        voteType: type,
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to submit vote");
-      }
-
-      const result = await res.json();
-      if (result.success) {
+      if (res.data?.success) {
         setPosts((prev) =>
           prev.map((p) => {
             if (p.id === id) {
               return {
                 ...p,
-                upvotes: result.score,
-                userVoted: result.userVoted,
+                upvotes: res.data.score,
+                userVoted: res.data.userVoted,
               };
             }
             return p;
@@ -104,9 +91,161 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
         );
       }
     } catch (err) {
-      console.error("Voting error:", err);
+      console.error("Voting error inside profile feed:", err);
     }
   };
+
+  // Add Comment callback
+  const handleAddComment = async (threadId: string, text: string) => {
+    try {
+      const res = await axiosInstance.post("/api/comments", {
+        postId: threadId,
+        content: text,
+      });
+      if (res.data?.comment) {
+        setPosts((prev) =>
+          prev.map((post) => {
+            if (post.id !== threadId) return post;
+            const currentComments = post.comments || [];
+            return {
+              ...post,
+              commentsCount: post.commentsCount + 1,
+              comments: [...currentComments, res.data.comment],
+            };
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error adding comment in profile feed:", err);
+    }
+  };
+
+  // Add nested reply callback
+  const handleAddReply = async (threadId: string, commentId: string, text: string) => {
+    try {
+      const res = await axiosInstance.post("/api/comments", {
+        postId: threadId,
+        content: text,
+        parentId: commentId,
+      });
+      if (res.data?.comment) {
+        setPosts((prev) =>
+          prev.map((post) => {
+            if (post.id !== threadId) return post;
+            const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const inserted = insertReply(updatedComments, commentId, res.data.comment);
+            if (inserted) {
+              return {
+                ...post,
+                commentsCount: post.commentsCount + 1,
+                comments: updatedComments,
+              };
+            }
+            return post;
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error adding reply in profile feed:", err);
+    }
+  };
+
+  // Edit Comment callback
+  const handleEditSubmit = async (threadId: string, commentId: string, text: string) => {
+    try {
+      const res = await axiosInstance.put(`/api/comments/${commentId}`, {
+        content: text,
+      });
+      if (res.data?.comment) {
+        setPosts((prev) =>
+          prev.map((post) => {
+            if (post.id !== threadId) return post;
+            const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const updated = updateComment(updatedComments, commentId, text);
+            if (updated) {
+              return {
+                ...post,
+                comments: updatedComments,
+              };
+            }
+            return post;
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error editing comment in profile feed:", err);
+    }
+  };
+
+  // Delete Comment callback
+  const handleDeleteComment = async (threadId: string, commentId: string) => {
+    try {
+      const res = await axiosInstance.delete(`/api/comments/${commentId}`);
+      const deletedCount = res.data?.deletedCount || 1;
+      setPosts((prev) =>
+        prev.map((post) => {
+          if (post.id !== threadId) return post;
+          const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+          const removed = removeComment(updatedComments, commentId);
+          if (removed) {
+            return {
+              ...post,
+              commentsCount: Math.max(0, post.commentsCount - deletedCount),
+              comments: updatedComments,
+            };
+          }
+          return post;
+        })
+      );
+    } catch (err) {
+      console.error("Error deleting comment in profile feed:", err);
+    }
+  };
+
+  // Comment Vote callback
+  const handleCommentVote = async (threadId: string, commentId: string) => {
+    try {
+      const res = await axiosInstance.post("/api/votes", {
+        targetId: commentId,
+        targetType: "Comment",
+        voteType: "up",
+      });
+      if (res.data?.success) {
+        setPosts((prev) =>
+          prev.map((post) => {
+            if (post.id !== threadId) return post;
+            const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const voted = updateCommentVote(updatedComments, commentId, res.data.upvotes);
+            if (voted) {
+              return {
+                ...post,
+                comments: updatedComments,
+              };
+            }
+            return post;
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error upvoting comment in profile feed:", err);
+    }
+  };
+
+  // Post update callback (e.g. from inline edits)
+  const handleUpdateThread = useCallback((updatedThread: Thread) => {
+    setPosts((prev) =>
+      prev.map((p) => (p.id === updatedThread.id ? updatedThread : p))
+    );
+  }, []);
+
+  // Post delete callback
+  const handleDeletePost = useCallback((id: string) => {
+    setPosts((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
+      onPostsCountChangeRef.current(updated.length);
+      return updated;
+    });
+  }, []);
 
   if (isLoading) {
     return (
@@ -158,7 +297,7 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
         </div>
         <h3 className="text-base font-bold mt-2 text-(--foreground)">No charchas yet</h3>
         <p className="text-xs text-dust-grey mt-2 max-w-xs mx-auto leading-relaxed">
-          You haven&apos;t started any technical discussions yet. Head over to the home page to start a new charcha!
+          This user hasn&apos;t started any technical discussions yet.
         </p>
       </div>
     );
@@ -167,135 +306,18 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <article
+        <ThreadCard
           key={post.id}
-          className="rounded-2xl border border-(--card-border) bg-(--card-background)/40 backdrop-blur-xs p-5 shadow-sm hover:shadow-md hover:border-orange/20 transition-all duration-300"
-        >
-          {/* Author Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-2xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden">
-                {post.author.avatar && (post.author.avatar.startsWith("http") || post.author.avatar.startsWith("/")) ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={post.author.avatar} alt={post.author.name} className="h-full w-full object-cover" />
-                ) : (
-                  post.author.avatar
-                )}
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold text-(--foreground)">{post.author.name}</span>
-                <span className="text-[10px] text-dust-grey font-mono leading-none mt-0.5">{post.author.role}</span>
-              </div>
-            </div>
-            
-            <span className={`rounded-full text-[10px] font-bold border px-2 py-0.5 ${
-              (() => {
-                const cat = (post.category || "Tech & Architecture").toLowerCase().trim();
-                if (
-                  cat === "tech & architecture" || 
-                  cat === "tech" || 
-                  cat === "system design" || 
-                  cat === "devops & cloud" || 
-                  cat === "ai & machine learning" || 
-                  cat === "open source"
-                ) {
-                  return "bg-stormy-teal/10 text-stormy-teal border-stormy-teal/25";
-                }
-                if (cat === "career prep" || cat === "career") {
-                  return "bg-spicy-paprika/10 text-spicy-paprika border-spicy-paprika/25";
-                }
-                if (cat === "general charcha" || cat === "general") {
-                  return "bg-orange/10 text-orange border-orange/25";
-                }
-                if (cat === "showcase") {
-                  return "bg-vivid-tangerine/10 text-vivid-tangerine border-vivid-tangerine/25";
-                }
-                return "bg-brandy/10 text-brandy-700 border-brandy-700/25";
-              })()
-            }`}>
-              {post.category || "Tech & Architecture"}
-            </span>
-          </div>
-
-          {/* Title & Excerpt */}
-          <h3 className="text-base sm:text-lg font-extrabold mt-3.5 tracking-tight text-(--foreground) leading-snug">
-            {post.title}
-          </h3>
-          <p className="mt-2 text-xs sm:text-sm text-(--text-secondary) leading-relaxed line-clamp-3">
-            {post.excerpt}
-          </p>
-
-          {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {post.tags.map((tag, index) => (
-                <span key={`${tag}-${index}`} className="text-[10px] font-semibold text-(--link-color)">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Bottom Footer Interactions */}
-          <div className="mt-5 pt-4 border-t border-(--divider-color) flex items-center justify-between text-xs text-dust-grey">
-            {/* Upvote & Downvote Component */}
-            <div className="flex items-center gap-1 bg-(--profile-bg) border border-(--profile-border) rounded-full p-0.5">
-              <button
-                onClick={() => handleVote(post.id, "up")}
-                className={`p-1.5 rounded-full transition-colors cursor-pointer ${
-                  post.userVoted === "up"
-                    ? "bg-spicy-paprika text-floral-white shadow-sm"
-                    : "hover:bg-(--btn-icon-hover-bg) hover:text-spicy-paprika"
-                }`}
-                aria-label="Upvote"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-                </svg>
-              </button>
-              
-              <span className={`px-1.5 font-bold font-mono text-center min-w-4 text-xs ${
-                post.userVoted === "up"
-                  ? "text-spicy-paprika font-black"
-                  : post.userVoted === "down"
-                  ? "text-stormy-teal font-black"
-                  : "text-(--text-role)"
-              }`}>
-                {post.upvotes}
-              </span>
-
-              <button
-                onClick={() => handleVote(post.id, "down")}
-                className={`p-1.5 rounded-full transition-colors cursor-pointer ${
-                  post.userVoted === "down"
-                    ? "bg-stormy-teal text-floral-white shadow-sm"
-                    : "hover:bg-(--btn-icon-hover-bg) hover:text-stormy-teal"
-                }`}
-                aria-label="Downvote"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Replies and Date */}
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 10.742l1.684-1.684m0 0l-1.684-1.684m1.684 1.684h6.723M8.684 16.258l1.684-1.684m0 0l-1.684-1.684m1.684 1.684h6.723M3 21h18M3 3h18" />
-                </svg>
-                <span>{post.commentsCount} replies</span>
-              </span>
-              <span 
-                title={post.createdAt ? new Date(post.createdAt).toLocaleString() : undefined}
-                className="cursor-help hover:text-orange transition-colors"
-              >
-                {post.timeAgo}
-              </span>
-            </div>
-          </div>
-        </article>
+          thread={post}
+          onVote={handleVote}
+          onAddComment={handleAddComment}
+          onAddReply={handleAddReply}
+          onEditSubmit={handleEditSubmit}
+          onDeleteComment={handleDeleteComment}
+          onCommentVote={handleCommentVote}
+          onUpdateThread={handleUpdateThread}
+          onDeletePost={handleDeletePost}
+        />
       ))}
     </div>
   );

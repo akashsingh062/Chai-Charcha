@@ -5,11 +5,13 @@ import React from "react";
 interface DangerZoneTabProps {
   onKarmaReset: () => void;
   onSignOut: () => void;
+  onDeleteAccount: () => void;
 }
 
 export const DangerZoneTab: React.FC<DangerZoneTabProps> = ({
   onKarmaReset,
   onSignOut,
+  onDeleteAccount,
 }) => {
   return (
     <div className="space-y-6">
@@ -54,6 +56,25 @@ export const DangerZoneTab: React.FC<DangerZoneTabProps> = ({
               className="px-4 py-2 bg-spicy-paprika/10 hover:bg-spicy-paprika/20 border border-spicy-paprika/30 rounded-xl text-xs font-bold text-spicy-paprika cursor-pointer active:scale-95 transition-all self-start sm:self-center"
             >
               Sign Out
+            </button>
+          </div>
+
+          {/* Action 3: Delete Account */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-red-500/15 pt-5">
+            <div className="space-y-0.5">
+              <span className="text-sm font-bold text-(--foreground) block">
+                Permanently Delete Account
+              </span>
+              <span className="text-xs text-dust-grey block max-w-md leading-relaxed">
+                This is a critical action. It will permanently delete your developer credentials, reputation score, and sign you out.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={onDeleteAccount}
+              className="px-4 py-2 bg-red-600/10 hover:bg-red-600/20 border border-red-500/30 rounded-xl text-xs font-bold text-red-500 cursor-pointer active:scale-95 transition-all self-start sm:self-center font-mono uppercase tracking-wider"
+            >
+              Delete Account
             </button>
           </div>
         </div>

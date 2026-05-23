@@ -18,7 +18,7 @@ import { rankSearchResults } from "@/lib/search/ranking";
 import { mapPostToSearchItem } from "@/lib/search/dataset";
 
 function SearchPageContent() {
-  const { user, login, userData } = useAuth();
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryParam = searchParams.get("q") || "";
@@ -46,12 +46,18 @@ function SearchPageContent() {
   }, []);
 
   useEffect(() => {
-    loadPosts();
+    const timer = setTimeout(() => {
+      loadPosts();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [loadPosts]);
 
   // Reset pagination on filter or query change
   useEffect(() => {
-    setVisibleCount(10);
+    const timer = setTimeout(() => {
+      setVisibleCount(10);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [activeCategory, queryParam, selectedTag, sortBy]);
 
   // Handle Voting
@@ -220,6 +226,10 @@ function SearchPageContent() {
     setThreads((prev) =>
       prev.map((t) => (t.id === updatedThread.id ? updatedThread : t))
     );
+  }, []);
+
+  const handleDeletePost = useCallback((id: string) => {
+    setThreads((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   // Client-side fuzzy search on threads list using queryParam
@@ -481,6 +491,7 @@ function SearchPageContent() {
                     onDeleteComment={handleDeleteComment}
                     onCommentVote={handleCommentVote}
                     onUpdateThread={handleUpdateThread}
+                    onDeletePost={handleDeletePost}
                   />
                 ))
               )}

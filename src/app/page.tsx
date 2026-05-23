@@ -245,6 +245,10 @@ export default function Home() {
     );
   }, []);
 
+  const handleDeletePost = useCallback((id: string) => {
+    setThreads((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
   // Dynamic categories calculation
   const defaultCategories = ["All", "Tech & Architecture", "System Design", "DevOps & Cloud", "AI & Machine Learning", "Open Source", "Career Prep", "General Charcha", "Showcase"];
   const extraCategories = Array.from(new Set(threads.map((t) => t.category).filter(Boolean)));
@@ -344,6 +348,7 @@ export default function Home() {
               onDeleteComment={handleDeleteComment}
               onCommentVote={handleCommentVote}
               onUpdateThread={handleUpdateThread}
+              onDeletePost={handleDeletePost}
               onRefresh={loadPosts}
               isLoading={isLoading}
               hasMore={visibleCount < filteredThreads.length}

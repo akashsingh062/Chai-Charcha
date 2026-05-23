@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface PreferencesTabProps {
   setSuccessMessage: (msg: string) => void;
@@ -17,12 +17,50 @@ export const PreferencesTab: React.FC<PreferencesTabProps> = ({
   const [publicProfile, setPublicProfile] = useState(true);
   const [darkModeSync, setDarkModeSync] = useState(true);
 
+  // Load preferences from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("chai-charcha-preferences");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          const timer = setTimeout(() => {
+            if (typeof parsed.emailNotif === "boolean") setEmailNotif(parsed.emailNotif);
+            if (typeof parsed.newsletter === "boolean") setNewsletter(parsed.newsletter);
+            if (typeof parsed.publicProfile === "boolean") setPublicProfile(parsed.publicProfile);
+            if (typeof parsed.darkModeSync === "boolean") setDarkModeSync(parsed.darkModeSync);
+          }, 0);
+          return () => clearTimeout(timer);
+        } catch (err) {
+          console.error("Failed to parse stored preferences:", err);
+        }
+      }
+    }
+  }, []);
+
   // Handle saving Preferences
   const handleSavePreferences = (e: React.FormEvent) => {
     e.preventDefault();
     setGlobalError("");
-    setSuccessMessage("Preferences saved successfully!");
-    setTimeout(() => setSuccessMessage(""), 4000);
+    setSuccessMessage("");
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(
+          "chai-charcha-preferences",
+          JSON.stringify({
+            emailNotif,
+            newsletter,
+            publicProfile,
+            darkModeSync,
+          })
+        );
+      }
+      setSuccessMessage("Preferences saved successfully to browser storage!");
+      setTimeout(() => setSuccessMessage(""), 4000);
+    } catch (err) {
+      console.error("Failed to save preferences:", err);
+      setGlobalError("Failed to save preferences to browser storage.");
+    }
   };
 
   return (

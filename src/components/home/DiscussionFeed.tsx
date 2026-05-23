@@ -19,6 +19,7 @@ interface DiscussionFeedProps {
   onRefresh?: () => void;
   isLoading?: boolean;
   onUpdateThread?: (thread: Thread) => void;
+  onDeletePost?: (id: string) => void;
   hasMore?: boolean;
 }
 
@@ -38,6 +39,7 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
   onRefresh,
   isLoading = false,
   onUpdateThread,
+  onDeletePost,
   hasMore = false,
 }) => {
   return (
@@ -134,6 +136,7 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
               onDeleteComment={onDeleteComment}
               onCommentVote={onCommentVote}
               onUpdateThread={onUpdateThread}
+              onDeletePost={onDeletePost}
             />
           ))
         )}

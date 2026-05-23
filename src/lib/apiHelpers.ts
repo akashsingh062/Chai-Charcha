@@ -102,6 +102,7 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
     id: post._id.toString(),
     title: post.title,
     excerpt: post.content.substring(0, 180) + (post.content.length > 180 ? "..." : ""),
+    content: post.content,
     author: {
       id: post.author?._id?.toString() || "",
       username: post.author?.username || "",

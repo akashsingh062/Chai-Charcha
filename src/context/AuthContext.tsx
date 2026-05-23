@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 // User Profile Interface
 export interface UserProfile {
+  id: string;
   name: string;
   email: string;
   role: string;
@@ -67,6 +68,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const dbUser = sessionData.user as unknown as ExtendedUser;
         if (dbUser) {
           setUserDataState({
+            id: dbUser.id,
             name: dbUser.name,
             email: dbUser.email,
             role: dbUser.role || "member",

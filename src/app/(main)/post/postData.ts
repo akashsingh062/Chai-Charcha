@@ -33,6 +33,7 @@ export interface Thread {
   timeAgo: string;
   createdAt?: string;
   userVoted?: "up" | "down" | null;
+  content?: string;
   comments?: Comment[];
 }
 

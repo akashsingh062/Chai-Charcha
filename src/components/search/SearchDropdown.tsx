@@ -40,29 +40,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   const trendingCount = TRENDING_SEARCHES.length;
   const suggestionsCount = suggestions.length;
 
-  const totalItemsCount = isQueryEmpty
-    ? recentCount + trendingCount
-    : suggestionsCount;
 
-  // Handle selection by index
-  const selectItemByIndex = (index: number) => {
-    if (isQueryEmpty) {
-      if (index < recentCount) {
-        onSearch(recentSearches[index]);
-      } else {
-        const trendingIndex = index - recentCount;
-        onSearch(TRENDING_SEARCHES[trendingIndex]);
-      }
-    } else {
-      if (index >= 0 && index < suggestionsCount) {
-        onSearch(suggestions[index].title);
-      }
-    }
-  };
-
-  // Expose this selection mapping to parents via a DOM-like effect, or handle internally.
-  // We can attach a key listener in the SearchBar, so it intercepts events and resolves selection.
-  // The keydown listener will call selectItemByIndex(activeIndex).
 
   return (
     <div

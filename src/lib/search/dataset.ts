@@ -11,10 +11,24 @@ export const TRENDING_SEARCHES = [
   "Tailwind v4",
 ];
 
+export interface RawPostInput {
+  id?: string;
+  _id?: { toString: () => string };
+  title?: string;
+  content?: string;
+  excerpt?: string;
+  tags?: string[];
+  category?: string;
+  upvotes?: unknown[] | number;
+  commentsCount?: number;
+  commentCount?: number;
+  createdAt?: string | Date;
+}
+
 /**
  * Translates Mongoose Post document or generic thread object to standard SearchItem for Fuse.js
  */
-export function mapPostToSearchItem(post: any): SearchItem {
+export function mapPostToSearchItem(post: RawPostInput): SearchItem {
   const upvotesCount = Array.isArray(post.upvotes)
     ? post.upvotes.length
     : typeof post.upvotes === "number"
