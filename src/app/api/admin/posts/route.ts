@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Post } from "@/lib/models/Post";
-import { User } from "@/lib/models/User";
-import { Community } from "@/lib/models/Community";
 
 // GET /api/admin/posts — List all posts with pagination, filtering, search, sorting
 export async function GET(req: Request) {

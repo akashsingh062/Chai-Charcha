@@ -3,8 +3,13 @@ import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Report } from "@/lib/models/Report";
 import { User } from "@/lib/models/User";
-import { Post } from "@/lib/models/Post";
-import { Comment } from "@/lib/models/Comment";
+
+interface PopulateTarget {
+  _id?: { toString: () => string };
+  title?: string;
+  content?: string;
+  author?: string;
+}
 
 // GET /api/admin/reports — List reports with pagination and status/type filtering
 export async function GET(req: Request) {
@@ -49,7 +54,7 @@ export async function GET(req: Request) {
         let authorAvatar = "";
         let isContentDeleted = false;
 
-        const target = r.targetId as any;
+        const target = r.targetId as unknown as PopulateTarget | null;
         if (!target) {
           contentPreview = "[Content deleted]";
           isContentDeleted = true;
@@ -77,7 +82,7 @@ export async function GET(req: Request) {
 
         return {
           id: r._id.toString(),
-          targetId: r.targetId ? r.targetId._id?.toString() : null,
+          targetId: r.targetId ? target?._id?.toString() : null,
           targetType: r.targetType,
           reason: r.reason,
           status: r.status,
@@ -89,8 +94,8 @@ export async function GET(req: Request) {
             username: authorUsername,
             avatar: authorAvatar,
           },
-          createdAt: (r as any).createdAt,
-          updatedAt: (r as any).updatedAt,
+          createdAt: r.createdAt,
+          updatedAt: r.updatedAt,
         };
       })
     );

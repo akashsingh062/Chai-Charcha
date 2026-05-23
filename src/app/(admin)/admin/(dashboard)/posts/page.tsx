@@ -79,6 +79,7 @@ export default function PostManagementPage() {
   }, [page, debouncedSearch, category, showDeleted, sort, order]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPosts();
   }, [fetchPosts]);
 

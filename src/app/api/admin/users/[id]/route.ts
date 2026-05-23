@@ -7,6 +7,26 @@ import { Comment } from "@/lib/models/Comment";
 import { AuditLog } from "@/lib/models/AuditLog";
 import mongoose from "mongoose";
 
+interface UserDoc {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  username: string;
+  email: string;
+  avatar?: string;
+  banner?: string;
+  bio: string;
+  role: string;
+  karma: number;
+  isBanned?: boolean;
+  bannedAt?: Date;
+  bannedBy?: mongoose.Types.ObjectId;
+  followers?: mongoose.Types.ObjectId[];
+  following?: mongoose.Types.ObjectId[];
+  joinedCommunities?: string[] | string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // GET /api/admin/users/[id] — Retrieve detailed user profile
 export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
@@ -19,7 +39,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).lean() as unknown as UserDoc | null;
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -34,21 +54,21 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
       name: user.name,
       username: user.username,
       email: user.email,
-      avatar: user.avatar,
-      banner: user.banner,
+      avatar: user.avatar || "",
+      banner: user.banner || "",
       bio: user.bio,
       role: user.role,
       karma: user.karma,
       isBanned: !!user.isBanned,
-      bannedAt: user.bannedAt,
-      bannedBy: user.bannedBy,
+      bannedAt: user.bannedAt ? user.bannedAt.toISOString() : null,
+      bannedBy: user.bannedBy ? user.bannedBy.toString() : null,
       followersCount: user.followers?.length || 0,
       followingCount: user.following?.length || 0,
       communitiesCount: Array.isArray(user.joinedCommunities) ? user.joinedCommunities.length : 0,
       postsCount,
       commentsCount,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
     };
 
     return NextResponse.json({ user: formattedUser });
@@ -86,8 +106,8 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
     }
 
     // Store changes for audit log
-    const changes: Record<string, { old: any; new: any }> = {};
-    const updates: Record<string, any> = {};
+    const changes: Record<string, { old: unknown; new: unknown }> = {};
+    const updates: Record<string, unknown> = {};
 
     if (name !== undefined && name !== user.name) {
       changes.name = { old: user.name, new: name };

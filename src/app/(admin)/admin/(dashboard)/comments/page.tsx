@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
@@ -24,8 +24,9 @@ export default function CommentManagementPage() {
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [postId, setPostId] = useState("");
-  const [authorId, setAuthorId] = useState("");
+  const authorId = "";
   const [sort, setSort] = useState("createdAt");
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
@@ -41,14 +42,14 @@ export default function CommentManagementPage() {
   const [editContent, setEditContent] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/api/admin/comments", {
         params: {
           page,
           limit: 15,
-          search,
+          search: debouncedSearch,
           postId: postId || undefined,
           authorId: authorId || undefined,
           sort,
@@ -63,17 +64,18 @@ export default function CommentManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, postId, authorId, sort, order, debouncedSearch]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchComments();
-  }, [page, postId, authorId, sort, order]);
+  }, [fetchComments]);
 
   // Debounced search trigger
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
+      setDebouncedSearch(search);
       setPage(1);
-      fetchComments();
     }, 400);
 
     return () => clearTimeout(delayDebounceFn);

@@ -63,6 +63,7 @@ export default function CommunityManagementPage() {
   }, [page, debouncedSearch, sort, order]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCommunities();
   }, [fetchCommunities]);
 

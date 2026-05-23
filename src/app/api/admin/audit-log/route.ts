@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { AuditLog } from "@/lib/models/AuditLog";
-import { User } from "@/lib/models/User";
 
 // GET /api/admin/audit-log — Retrieve list of admin audit logs with pagination and filters
 export async function GET(req: Request) {

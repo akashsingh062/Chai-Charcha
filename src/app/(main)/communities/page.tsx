@@ -372,7 +372,7 @@ export default function CommunitiesPage() {
               <div className="flex justify-center mt-2">
                 <button
                   onClick={() => setExploreVisibleCount((prev) => prev + 8)}
-                  className="px-6 py-3 rounded-full border border-(--card-border) bg-(--card-background)/80 hover:bg-(--card-background) text-xs font-extrabold text-(--text-secondary) hover:text-(--foreground) hover:border-orange/30 hover:bg-orange/5 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95 hover:scale-[1.02]"
+                  className="px-6 py-3 rounded-full border border-(--card-border) bg-(--card-background)/80 text-xs font-extrabold text-(--text-secondary) hover:text-(--foreground) hover:border-orange/30 hover:bg-orange/5 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95 hover:scale-[1.02]"
                 >
                   <span>Show More Communities</span>
                   <svg className="w-4 h-4 text-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">

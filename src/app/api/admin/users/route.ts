@@ -2,6 +2,25 @@ import { NextResponse } from "next/server";
 import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { User } from "@/lib/models/User";
+import mongoose from "mongoose";
+
+interface UserDoc {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  username: string;
+  email: string;
+  avatar?: string;
+  role: string;
+  karma: number;
+  bio: string;
+  isBanned?: boolean;
+  bannedAt?: Date;
+  followers?: mongoose.Types.ObjectId[];
+  following?: mongoose.Types.ObjectId[];
+  joinedCommunities?: string[] | string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // GET /api/admin/users — List all users with pagination, search, filter, sort
 export async function GET(req: Request) {
@@ -54,7 +73,8 @@ export async function GET(req: Request) {
         .select("name username email avatar role karma bio isBanned bannedAt createdAt updatedAt followers following joinedCommunities")
         .sort(sortCriteria)
         .skip(skip)
-        .limit(limit),
+        .limit(limit)
+        .lean() as unknown as UserDoc[],
       User.countDocuments(query),
     ]);
 
@@ -63,17 +83,17 @@ export async function GET(req: Request) {
       name: u.name,
       username: u.username,
       email: u.email,
-      avatar: u.avatar,
+      avatar: u.avatar || "",
       role: u.role,
       karma: u.karma,
       bio: u.bio,
       isBanned: !!u.isBanned,
-      bannedAt: u.bannedAt,
+      bannedAt: u.bannedAt ? u.bannedAt.toISOString() : null,
       followersCount: u.followers?.length || 0,
       followingCount: u.following?.length || 0,
       communitiesCount: Array.isArray(u.joinedCommunities) ? u.joinedCommunities.length : 0,
-      createdAt: u.createdAt,
-      updatedAt: u.updatedAt,
+      createdAt: u.createdAt.toISOString(),
+      updatedAt: u.updatedAt.toISOString(),
     }));
 
     return NextResponse.json({

@@ -12,7 +12,7 @@ export interface User extends Document {
     bio: string;
     role: 'member' | 'moderator' | 'admin';
     karma: number;
-    joinedCommunities: any;
+    joinedCommunities: string[] | string;
     followers: mongoose.Types.ObjectId[];
     following: mongoose.Types.ObjectId[];
     isBanned?: boolean;

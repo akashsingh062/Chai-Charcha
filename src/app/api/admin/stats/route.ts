@@ -6,7 +6,6 @@ import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { Community } from "@/lib/models/Community";
 import { Report } from "@/lib/models/Report";
-import { Notification } from "@/lib/models/Notification";
 import { Message } from "@/lib/models/Message";
 
 // GET /api/admin/stats — Dashboard aggregate statistics

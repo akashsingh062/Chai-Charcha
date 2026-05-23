@@ -19,7 +19,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   trend,
 }) => {
   return (
-    <div className="rounded-2xl border border-stormy-teal/15 bg-card-background bg-gradient-to-br from-ink-black/40 to-ink-black/10 p-5 shadow-lg backdrop-blur-xs flex items-center justify-between transition-all hover:border-stormy-teal/30">
+    <div className="rounded-2xl border border-stormy-teal/15 bg-card-background bg-linear-to-br from-ink-black/40 to-ink-black/10 p-5 shadow-lg backdrop-blur-xs flex items-center justify-between transition-all hover:border-stormy-teal/30">
       <div className="space-y-2">
         <span className="text-2xs font-extrabold tracking-widest text-stormy-teal uppercase block">
           {title}
