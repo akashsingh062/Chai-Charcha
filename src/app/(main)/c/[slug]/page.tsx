@@ -32,15 +32,28 @@ interface CommunityInfo {
   membersCount: number;
   creator: CreatorInfo;
   createdAt: string;
+  isPrivate?: boolean;
+  rules?: string[];
+}
+
+interface CommunityUserInfo {
+  _id: string;
+  name: string;
+  username: string;
+  avatar?: string;
+  role?: string;
+  karma?: number;
+  isCreator?: boolean;
+  isModerator?: boolean;
 }
 
 function CommunityPageContent() {
   const { slug } = useParams<{ slug: string }>();
-  const { user: isLoggedIn, login, userData, setIsCreatePostOpen } = useAuth();
+  const { user: isLoggedIn, userData, setIsCreatePostOpen } = useAuth();
   const router = useRouter();
 
   // State Management
-  const [community, setCommunity] = useState<any | null>(null);
+  const [community, setCommunity] = useState<CommunityInfo | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
   const [isJoined, setIsJoined] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -60,14 +73,14 @@ function CommunityPageContent() {
 
   // Roster Directory Modal State
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
-  const [membersList, setMembersList] = useState<any[]>([]);
+  const [membersList, setMembersList] = useState<CommunityUserInfo[]>([]);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
 
   // Moderator Hub State
   const [isModPortalOpen, setIsModPortalOpen] = useState(false);
   const [modTab, setModTab] = useState<"requests" | "bans" | "moderators" | "settings">("requests");
-  const [pendingRequestsList, setPendingRequestsList] = useState<any[]>([]);
-  const [bannedUsersList, setBannedUsersList] = useState<any[]>([]);
+  const [pendingRequestsList, setPendingRequestsList] = useState<CommunityUserInfo[]>([]);
+  const [bannedUsersList, setBannedUsersList] = useState<CommunityUserInfo[]>([]);
   const [banInput, setBanInput] = useState("");
   const [modInput, setModInput] = useState("");
   const [rulesInput, setRulesInput] = useState("");
@@ -90,9 +103,10 @@ function CommunityPageContent() {
       } else {
         toast.error("Failed to load community information.");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error fetching community info:", err);
-      if (err.response?.status === 404) {
+      const error = err as { response?: { status?: number } };
+      if (error.response?.status === 404) {
         setCommunity(null);
       }
     } finally {
@@ -108,8 +122,9 @@ function CommunityPageContent() {
       if (res.data?.success) {
         setMembersList(res.data.members);
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || "Failed to load members roster.");
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error.response?.data?.error || "Failed to load members roster.");
     } finally {
       setIsLoadingMembers(false);
     }
@@ -137,8 +152,9 @@ function CommunityPageContent() {
         setPendingRequestsList((prev) => prev.filter((r) => r._id !== userId));
         loadCommunityInfo();
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || "Action failed.");
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error.response?.data?.error || "Action failed.");
     } finally {
       setIsModActionLoading(false);
     }
@@ -173,8 +189,9 @@ function CommunityPageContent() {
         }
         loadCommunityInfo();
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || "Action failed.");
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error.response?.data?.error || "Action failed.");
     } finally {
       setIsModActionLoading(false);
     }
@@ -192,8 +209,9 @@ function CommunityPageContent() {
         setModInput("");
         loadCommunityInfo();
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || "Action failed.");
+    } catch (err) {
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error.response?.data?.error || "Action failed.");
     } finally {
       setIsModActionLoading(false);
     }
@@ -217,13 +235,19 @@ function CommunityPageContent() {
   // Load everything on mount
   useEffect(() => {
     if (!slug) return;
-    loadCommunityInfo();
-    loadCommunityPosts();
+    const timer = setTimeout(() => {
+      loadCommunityInfo();
+      loadCommunityPosts();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [slug, loadCommunityInfo, loadCommunityPosts]);
 
   // Sync visible post counts
   useEffect(() => {
-    setVisibleCount(10);
+    const timer = setTimeout(() => {
+      setVisibleCount(10);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [activeCategory, selectedTag, sortBy]);
 
   // Infinite Scroll Listener
@@ -278,9 +302,10 @@ function CommunityPageContent() {
         
         window.dispatchEvent(new Event("joined-communities-changed"));
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Failed to toggle join status:", err);
-      toast.error(err.response?.data?.error || "Failed to update membership. Please try again.");
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error.response?.data?.error || "Failed to update membership. Please try again.");
     } finally {
       setIsJoinActionLoading(false);
     }
@@ -900,8 +925,9 @@ function CommunityPageContent() {
                           toast.success("Community rules updated successfully!");
                           loadCommunityInfo();
                         }
-                      } catch (err: any) {
-                        toast.error(err.response?.data?.error || "Failed to save rules.");
+                      } catch (err) {
+                        const error = err as { response?: { data?: { error?: string } } };
+                        toast.error(error.response?.data?.error || "Failed to save rules.");
                       } finally {
                         setIsModActionLoading(false);
                       }
@@ -931,8 +957,9 @@ function CommunityPageContent() {
                               setIsModPortalOpen(false);
                               router.push("/");
                             }
-                          } catch (err: any) {
-                            toast.error(err.response?.data?.error || "Failed to delete community.");
+                          } catch (err) {
+                            const error = err as { response?: { data?: { error?: string } } };
+                            toast.error(error.response?.data?.error || "Failed to delete community.");
                           } finally {
                             setIsModActionLoading(false);
                           }
