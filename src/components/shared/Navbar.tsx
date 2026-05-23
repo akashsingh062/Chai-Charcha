@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { SearchBar } from "@/components/search/SearchBar";
 import axiosInstance from "@/lib/axios";
@@ -21,6 +22,8 @@ const Navbar = () => {
   }
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -68,6 +71,9 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-(--nav-bg) border-b border-(--nav-border) text-(--foreground) shadow-lg backdrop-blur-md transition-all duration-300">
+      <Suspense fallback={null}>
+        <NavigationWatcher onClose={() => setMobileMenuOpen(false)} />
+      </Suspense>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
@@ -102,6 +108,17 @@ const Navbar = () => {
           {/* Right Side: Action Zone (Desktop) */}
           <div className="hidden md:flex items-center gap-4">
 
+            {/* Explore Communities Shortcut */}
+            <Link 
+              href="/communities"
+              className="relative rounded-full p-2.5 text-(--btn-icon-text) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-all duration-200 cursor-pointer"
+              aria-label="Explore Communities"
+              title="Explore Communities"
+            >
+              <svg className="h-5.5 w-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+              </svg>
+            </Link>
 
             {user && userData ? (
               <div className="flex items-center gap-4">
@@ -253,7 +270,7 @@ const Navbar = () => {
 
       {/* Mobile Drawer Overlay / Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-(--nav-border) bg-(--nav-bg) backdrop-blur-xl px-4 py-6 shadow-2xl transition-all duration-300">
+        <div className="md:hidden absolute top-full left-0 w-full max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain border-t border-(--nav-border) bg-(--nav-bg) backdrop-blur-xl px-4 py-6 shadow-2xl transition-all duration-300">
           <div className="flex flex-col gap-5">
             
             {/* Mobile Search Bar */}
@@ -296,12 +313,22 @@ const Navbar = () => {
                   <span>Create New Post</span>
                 </button>
 
+
+
                 <Link 
                   href="/" 
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex w-full items-center justify-center rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
                 >
                   Home
+                </Link>
+
+                <Link 
+                  href="/communities" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
+                >
+                  Explore Communities
                 </Link>
 
                 <Link 
@@ -367,6 +394,13 @@ const Navbar = () => {
             ) : (
               <div className="flex flex-col gap-3 pt-2">
                 <Link 
+                  href="/communities"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center rounded-full border border-(--input-border) bg-(--input-bg) py-3 text-sm font-semibold text-(--foreground) transition-all hover:bg-(--btn-secondary-hover-bg) active:scale-95 animate-fade-in"
+                >
+                  Explore Communities
+                </Link>
+                <Link 
                   href="/auth/signin"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center rounded-full border border-(--input-border) bg-(--input-bg) py-3 text-sm font-semibold text-(--foreground) transition-all hover:bg-(--btn-secondary-hover-bg) active:scale-95"
@@ -388,6 +422,22 @@ const Navbar = () => {
       )}
     </nav>
   );
+};
+
+const NavigationWatcher = ({ onClose }: { onClose: () => void }) => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    onCloseRef.current();
+  }, [pathname, searchParams]);
+
+  return null;
 };
 
 export default Navbar;

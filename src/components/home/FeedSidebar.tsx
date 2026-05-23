@@ -189,10 +189,10 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
   );
 
   return (
-    <aside className="lg:col-span-3 flex flex-col gap-6">
+    <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6">
       
       {/* Category filter redesigned as a custom dropdown selector */}
-      <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300 hover:border-orange/15 relative">
+      <div className="hidden lg:block rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300 hover:border-orange/15 relative">
         <div className="absolute top-0 right-0 w-24 h-24 bg-orange/5 rounded-full blur-xl pointer-events-none" />
         
         <div className="flex items-center justify-between px-2 mb-3">
@@ -329,7 +329,7 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
       </div>
 
       {/* Redesigned Hashtag Section */}
-      <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300 hover:border-orange/10 relative overflow-hidden">
+      <div className="hidden lg:block rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300 hover:border-orange/10 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-24 h-24 bg-spicy-paprika/5 rounded-full blur-xl pointer-events-none" />
         
         <div className="flex items-center justify-between px-2 mb-3">

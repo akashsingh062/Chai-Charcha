@@ -653,7 +653,7 @@ function SearchPageContent() {
           
           {/* LEFT COLUMN: Filter Sidebar (Only rendered if discussions active) */}
           {activeSearchTab === "discussions" && (
-            <aside className="lg:col-span-3 flex flex-col gap-6">
+            <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6">
               {/* Category selection - Redesigned as Dropdown only */}
               <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm relative z-20">
                 <div className="flex items-center justify-between px-2 mb-3">
