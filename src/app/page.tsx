@@ -8,6 +8,7 @@ import { FeedSidebar } from "@/components/home/FeedSidebar";
 import { FeedRightSidebar } from "@/components/home/FeedRightSidebar";
 import { DiscussionFeed } from "@/components/home/DiscussionFeed";
 import axiosInstance from "@/lib/axios";
+import { toast } from "@/store/useToastStore";
 import { 
   insertReply, 
   updateComment, 
@@ -75,7 +76,7 @@ export default function Home() {
   // Handle Dynamic Upvote/Downvote actions
   const handleVote = async (id: string, type: "up" | "down") => {
     if (!user) {
-      alert("Please pull up a chair and Log In to vote!");
+      toast.warning("Please pull up a chair and Log In to vote!");
       return;
     }
 
@@ -87,6 +88,7 @@ export default function Home() {
       });
 
       if (res.data?.success) {
+        toast.success(type === "up" ? "Charcha upvoted!" : "Charcha downvoted!");
         setThreads((prevThreads) =>
           prevThreads.map((t) => {
             if (t.id !== id) return t;

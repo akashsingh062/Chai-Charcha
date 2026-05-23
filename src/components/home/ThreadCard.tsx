@@ -5,6 +5,7 @@ import { Thread } from "@/app/(main)/post/postData";
 import { CommentSection } from "../post/CommentSection";
 import axiosInstance from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/store/useToastStore";
 
 interface ThreadCardProps {
   thread: Thread;
@@ -112,6 +113,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
       });
 
       if (res.data?.post) {
+        toast.success("Charcha updated successfully!");
         if (onUpdateThread) {
           onUpdateThread(res.data.post);
         }
@@ -137,13 +139,14 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
     try {
       const res = await axiosInstance.delete(`/api/posts/${thread.id}`);
       if (res.status === 200 || res.data?.message) {
+        toast.success("Charcha deleted successfully!");
         if (onDeletePost) {
           onDeletePost(thread.id);
         }
       }
     } catch (err: any) {
       console.error("Failed to delete post:", err);
-      alert(err.response?.data?.error || "Failed to delete this post. Please try again.");
+      toast.error(err.response?.data?.error || "Failed to delete this post. Please try again.");
     }
   };
 

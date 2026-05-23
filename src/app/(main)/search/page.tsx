@@ -7,6 +7,7 @@ import { Thread } from "@/app/(main)/post/postData";
 import { ThreadCard } from "@/components/home/ThreadCard";
 import axiosInstance from "@/lib/axios";
 import Link from "next/link";
+import { toast } from "@/store/useToastStore";
 import { 
   insertReply, 
   updateComment, 
@@ -96,7 +97,7 @@ function SearchPageContent() {
   // Handle Voting
   const handleVote = async (id: string, type: "up" | "down") => {
     if (!user) {
-      alert("Please pull up a chair and Log In to vote!");
+      toast.warning("Please pull up a chair and Log In to vote!");
       return;
     }
     try {
@@ -107,6 +108,7 @@ function SearchPageContent() {
       });
 
       if (res.data?.success) {
+        toast.success(type === "up" ? "Charcha upvoted!" : "Charcha downvoted!");
         setThreads((prevThreads) =>
           prevThreads.map((t) => {
             if (t.id !== id) return t;

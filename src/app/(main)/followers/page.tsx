@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axios";
+import { toast } from "@/store/useToastStore";
 
 interface FollowedUser {
   _id: string;
@@ -121,13 +122,14 @@ function FollowersPageContent() {
   // Handle follow/unfollow toggle on the card
   const handleFollowToggle = async (targetId: string) => {
     if (!isLoggedIn) {
-      alert("Please Log In to follow other developers!");
+      toast.warning("Please Log In to follow other developers!");
       return;
     }
     try {
       const res = await axiosInstance.post("/api/follow", { targetUserId: targetId });
       if (res.data?.success) {
         const following = res.data.following;
+        toast.success(following ? "Developer followed!" : "Developer unfollowed!");
         setMyFollowingIds((prev) =>
           following ? [...prev, targetId] : prev.filter((id) => id !== targetId)
         );

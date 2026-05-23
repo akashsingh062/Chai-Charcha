@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "@/store/useToastStore";
 
 interface CreatePostModalProps {
   onClose: () => void;
@@ -18,7 +19,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
 
     const categoryToSend = selectedCategory === "Other" ? customCategory.trim() : selectedCategory;
     if (selectedCategory === "Other" && !customCategory.trim()) {
-      alert("Please specify a custom category name.");
+      toast.warning("Please specify a custom category name.");
       return;
     }
 
@@ -29,7 +30,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
 
     const hasSpaces = tagsArray.some((tag) => /\s/.test(tag));
     if (hasSpaces) {
-      alert("Hashtags cannot contain spaces. Use hyphens (e.g. 'web-dev') or run words together (e.g. 'webdev').");
+      toast.warning("Hashtags cannot contain spaces. Use hyphens (e.g. 'web-dev') or run words together (e.g. 'webdev').");
       return;
     }
     
