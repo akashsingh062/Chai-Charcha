@@ -73,7 +73,12 @@ export const CommentNode = ({
           <div 
             className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-black text-floral-white overflow-hidden shadow-md border-2 border-(--input-border)/60 group-hover:border-orange/50 transition-all duration-300 ${getAvatarGradient(comment.author.name)}`}
           >
-            {comment.author.avatar}
+            {comment.author.avatar && (comment.author.avatar.startsWith("http") || comment.author.avatar.startsWith("/")) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={comment.author.avatar} alt={comment.author.name} className="h-full w-full object-cover" />
+            ) : (
+              comment.author.avatar
+            )}
           </div>
           {comment.replies && comment.replies.length > 0 && showReplies && (
             <div className="w-0.5 flex-1 bg-linear-to-b from-orange/20 to-transparent my-1 border-dashed border-l border-orange/10 group-hover:from-orange/30 transition-all duration-300" />
