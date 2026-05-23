@@ -459,7 +459,6 @@ function SearchPageContent() {
                 <div className="space-y-1">
                   {categoriesList.map((cat) => {
                     const isActive = cat === activeCategory;
-                    const count = categoryCounts[cat] || 0;
 
                     return (
                       <button
@@ -472,15 +471,6 @@ function SearchPageContent() {
                         }`}
                       >
                         <span className="truncate pr-2">{cat}</span>
-                        <span
-                          className={`inline-flex shrink-0 items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-mono font-extrabold border ${
-                            isActive
-                              ? "bg-spicy-paprika/20 text-spicy-paprika border-spicy-paprika/30"
-                              : "bg-(--input-bg) text-dust-grey border-(--input-border)"
-                          }`}
-                        >
-                          {count}
-                        </span>
                       </button>
                     );
                   })}

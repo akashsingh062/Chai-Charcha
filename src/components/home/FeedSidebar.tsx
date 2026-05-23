@@ -158,9 +158,6 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
               <span>{activeCategory === "All" ? "All Discussions" : activeCategory}</span>
             </span>
             <span className="flex items-center gap-2">
-              <span className="rounded-full bg-white/10 dark:bg-black/20 border border-current/10 px-2 py-0.5 text-2xs font-bold text-dust-grey">
-                {categoryCounts[activeCategory] || 0}
-              </span>
               <svg 
                 className={`w-4 h-4 text-dust-grey transition-transform duration-300 ${isCategoryOpen ? "rotate-180" : ""}`} 
                 fill="none" 
@@ -199,11 +196,6 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
                         <span>{cat === "All" ? "All Discussions" : cat}</span>
                       </span>
                       <span className="flex items-center gap-2">
-                        <span className={`rounded-full px-2 py-0.5 text-2xs font-bold ${
-                          isActive ? `${getCategoryColor(cat)} bg-white/10 dark:bg-black/20` : "bg-(--profile-bg) text-(--text-role)"
-                        }`}>
-                          {categoryCounts[cat] || 0}
-                        </span>
                         {isActive && (
                           <svg className={`w-4 h-4 ${getCategoryColor(cat)}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
