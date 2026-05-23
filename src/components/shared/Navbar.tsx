@@ -4,12 +4,12 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { SearchBar } from "@/components/search/SearchBar";
 
 const Navbar = () => {
   const { user, userData, handelSignOut, setIsCreatePostOpen } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [mounted, setMounted] = useState(false);
 
@@ -42,13 +42,6 @@ const Navbar = () => {
     setTheme(newTheme);
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Searching for:", searchQuery);
-  };
-
-  
-
   return (
     <nav className="sticky top-0 z-50 w-full bg-(--nav-bg) border-b border-(--nav-border) text-(--foreground) shadow-lg backdrop-blur-md transition-all duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -78,31 +71,9 @@ const Navbar = () => {
           </div>
 
           {/* Center: Search Bar (Hidden on Mobile) */}
-          <form 
-            onSubmit={handleSearchSubmit} 
-            className="hidden md:flex flex-1 max-w-md mx-6"
-          >
-            <div className="relative w-full group">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg 
-                  className="h-5 w-5 text-dust-grey group-focus-within:text-orange transition-colors duration-200" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor" 
-                  strokeWidth="2"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search threads, tags, or developers..."
-                className="block w-full rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 pl-10 pr-4 text-sm text-(--foreground) placeholder-dust-grey/70 outline-none transition-all duration-200 focus:border-(--input-focus-border) focus:ring-2 focus:ring-(--input-focus-ring) focus:bg-(--input-focus-bg)"
-              />
-            </div>
-          </form>
+          <div className="hidden md:flex flex-1 max-w-md mx-6">
+            <SearchBar />
+          </div>
 
           {/* Right Side: Action Zone (Desktop) */}
           <div className="hidden md:flex items-center gap-4">
@@ -273,22 +244,9 @@ const Navbar = () => {
           <div className="flex flex-col gap-5">
             
             {/* Mobile Search Bar */}
-            <form onSubmit={handleSearchSubmit} className="w-full">
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <svg className="h-5 w-5 text-dust-grey" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search threads, tags..."
-                  className="block w-full rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 pl-10 pr-4 text-sm text-(--foreground) placeholder-dust-grey/70 outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg)"
-                />
-              </div>
-            </form>
+            <div className="w-full">
+              <SearchBar />
+            </div>
 
             {/* Mobile Actions Zone */}
             {user && userData ? (
