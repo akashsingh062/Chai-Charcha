@@ -11,7 +11,7 @@ export interface User extends Document {
     bio: string;
     role: 'member' | 'moderator' | 'admin';
     karma: number;
-    joinedCommunities: mongoose.Types.ObjectId[];
+    joinedCommunities: any;
 }
 
 export const UserSchema = new Schema<User>({
@@ -60,10 +60,29 @@ export const UserSchema = new Schema<User>({
         type: Number,
         default: 0
     },
-    joinedCommunities: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Community'
-    }]
-}, { timestamps: true });
+    joinedCommunities: {
+        type: mongoose.Schema.Types.Mixed,
+        default: [],
+        get: function(val: any) {
+            if (typeof val === "string") {
+                try {
+                    return JSON.parse(val);
+                } catch (e) {
+                    return [];
+                }
+            }
+            return Array.isArray(val) ? val : [];
+        }
+    }
+}, { 
+    timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true }
+});
 
-export const User = mongoose.models.User as Model<User> || mongoose.model<User>("User", UserSchema, "user");
+// Clear compiled model cache in development to force re-compilation of updated schema
+if (mongoose.models && mongoose.models.User) {
+    delete mongoose.models.User;
+}
+
+export const User = mongoose.model<User>("User", UserSchema, "user");
