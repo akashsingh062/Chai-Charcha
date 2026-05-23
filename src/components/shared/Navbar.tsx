@@ -12,6 +12,13 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [avatarError, setAvatarError] = useState(false);
+  const [prevAvatar, setPrevAvatar] = useState<string | undefined>(userData?.avatar);
+
+  if (userData?.avatar !== prevAvatar) {
+    setPrevAvatar(userData?.avatar);
+    setAvatarError(false);
+  }
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -143,10 +150,16 @@ const Navbar = () => {
                     className="flex items-center gap-2 rounded-full border border-(--profile-border) bg-(--profile-bg) p-1.5 pr-3 transition-all duration-200 hover:border-(--profile-hover-border) hover:bg-(--profile-hover-bg) cursor-pointer"
                   >
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden">
-                      {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) ? (
-                        <Image src={userData.avatar} alt={userData.name} width={28} height={28} className="h-full w-full object-cover" />
+                      {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) && !avatarError ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img 
+                          src={userData.avatar} 
+                          alt={userData.name} 
+                          className="h-full w-full object-cover" 
+                          onError={() => setAvatarError(true)} 
+                        />
                       ) : (
-                        userData?.avatar || "JD"
+                        userData?.name ? userData.name.substring(0, 2).toUpperCase() : "JD"
                       )}
                     </div>
                     <span className="text-xs font-semibold text-(--text-role)">{userData?.name || "Developer"}</span>
@@ -253,10 +266,16 @@ const Navbar = () => {
               <div className="flex flex-col gap-4 pt-2">
                 <div className="flex items-center gap-3 px-2 py-1">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-(--profile-avatar-bg) font-bold text-(--profile-avatar-text) text-sm overflow-hidden">
-                    {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) ? (
-                      <Image src={userData.avatar} alt={userData.name} width={40} height={40} className="h-full w-full object-cover" />
+                    {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) && !avatarError ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img 
+                        src={userData.avatar} 
+                        alt={userData.name} 
+                        className="h-full w-full object-cover" 
+                        onError={() => setAvatarError(true)} 
+                      />
                     ) : (
-                      userData?.avatar || userData.name.substring(0,2).toUpperCase()
+                      userData?.name ? userData.name.substring(0, 2).toUpperCase() : "JD"
                     )}
                   </div>
                   <div className="flex flex-col min-w-0">
