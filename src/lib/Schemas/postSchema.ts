@@ -43,6 +43,8 @@ export const postSchema = z.object({
     media: z.array(
         z.string().url("Invalid media URL")
     ).max(4, "You can upload up to 4 media items").optional().default([]),
+    
+    isCommunityOnly: z.boolean().optional().default(false),
 });
 
 export type PostInput = z.infer<typeof postSchema>;

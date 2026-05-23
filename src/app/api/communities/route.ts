@@ -23,8 +23,47 @@ export async function GET(req: Request) {
       };
     }
 
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    const currentUserId = session?.user?.id || null;
+
+    let joinedIds: string[] = [];
+    if (currentUserId) {
+      const currentUser = await User.findById(currentUserId);
+      if (currentUser && currentUser.joinedCommunities) {
+        if (Array.isArray(currentUser.joinedCommunities)) {
+          joinedIds = currentUser.joinedCommunities.map((id: any) => id.toString());
+        } else if (typeof currentUser.joinedCommunities === "string") {
+          try {
+            joinedIds = JSON.parse(currentUser.joinedCommunities).map((id: any) => id.toString());
+          } catch (e) {}
+        }
+      }
+    }
+
     const list = await Community.find(query).sort({ membersCount: -1, createdAt: -1 });
-    return NextResponse.json({ success: true, communities: list });
+
+    const formattedList = list.map((c) => {
+      const plain = c.toObject();
+      const isJoined = currentUserId ? (
+        c.creator.toString() === currentUserId || 
+        (c.moderators && c.moderators.some((m: any) => m.toString() === currentUserId)) || 
+        joinedIds.includes(c._id.toString())
+      ) : false;
+
+      const isPending = currentUserId ? (
+        c.pendingRequests && c.pendingRequests.some((id: any) => id.toString() === currentUserId)
+      ) : false;
+
+      return {
+        ...plain,
+        isJoined,
+        isPending
+      };
+    });
+
+    return NextResponse.json({ success: true, communities: formattedList });
   } catch (error) {
     console.error("Error in GET /api/communities:", error);
     const message = error instanceof Error ? error.message : "Internal Server Error";

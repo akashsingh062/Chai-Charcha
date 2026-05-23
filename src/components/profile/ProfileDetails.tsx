@@ -244,6 +244,19 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
             
             <div className="flex items-center gap-2 mt-1 text-sm text-dust-grey">
               <span className="font-semibold text-orange/90 font-mono">@{user.username}</span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(user.username);
+                  toast.success("Username copied to clipboard!");
+                }}
+                className="p-1 rounded-lg text-dust-grey hover:text-orange hover:bg-orange/10 active:scale-90 transition-all duration-200 cursor-pointer flex items-center justify-center shrink-0"
+                title="Copy Username"
+                aria-label="Copy Username"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v8.25A2.25 2.25 0 006 16.5h2.25m8.25-8.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-7.5A2.25 2.25 0 018.25 18v-1.5m8.25-8.25h-6A2.25 2.25 0 008.25 10.5v6" />
+                </svg>
+              </button>
               <span className="text-dust-grey/40">•</span>
               <span className="flex items-center gap-1">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

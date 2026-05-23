@@ -326,16 +326,41 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
       {/* Author card & Category tag */}
       <div className={`flex items-center justify-between ${thread.isSoftDeleted ? "mt-4" : ""}`}>
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-2xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden">
-            {thread.author.avatar && (thread.author.avatar.startsWith("http") || thread.author.avatar.startsWith("/")) ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={thread.author.avatar} alt={thread.author.name} className="h-full w-full object-cover" />
-            ) : (
-              thread.author.avatar
-            )}
-          </div>
+          {thread.author.username ? (
+            <Link 
+              href={`/profile?username=${thread.author.username}`} 
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-2xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden hover:opacity-85 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer shrink-0"
+              title={`View ${thread.author.name}'s Profile`}
+            >
+              {thread.author.avatar && (thread.author.avatar.startsWith("http") || thread.author.avatar.startsWith("/")) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={thread.author.avatar} alt={thread.author.name} className="h-full w-full object-cover" />
+              ) : (
+                thread.author.avatar
+              )}
+            </Link>
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-2xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden shrink-0">
+              {thread.author.avatar && (thread.author.avatar.startsWith("http") || thread.author.avatar.startsWith("/")) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={thread.author.avatar} alt={thread.author.name} className="h-full w-full object-cover" />
+              ) : (
+                thread.author.avatar
+              )}
+            </div>
+          )}
           <div className="flex flex-col">
-            <span className="text-xs font-semibold text-(--foreground)">{thread.author.name}</span>
+            {thread.author.username ? (
+              <Link 
+                href={`/profile?username=${thread.author.username}`} 
+                className="text-xs font-semibold text-(--foreground) hover:text-orange transition-colors duration-200 cursor-pointer"
+                title={`View ${thread.author.name}'s Profile`}
+              >
+                {thread.author.name}
+              </Link>
+            ) : (
+              <span className="text-xs font-semibold text-(--foreground)">{thread.author.name}</span>
+            )}
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="text-[10px] text-dust-grey font-mono leading-none">{thread.author.role}</span>
               {thread.community && (

@@ -80,3 +80,102 @@ export async function GET(
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+// POST /api/communities/[slug]/members - Kick a member (Admins/Mods only)
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { slug } = await params;
+    const { username } = await req.json();
+
+    if (!username) {
+      return NextResponse.json({ error: "Invalid body parameters. Username is required." }, { status: 400 });
+    }
+
+    await connectDB();
+
+    const community = await Community.findOne({ slug });
+    if (!community) {
+      return NextResponse.json({ error: "Community not found" }, { status: 404 });
+    }
+
+    const currentUserId = session.user.id;
+    const isAdmin = community.creator.toString() === currentUserId;
+    const isMod = isAdmin || (community.moderators && community.moderators.some((id: any) => id.toString() === currentUserId));
+
+    if (!isMod) {
+      return NextResponse.json({ error: "Forbidden. Only moderators can kick members." }, { status: 403 });
+    }
+
+    // Find the target user by username
+    const targetUser = await User.findOne({ username: username.trim().toLowerCase() });
+    if (!targetUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 444 });
+    }
+
+    const targetUserId = targetUser._id.toString();
+
+    // Check permissions:
+    // 1. Cannot kick the creator
+    if (community.creator.toString() === targetUserId) {
+      return NextResponse.json({ error: "You cannot kick the community creator." }, { status: 400 });
+    }
+
+    // 2. Moderators cannot kick other moderators (only creator can)
+    const isTargetMod = community.moderators && community.moderators.some((id: any) => id.toString() === targetUserId);
+    if (isTargetMod && !isAdmin) {
+      return NextResponse.json({ error: "Moderators cannot kick other moderators." }, { status: 403 });
+    }
+
+    // Kick: remove community from targetUser's joinedCommunities list, and decrement membersCount
+    let joined: string[] = [];
+    if (targetUser.joinedCommunities) {
+      if (Array.isArray(targetUser.joinedCommunities)) {
+        joined = targetUser.joinedCommunities.map((id: any) => id.toString());
+      } else if (typeof targetUser.joinedCommunities === "string") {
+        try {
+          joined = JSON.parse(targetUser.joinedCommunities).map((id: any) => id.toString());
+        } catch (e) {}
+      }
+    }
+
+    const communityIdStr = community._id.toString();
+    const isJoined = joined.includes(communityIdStr);
+
+    if (isJoined) {
+      targetUser.joinedCommunities = joined.filter((id) => id !== communityIdStr);
+      await targetUser.save();
+
+      await Community.findOneAndUpdate(
+        { slug },
+        { 
+          $pull: { pendingRequests: targetUser._id, moderators: targetUser._id },
+          $inc: { membersCount: -1 }
+        }
+      );
+    } else {
+      // Just in case they had moderator rights or pending request but hadn't fully joined
+      await Community.findOneAndUpdate(
+        { slug },
+        { $pull: { pendingRequests: targetUser._id, moderators: targetUser._id } }
+      );
+    }
+
+    return NextResponse.json({ success: true, message: "User successfully kicked from community." });
+  } catch (error) {
+    console.error("Error in POST /api/communities/[slug]/members:", error);
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+

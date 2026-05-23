@@ -30,6 +30,20 @@ interface DeveloperUser {
   createdAt: string;
 }
 
+interface CommunitySearchInfo {
+  _id: string;
+  name: string;
+  slug: string;
+  description: string;
+  membersCount: number;
+  creator: string;
+  isPrivate?: boolean;
+  isJoined?: boolean;
+  isPending?: boolean;
+  rules?: string[];
+  createdAt: string;
+}
+
 function SearchPageContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
@@ -39,13 +53,15 @@ function SearchPageContent() {
   // States
   const [threads, setThreads] = useState<Thread[]>([]);
   const [users, setUsers] = useState<DeveloperUser[]>([]);
-  const [activeSearchTab, setActiveSearchTab] = useState<"discussions" | "profiles">("discussions");
+  const [communities, setCommunities] = useState<CommunitySearchInfo[]>([]);
+  const [activeSearchTab, setActiveSearchTab] = useState<"discussions" | "profiles" | "communities">("discussions");
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [sortBy, setSortBy] = useState<"relevance" | "popular" | "recent">("relevance");
   
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [isLoadingCommunities, setIsLoadingCommunities] = useState(false);
   const [visibleCount, setVisibleCount] = useState(10);
 
   // Fetch all posts from API
@@ -78,13 +94,29 @@ function SearchPageContent() {
     }
   }, []);
 
+  // Fetch all communities from API
+  const loadCommunities = useCallback(async () => {
+    try {
+      setIsLoadingCommunities(true);
+      const res = await axiosInstance.get("/api/communities");
+      if (res.data?.success && res.data?.communities) {
+        setCommunities(res.data.communities);
+      }
+    } catch (err) {
+      console.error("Error loading communities for search:", err);
+    } finally {
+      setIsLoadingCommunities(false);
+    }
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       loadPosts();
       loadUsers();
+      loadCommunities();
     }, 0);
     return () => clearTimeout(timer);
-  }, [loadPosts, loadUsers]);
+  }, [loadPosts, loadUsers, loadCommunities]);
 
   // Reset pagination on filter or query change
   useEffect(() => {
@@ -304,6 +336,56 @@ function SearchPageContent() {
     return fuse.search(cleanQuery).map((res) => res.item);
   }, [users, queryParam]);
 
+  // Client-side fuzzy search on communities list using queryParam
+  const searchedCommunities = useMemo(() => {
+    const cleanQuery = queryParam.trim();
+    if (!cleanQuery) return communities;
+
+    const fuse = new Fuse(communities, {
+      keys: ["name", "slug", "description"],
+      threshold: 0.35,
+    });
+
+    return fuse.search(cleanQuery).map((res) => res.item);
+  }, [communities, queryParam]);
+
+  // Join/leave communities directly from search results
+  const handleCommunityJoinLeave = async (comm: CommunitySearchInfo) => {
+    if (!user) {
+      toast.warning("Please pull up a chair and Log In to join this community!");
+      return;
+    }
+    try {
+      const action = (comm.isJoined || comm.isPending) ? "leave" : "join";
+      const res = await axiosInstance.post(`/api/communities/${comm.slug}/join`, { action });
+      
+      if (res.data?.success) {
+        setCommunities((prev) =>
+          prev.map((c) => {
+            if (c._id !== comm._id) return c;
+            return {
+              ...c,
+              isJoined: res.data.isJoined || false,
+              isPending: res.data.isPending || false,
+              membersCount: res.data.membersCount,
+            };
+          })
+        );
+        
+        if (res.data.isPending) {
+          toast.success("Join request sent! Pending moderator approval.");
+        } else {
+          toast.success(res.data.isJoined ? `Joined c/${comm.slug}!` : `Left c/${comm.slug}!`);
+        }
+        
+        window.dispatchEvent(new Event("joined-communities-changed"));
+      }
+    } catch (err) {
+      console.error("Failed to join community from search:", err);
+      toast.error("Failed to update membership. Please try again.");
+    }
+  };
+
   // Filter threads by category and tag
   const filteredThreads = useMemo(() => {
     return searchedThreads
@@ -386,7 +468,7 @@ function SearchPageContent() {
               </span>
             </h1>
             <p className="text-xs text-dust-grey mt-1.5 font-medium">
-              Found {filteredThreads.length} discussions and {searchedUsers.length} developer profiles.
+              Found {filteredThreads.length} discussions, {searchedCommunities.length} communities, and {searchedUsers.length} developer profiles.
             </p>
           </div>
 
@@ -402,6 +484,16 @@ function SearchPageContent() {
                 }`}
               >
                 Discussions ({filteredThreads.length})
+              </button>
+              <button
+                onClick={() => setActiveSearchTab("communities")}
+                className={`rounded-full px-4 py-1.5 transition-all cursor-pointer ${
+                  activeSearchTab === "communities"
+                    ? "bg-spicy-paprika text-floral-white shadow-md shadow-spicy-paprika/20"
+                    : "text-dust-grey hover:text-(--foreground)"
+                }`}
+              >
+                Communities ({searchedCommunities.length})
               </button>
               <button
                 onClick={() => setActiveSearchTab("profiles")}
@@ -589,6 +681,78 @@ function SearchPageContent() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                     </svg>
                   </button>
+                )}
+              </div>
+            ) : activeSearchTab === "communities" ? (
+              // Communities Search Cards Grid
+              <div className="flex flex-col gap-4">
+                {isLoadingCommunities ? (
+                  <div className="text-center py-20 flex flex-col items-center justify-center text-dust-grey gap-3">
+                    <svg className="animate-spin h-8 w-8 text-spicy-paprika" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span className="text-xs font-mono tracking-wider animate-pulse">Brewing matching communities...</span>
+                  </div>
+                ) : searchedCommunities.length === 0 ? (
+                  <div className="text-center py-20 rounded-2xl border border-dashed border-(--card-border) bg-(--card-background) flex flex-col items-center justify-center p-6">
+                    <div className="text-spicy-paprika mb-3 bg-spicy-paprika/5 p-4 rounded-full border border-spicy-paprika/10">
+                      <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 3.03v.568c0 .334.148.65.405.864l.406.34a.75.75 0 010 1.142l-.406.34a1.204 1.204 0 00-.405.864v.568c0 .26.104.51.29.697l.406.406a.75.75 0 001.061 0l.406-.406a1.204 1.204 0 01.864-.405h.568c.26 0 .51-.104.697-.29l.406-.406a.75.75 0 000-1.061l-.406-.406a1.204 1.204 0 01-.29-.864v-.568a.75.75 0 00-.75-.75h-.568a1.204 1.204 0 01-.864-.29l-.406-.406a.75.75 0 00-1.061 0l-.406.406a1.204 1.204 0 01-.29.29zm-6.75 4.5v.568c0 .334.148.65.405.864l.406.34a.75.75 0 010 1.142l-.406.34a1.204 1.204 0 00-.405.864v.568c0 .26.104.51.29.697l.406.406a.75.75 0 001.061 0l.406-.406a1.204 1.204 0 01.864-.405h.568c.26 0 .51-.104.697-.29l.406-.406a.75.75 0 000-1.061l-.406-.406a1.204 1.204 0 01-.29-.864v-.568a.75.75 0 00-.75-.75h-.568a1.204 1.204 0 01-.864-.29l-.406-.406a.75.75 0 00-1.061 0l-.406.406a1.204 1.204 0 01-.29.29zM18 15.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-(--foreground)">No communities match</h3>
+                    <p className="text-xs text-dust-grey mt-1.5 max-w-sm">
+                      We could not find any active communities matching your search keyword.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {searchedCommunities.map((comm) => (
+                      <div
+                        key={comm._id}
+                        className="rounded-3xl border border-(--card-border) bg-(--card-background)/40 hover:bg-(--card-background)/70 backdrop-blur-xs p-6 shadow-md transition-all duration-300 hover:shadow-lg flex flex-col justify-between"
+                      >
+                        <Link href={`/c/${comm.slug}`} className="group flex-1">
+                          <div className="flex items-center gap-3.5 mb-4">
+                            <div className="w-12 h-12 rounded-2xl bg-orange/10 border border-orange/20 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-300">
+                              <svg className="w-6 h-6 text-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 3.03v.568c0 .334.148.65.405.864l.406.34a.75.75 0 010 1.142l-.406.34a1.204 1.204 0 00-.405.864v.568c0 .26.104.51.29.697l.406.406a.75.75 0 001.061 0l.406-.406a1.204 1.204 0 01.864-.405h.568c.26 0 .51-.104.697-.29l.406-.406a.75.75 0 000-1.061l-.406-.406a1.204 1.204 0 01-.29-.864v-.568a.75.75 0 00-.75-.75h-.568a1.204 1.204 0 01-.864-.29l-.406-.406a.75.75 0 00-1.061 0l-.406.406a1.204 1.204 0 01-.29.29zm-6.75 4.5v.568c0 .334.148.65.405.864l.406.34a.75.75 0 010 1.142l-.406.34a1.204 1.204 0 00-.405.864v.568c0 .26.104.51.29.697l.406.406a.75.75 0 001.061 0l.406-.406a1.204 1.204 0 01.864-.405h.568c.26 0 .51-.104.697-.29l.406-.406a.75.75 0 000-1.061l-.406-.406a1.204 1.204 0 01-.29-.864v-.568a.75.75 0 00-.75-.75h-.568a1.204 1.204 0 01-.864-.29l-.406-.406a.75.75 0 00-1.061 0l-.406.406a1.204 1.204 0 01-.29.29zM18 15.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            </div>
+                            <div className="min-w-0">
+                              <h3 className="text-xs font-black text-(--foreground) truncate group-hover:text-orange transition-colors">
+                                c/{comm.slug}
+                              </h3>
+                              <span className="block text-[10px] text-dust-grey font-semibold mt-0.5">
+                                {comm.name}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-(--text-secondary) line-clamp-2 leading-relaxed mb-4">
+                            {comm.description}
+                          </p>
+                        </Link>
+                        <div className="border-t border-(--divider-color)/40 pt-4 flex items-center justify-between mt-2">
+                          <span className="text-[11px] font-bold text-dust-grey font-mono">
+                            {comm.membersCount} {comm.membersCount === 1 ? "member" : "members"}
+                          </span>
+                          <button
+                            onClick={() => handleCommunityJoinLeave(comm)}
+                            className={`px-4 py-1.5 rounded-full text-xs font-extrabold cursor-pointer border shadow-sm transition-all duration-300 shrink-0 ${
+                              comm.isJoined
+                                ? "bg-spicy-paprika/15 border-spicy-paprika/30 text-spicy-paprika hover:bg-spicy-paprika/25"
+                                : comm.isPending
+                                ? "bg-orange/15 border-orange text-orange italic"
+                                : "bg-orange border-orange text-ink-black hover:bg-orange-600"
+                            }`}
+                          >
+                            {comm.isJoined ? "Joined" : comm.isPending ? "Pending" : "Join"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             ) : (

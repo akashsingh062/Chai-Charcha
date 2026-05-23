@@ -68,6 +68,11 @@ export async function GET(req: Request) {
       }
     }
 
+    // If fetching global feed (neither community slug/id nor personalized joined-only feed)
+    if (!communityId && !communitySlug && feed !== "home") {
+      query.isCommunityOnly = { $ne: true };
+    }
+
     // Hide soft deleted posts, unless the user is a moderator of this specific community
     if (!isCurrentUserMod) {
       query.isSoftDeleted = { $ne: true };
@@ -173,6 +178,7 @@ export async function POST(req: Request) {
       tags: validatedData.data.tags || [],
       category: category,
       community: validatedData.data.community || null,
+      isCommunityOnly: validatedData.data.isCommunityOnly || false,
       upvotes: [],
       downvotes: [],
       commentCount: 0,

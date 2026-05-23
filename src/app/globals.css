@@ -11,7 +11,7 @@
   --link-color: #fca311; /* orange */
   --link-hover-color: #d68502; /* orange-600 */
   --logo-invert: 0;
-  --dust-grey: #5a5141; /* high contrast charcoal-grey for light mode */
+  --dust-grey: #4f4639; /* high contrast charcoal-grey for light mode */
   
   /* Buttons */
   --btn-primary-bg: #252422; /* carbon-black */
@@ -46,7 +46,6 @@
   --profile-avatar-bg: #fca311;
   --profile-avatar-text: #001524;
   --text-role: #403d39;
-  --dust-grey: #ccc5b9; /* standard light-grey for dark mode */
 }
 
 .dark {
@@ -92,6 +91,7 @@
   --profile-avatar-bg: #15616d;
   --profile-avatar-text: #fffcf2;
   --text-role: #f5f3f1;
+  --dust-grey: #ccc5b9; /* standard light-grey for dark mode */
 }
 
 

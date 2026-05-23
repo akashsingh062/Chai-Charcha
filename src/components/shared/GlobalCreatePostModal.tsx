@@ -15,7 +15,7 @@ export const GlobalCreatePostModal = () => {
 
   if (!isCreatePostOpen) return null;
 
-  const handleSubmit = async (post: { title: string; excerpt: string; category: string; tagsStr: string; communityId: string | null }) => {
+  const handleSubmit = async (post: { title: string; excerpt: string; category: string; tagsStr: string; communityId: string | null; isCommunityOnly?: boolean }) => {
     const tagsArray = post.tagsStr
       .split(",")
       .map((t) => t.trim().toLowerCase())
@@ -28,6 +28,7 @@ export const GlobalCreatePostModal = () => {
         tags: tagsArray.length > 0 ? tagsArray : ["general"],
         category: post.category,
         community: post.communityId,
+        isCommunityOnly: post.isCommunityOnly || false,
       });
 
       if (res.data?.post) {
@@ -36,15 +37,11 @@ export const GlobalCreatePostModal = () => {
         
         // Dispatch custom event to notify current page to reload/refresh posts list
         window.dispatchEvent(new Event("new-post-created"));
-        
-        // If the user is on page other than Home (/) or My Posts (/post), redirect to Home
-        if (pathname !== "/" && pathname !== "/post") {
-          router.push("/");
-        }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error creating post:", err);
-      toast.error("Failed to create post. Please check the character requirements (Title: 3-100 chars, Body: 10-1000 chars).");
+      const apiError = err.response?.data?.error || err.response?.data?.message;
+      toast.error(apiError || "Failed to create post. Please check the character requirements (Title: 3-100 chars, Body: 10-1000 chars).");
     }
   };
 

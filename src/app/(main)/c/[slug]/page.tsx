@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, Suspense } from "react";
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Thread } from "@/app/(main)/post/postData";
@@ -47,6 +47,10 @@ interface CommunityUserInfo {
   isModerator?: boolean;
 }
 
+interface BanSuggestionUser extends CommunityUserInfo {
+  isAlreadyBanned: boolean;
+}
+
 function CommunityPageContent() {
   const { slug } = useParams<{ slug: string }>();
   const { user: isLoggedIn, userData, setIsCreatePostOpen } = useAuth();
@@ -85,6 +89,7 @@ function CommunityPageContent() {
   const [modInput, setModInput] = useState("");
   const [rulesInput, setRulesInput] = useState("");
   const [isModActionLoading, setIsModActionLoading] = useState(false);
+  const [allUsersList, setAllUsersList] = useState<CommunityUserInfo[]>([]);
 
   // 1. Fetch Community Metadata
   const loadCommunityInfo = useCallback(async () => {
@@ -115,7 +120,7 @@ function CommunityPageContent() {
   }, [slug]);
 
   // Fetch Member Roster
-  const fetchMembersList = async () => {
+  const fetchMembersList = useCallback(async () => {
     try {
       setIsLoadingMembers(true);
       const res = await axiosInstance.get(`/api/communities/${slug}/members`);
@@ -128,10 +133,10 @@ function CommunityPageContent() {
     } finally {
       setIsLoadingMembers(false);
     }
-  };
+  }, [slug]);
 
   // Fetch Pending Queue
-  const fetchPendingRequests = async () => {
+  const fetchPendingRequests = useCallback(async () => {
     try {
       const res = await axiosInstance.get(`/api/communities/${slug}/requests`);
       if (res.data?.success) {
@@ -140,7 +145,7 @@ function CommunityPageContent() {
     } catch (err) {
       console.error("Error fetching requests:", err);
     }
-  };
+  }, [slug]);
 
   // Process Approval Queue
   const handleProcessRequest = async (userId: string, action: "approve" | "reject") => {
@@ -161,7 +166,7 @@ function CommunityPageContent() {
   };
 
   // Fetch Banned Users
-  const fetchBannedUsers = async () => {
+  const fetchBannedUsers = useCallback(async () => {
     try {
       const res = await axiosInstance.get(`/api/communities/${slug}/bans`);
       if (res.data?.success) {
@@ -170,7 +175,7 @@ function CommunityPageContent() {
     } catch (err) {
       console.error("Error fetching bans:", err);
     }
-  };
+  }, [slug]);
 
   // Process Bans
   const handleBanAction = async (action: "ban" | "unban", usernameStr?: string) => {
@@ -208,6 +213,7 @@ function CommunityPageContent() {
         toast.success(`User @${uName} successfully ${action === "promote" ? "appointed moderator" : "demoted"}!`);
         setModInput("");
         loadCommunityInfo();
+        fetchMembersList();
       }
     } catch (err) {
       const error = err as { response?: { data?: { error?: string } } };
@@ -249,6 +255,68 @@ function CommunityPageContent() {
     }, 0);
     return () => clearTimeout(timer);
   }, [activeCategory, selectedTag, sortBy]);
+
+  // Load Moderator Hub lists and suggestions
+  useEffect(() => {
+    if (isModPortalOpen) {
+      const timer = setTimeout(() => {
+        fetchMembersList();
+        fetchBannedUsers();
+        fetchPendingRequests();
+      }, 0);
+      
+      const loadAllUsers = async () => {
+        try {
+          const res = await axiosInstance.get("/api/profile?all=true");
+          if (res.data?.success || res.data?.users) {
+            setAllUsersList(res.data.users);
+          }
+        } catch (e) {
+          console.error("Error loading user suggestions:", e);
+        }
+      };
+      loadAllUsers();
+
+      return () => clearTimeout(timer);
+    }
+  }, [isModPortalOpen, fetchMembersList, fetchBannedUsers, fetchPendingRequests]);
+
+  // Suggest existing users for Banning/Unbanning
+  const banSuggestions = useMemo(() => {
+    const query = banInput.trim().toLowerCase();
+    if (!query) return [];
+    
+    return allUsersList.filter((u) => {
+      const isSelf = userData && (userData.id === u._id || userData.id === u._id.toString());
+      const matchesUsername = u.username.toLowerCase().includes(query);
+      const matchesName = u.name.toLowerCase().includes(query);
+      return (matchesUsername || matchesName) && !isSelf;
+    }).map(u => ({
+      ...u,
+      isAlreadyBanned: bannedUsersList.some((b) => b._id === u._id)
+    })).slice(0, 5);
+  }, [banInput, allUsersList, bannedUsersList, userData]);
+
+  const isInputUserBanned = useMemo(() => {
+    const input = banInput.trim().toLowerCase();
+    return bannedUsersList.some(b => b.username.toLowerCase() === input);
+  }, [banInput, bannedUsersList]);
+
+  // Suggest joined members who are not moderators yet
+  const modSuggestions = useMemo(() => {
+    const query = modInput.trim().toLowerCase();
+    if (!query) return [];
+
+    return membersList.filter((u) => {
+      const isSelf = userData && (userData.id === u._id || userData.id === u._id.toString());
+      const creatorId = community?.creator?._id || community?.creator;
+      const isCreator = creatorId === u._id;
+      const isAlreadyMod = u.isModerator;
+      const matchesUsername = u.username.toLowerCase().includes(query);
+      const matchesName = u.name.toLowerCase().includes(query);
+      return (matchesUsername || matchesName) && !isCreator && !isAlreadyMod && !isSelf;
+    }).slice(0, 5);
+  }, [modInput, membersList, community, userData]);
 
   // Infinite Scroll Listener
   useEffect(() => {
@@ -668,6 +736,29 @@ function CommunityPageContent() {
                         <span className="text-3xs font-extrabold text-dust-grey px-2 py-0.5 rounded-full bg-(--nav-border)/40 shrink-0 font-mono">
                           +{m.karma || 0} rep
                         </span>
+                        {isModerator && !m.isCreator && (!m.isModerator || isAdmin) && m._id.toString() !== userData?.id && (
+                          <button
+                            onClick={async () => {
+                              const conf = confirm(`Are you sure you want to kick @${m.username} from c/${slug}?`);
+                              if (!conf) return;
+                              try {
+                                const res = await axiosInstance.post(`/api/communities/${slug}/members`, { username: m.username });
+                                if (res.data?.success) {
+                                  toast.success(`Successfully kicked @${m.username}!`);
+                                  fetchMembersList();
+                                  loadCommunityInfo();
+                                }
+                              } catch (err) {
+                                const error = err as { response?: { data?: { error?: string } } };
+                                toast.error(error.response?.data?.error || "Failed to kick member.");
+                              }
+                            }}
+                            className="px-2 py-1 rounded-md bg-transparent border border-spicy-paprika text-spicy-paprika hover:bg-spicy-paprika/10 active:scale-95 text-[9px] font-black uppercase transition-all cursor-pointer select-none shrink-0"
+                            title={`Kick @${m.username}`}
+                          >
+                            Kick
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))
@@ -717,7 +808,7 @@ function CommunityPageContent() {
               </button>
               {isAdmin && (
                 <button
-                  onClick={() => setModTab("moderators")}
+                  onClick={() => { setModTab("moderators"); fetchMembersList(); }}
                   className={`pb-1 cursor-pointer transition-colors ${modTab === "moderators" ? "text-orange border-b-2 border-orange" : "hover:text-(--foreground)"}`}
                 >
                   Mods Management
@@ -782,7 +873,7 @@ function CommunityPageContent() {
                 <div className="space-y-4">
                   {/* Ban Form */}
                   <div className="flex items-end gap-2 border-b border-(--divider-color)/40 pb-4">
-                    <div className="flex-1">
+                    <div className="flex-1 relative">
                       <label htmlFor="ban-username" className="block text-2xs font-extrabold text-dust-grey uppercase mb-1">
                         Ban User by Username
                       </label>
@@ -794,15 +885,58 @@ function CommunityPageContent() {
                         placeholder="e.g. janesmith"
                         className="w-full text-xs rounded-xl border border-(--input-border) bg-(--input-bg) px-3 py-2.5 outline-none focus:border-orange text-(--foreground)"
                         disabled={isModActionLoading}
+                        autoComplete="off"
                       />
+                      {banSuggestions.length > 0 && (
+                        <div className="absolute left-0 right-0 mt-1 z-50 rounded-xl border border-(--dropdown-border) bg-(--dropdown-bg)/95 backdrop-blur-md shadow-lg overflow-hidden py-1 max-h-40 overflow-y-auto animate-fade-in">
+                          {banSuggestions.map((u: BanSuggestionUser) => (
+                            <button
+                              key={u._id}
+                              type="button"
+                              onClick={() => setBanInput(u.username)}
+                              className="w-full flex items-center justify-between px-3 py-2 text-left text-xs text-(--foreground) hover:bg-orange/10 transition-colors cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="h-5 w-5 rounded-full overflow-hidden border border-orange/15 flex items-center justify-center bg-(--profile-bg) text-[8px] font-bold text-floral-white shrink-0">
+                                  {u.avatar && (u.avatar.startsWith("http") || u.avatar.startsWith("/")) ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={u.avatar} alt={u.name} className="h-full w-full object-cover" />
+                                  ) : (
+                                    u.avatar || u.name.substring(0, 2).toUpperCase()
+                                  )}
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="font-extrabold truncate text-3xs">{u.name}</span>
+                                  <span className="text-[9px] text-dust-grey font-mono truncate">@{u.username}</span>
+                                </div>
+                              </div>
+                              {u.isAlreadyBanned && (
+                                <span className="text-[8px] font-black uppercase text-spicy-paprika bg-spicy-paprika/15 px-1.5 py-0.5 rounded border border-spicy-paprika/20 shrink-0">
+                                  Banned
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <button
-                      onClick={() => handleBanAction("ban")}
-                      disabled={isModActionLoading || !banInput.trim()}
-                      className="px-4 py-2.5 rounded-xl bg-spicy-paprika text-floral-white font-extrabold text-xs cursor-pointer shadow-md hover:bg-spicy-paprika-600 disabled:opacity-55 shrink-0"
-                    >
-                      Ban User
-                    </button>
+                    {isInputUserBanned ? (
+                      <button
+                        onClick={() => handleBanAction("unban")}
+                        disabled={isModActionLoading}
+                        className="px-4 py-2.5 rounded-xl bg-orange text-ink-black font-extrabold text-xs cursor-pointer shadow-md hover:bg-orange-600 disabled:opacity-55 shrink-0"
+                      >
+                        Unban User
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleBanAction("ban")}
+                        disabled={isModActionLoading || !banInput.trim()}
+                        className="px-4 py-2.5 rounded-xl bg-spicy-paprika text-floral-white font-extrabold text-xs cursor-pointer shadow-md hover:bg-spicy-paprika-600 disabled:opacity-55 shrink-0"
+                      >
+                        Ban User
+                      </button>
+                    )}
                   </div>
 
                   {/* Banned Users List */}
@@ -846,7 +980,7 @@ function CommunityPageContent() {
                 <div className="space-y-4">
                   {/* Promote Form */}
                   <div className="flex items-end gap-2 border-b border-(--divider-color)/40 pb-4">
-                    <div className="flex-1">
+                    <div className="flex-1 relative">
                       <label htmlFor="mod-username" className="block text-2xs font-extrabold text-dust-grey uppercase mb-1">
                         Appoint Moderator by Username
                       </label>
@@ -858,7 +992,33 @@ function CommunityPageContent() {
                         placeholder="e.g. johndoe"
                         className="w-full text-xs rounded-xl border border-(--input-border) bg-(--input-bg) px-3 py-2.5 outline-none focus:border-orange text-(--foreground)"
                         disabled={isModActionLoading}
+                        autoComplete="off"
                       />
+                      {modSuggestions.length > 0 && (
+                        <div className="absolute left-0 right-0 mt-1 z-50 rounded-xl border border-(--dropdown-border) bg-(--dropdown-bg)/95 backdrop-blur-md shadow-lg overflow-hidden py-1 max-h-40 overflow-y-auto animate-fade-in">
+                          {modSuggestions.map((u: CommunityUserInfo) => (
+                            <button
+                              key={u._id}
+                              type="button"
+                              onClick={() => setModInput(u.username)}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs text-(--foreground) hover:bg-orange/10 transition-colors cursor-pointer"
+                            >
+                              <div className="h-5 w-5 rounded-full overflow-hidden border border-orange/15 flex items-center justify-center bg-(--profile-bg) text-[8px] font-bold text-floral-white shrink-0">
+                                {u.avatar && (u.avatar.startsWith("http") || u.avatar.startsWith("/")) ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img src={u.avatar} alt={u.name} className="h-full w-full object-cover" />
+                                ) : (
+                                  u.avatar || u.name.substring(0, 2).toUpperCase()
+                                )}
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className="font-extrabold truncate text-3xs">{u.name}</span>
+                                <span className="text-[9px] text-dust-grey font-mono truncate">@{u.username}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <button
                       onClick={() => handleModAction("promote")}
@@ -869,7 +1029,7 @@ function CommunityPageContent() {
                     </button>
                   </div>
 
-                  {/* List of Current Mods */}
+                   {/* List of Current Mods */}
                   <div className="space-y-3">
                     <h4 className="text-2xs font-extrabold uppercase text-dust-grey tracking-wider">Moderators</h4>
                     {/* Creator is always head admin */}
@@ -892,6 +1052,39 @@ function CommunityPageContent() {
                         Head Admin
                       </span>
                     </div>
+
+                    {/* Appointed Moderators */}
+                    {isLoadingMembers ? (
+                      <div className="py-4 text-center">
+                        <div className="w-4 h-4 border-2 border-orange border-t-transparent rounded-full animate-spin mx-auto"></div>
+                      </div>
+                    ) : (
+                      membersList.filter(m => m.isModerator && !m.isCreator).map(mod => (
+                        <div key={mod._id} className="flex items-center justify-between p-3 bg-(--card-background)/40 border border-(--card-border) rounded-xl">
+                          <div className="flex items-center gap-2">
+                            <div className="h-7 w-7 rounded-full overflow-hidden border border-orange/20 shadow-xs flex items-center justify-center bg-(--profile-bg) text-2xs font-bold text-floral-white">
+                              {mod.avatar && (mod.avatar.startsWith("http") || mod.avatar.startsWith("/")) ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={mod.avatar} alt={mod.name} className="h-full w-full object-cover" />
+                              ) : (
+                                mod.avatar || mod.name.substring(0, 2).toUpperCase()
+                              )}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs font-extrabold text-(--foreground)">{mod.name}</span>
+                              <span className="text-3xs font-semibold font-mono text-dust-grey">@{mod.username}</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleModAction("demote", mod.username)}
+                            disabled={isModActionLoading}
+                            className="px-3 py-1.5 rounded-lg bg-transparent border border-spicy-paprika text-spicy-paprika font-extrabold text-[10px] cursor-pointer hover:bg-spicy-paprika/5 disabled:opacity-50"
+                          >
+                            Demote
+                          </button>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               )}

@@ -5,7 +5,7 @@ import axiosInstance from "@/lib/axios";
 
 interface CreatePostModalProps {
   onClose: () => void;
-  onSubmit: (post: { title: string; excerpt: string; category: string; tagsStr: string; communityId: string | null }) => void;
+  onSubmit: (post: { title: string; excerpt: string; category: string; tagsStr: string; communityId: string | null; isCommunityOnly?: boolean }) => void;
 }
 
 export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSubmit }) => {
@@ -16,6 +16,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
   const [newTagsStr, setNewTagsStr] = useState("");
   const [communities, setCommunities] = useState<{ _id: string; name: string; slug: string }[]>([]);
   const [selectedCommunityId, setSelectedCommunityId] = useState<string>("none");
+  const [isCommunityOnly, setIsCommunityOnly] = useState(false);
   const params = useParams<{ slug?: string }>();
  
   useEffect(() => {
@@ -66,6 +67,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
       category: categoryToSend || "General Charcha",
       tagsStr: newTagsStr,
       communityId: selectedCommunityId === "none" ? null : selectedCommunityId,
+      isCommunityOnly: selectedCommunityId === "none" ? false : isCommunityOnly,
     });
   };
 
@@ -138,7 +140,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
             <select
               id="community"
               value={selectedCommunityId}
-              onChange={(e) => setSelectedCommunityId(e.target.value)}
+              onChange={(e) => {
+                setSelectedCommunityId(e.target.value);
+                if (e.target.value === "none") {
+                  setIsCommunityOnly(false);
+                }
+              }}
               className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) cursor-pointer"
             >
               <option value="none">General Feed (No Community)</option>
@@ -149,6 +156,38 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
               ))}
             </select>
           </div>
+
+          {selectedCommunityId !== "none" && (
+            <div className="flex flex-col gap-2 p-3 bg-orange/5 border border-orange/15 rounded-xl animate-fade-in mt-1">
+              <label className="text-[10px] font-extrabold text-dust-grey uppercase tracking-wider">Discussion Audience</label>
+              <div className="grid grid-cols-2 gap-2 mt-0.5">
+                <button
+                  type="button"
+                  onClick={() => setIsCommunityOnly(false)}
+                  className={`flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left cursor-pointer transition-all duration-300 ${
+                    !isCommunityOnly
+                      ? "bg-orange/15 border-orange text-orange font-black"
+                      : "bg-(--input-bg) border-(--input-border) text-dust-grey hover:text-(--foreground)"
+                  }`}
+                >
+                  <span className="text-xs font-bold">Everyone</span>
+                  <span className="text-[9px] opacity-80 leading-tight">Visible on home feed and community page</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsCommunityOnly(true)}
+                  className={`flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left cursor-pointer transition-all duration-300 ${
+                    isCommunityOnly
+                      ? "bg-orange/15 border-orange text-orange font-black"
+                      : "bg-(--input-bg) border-(--input-border) text-dust-grey hover:text-(--foreground)"
+                  }`}
+                >
+                  <span className="text-xs font-bold">Community Only</span>
+                  <span className="text-[9px] opacity-80 leading-tight">Visible strictly inside this community feed</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Custom Category input */}
           {selectedCategory === "Other" && (

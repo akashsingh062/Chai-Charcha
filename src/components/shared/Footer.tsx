@@ -48,11 +48,10 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="#meetups" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors flex items-center gap-1">
-                  <span>Local Meetups</span>
+                <Link href="/search?tab=communities" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors flex items-center gap-1">
+                  <span>Explore Guilds</span>
                   <svg className="w-3 h-3 text-dust-grey shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582" />
                   </svg>
                 </Link>
               </li>
@@ -62,8 +61,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="#leaderboard" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
-                  Chai Leaderboard
+                <Link href="#feed" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
+                  Charcha Stats
                 </Link>
               </li>
             </ul>
@@ -98,7 +97,7 @@ const Footer = () => {
           <div className="lg:col-span-4 flex flex-col gap-3">
             <h3 className="text-xs font-bold uppercase tracking-widest text-dust-grey">Connect with the Club</h3>
             <p className="text-xs text-(--text-secondary) leading-relaxed">
-              Stay in the loop with dev AMAs, newsletter releases, and upcoming tech meetups across major cities.
+              Stay in the loop with dev AMAs, newsletter releases, and trending community discussions.
             </p>
             
             <div className="flex items-center gap-3 mt-2">

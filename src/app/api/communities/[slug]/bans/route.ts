@@ -102,7 +102,7 @@ export async function POST(
         { slug },
         { 
           $addToSet: { bannedUsers: targetUserId },
-          $pull: { pendingRequests: targetUserId } // Clean up from requests if present
+          $pull: { pendingRequests: targetUserId, moderators: targetUserId } // Clean up from requests and moderators if present
         }
       );
 

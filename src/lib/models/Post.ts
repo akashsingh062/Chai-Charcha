@@ -14,6 +14,7 @@ export interface Post extends Document {
     category?: string;
     isSoftDeleted?: boolean;
     softDeletedBy?: mongoose.Types.ObjectId | null;
+    isCommunityOnly?: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -73,6 +74,10 @@ export const PostSchema = new Schema<Post>({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         default: null
+    },
+    isCommunityOnly: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 
