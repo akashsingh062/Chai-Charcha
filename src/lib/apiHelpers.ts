@@ -40,6 +40,8 @@ export interface DBPost {
   commentCount: number;
   community?: any;
   category?: string;
+  isSoftDeleted?: boolean;
+  softDeletedBy?: mongoose.Types.ObjectId | null;
   createdAt: Date;
   updatedAt: Date;
   trendingScore?: number;
@@ -130,6 +132,8 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
     createdAt: post.createdAt ? post.createdAt.toISOString() : undefined,
     userVoted,
     comments: buildCommentTree(commentsList),
+    isSoftDeleted: !!post.isSoftDeleted,
+    softDeletedBy: post.softDeletedBy ? post.softDeletedBy.toString() : undefined,
     community,
   };
 }

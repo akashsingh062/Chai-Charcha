@@ -20,6 +20,7 @@ interface ThreadCardProps {
   onCommentVote: (threadId: string, commentId: string) => void;
   onUpdateThread?: (thread: Thread) => void;
   onDeletePost?: (id: string) => void;
+  isCommunityMod?: boolean;
 }
 
 export const ThreadCard: React.FC<ThreadCardProps> = ({
@@ -33,9 +34,11 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   onCommentVote,
   onUpdateThread,
   onDeletePost,
+  isCommunityMod = false,
 }) => {
   const { userData } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSoftDeletingLoading, setIsSoftDeletingLoading] = useState(false);
 
   // Editing States
   const [isEditing, setIsEditing] = useState(false);
@@ -152,6 +155,30 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
       console.error("Failed to delete post:", err);
       const error = err as { response?: { data?: { error?: string } } };
       toast.error(error.response?.data?.error || "Failed to delete this post. Please try again.");
+    }
+  };
+
+  const handleSoftDeleteToggle = async () => {
+    if (isSoftDeletingLoading) return;
+    try {
+      setIsSoftDeletingLoading(true);
+      const action = thread.isSoftDeleted ? "restore" : "delete";
+      const res = await axiosInstance.post(`/api/posts/${thread.id}/soft-delete`, { action });
+
+      if (res.data?.success) {
+        toast.success(res.data.isSoftDeleted ? "Charcha soft-deleted! Hidden from guests." : "Charcha restored!");
+        if (onUpdateThread) {
+          onUpdateThread({
+            ...thread,
+            isSoftDeleted: res.data.isSoftDeleted
+          });
+        }
+      }
+    } catch (err: any) {
+      console.error("Failed to toggle soft-delete:", err);
+      toast.error(err.response?.data?.error || "Failed to update charcha status.");
+    } finally {
+      setIsSoftDeletingLoading(false);
     }
   };
 
@@ -281,9 +308,23 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   }
 
   return (
-    <article className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-orange/20 transition-all duration-300">
+    <article className={`rounded-2xl border p-4 sm:p-5 shadow-sm transition-all duration-300 relative overflow-hidden ${
+      thread.isSoftDeleted 
+        ? "border-amber-500/50 bg-amber-500/5 hover:border-amber-500/70"
+        : "border-(--card-border) bg-(--card-background) hover:shadow-md hover:border-orange/20"
+    }`}>
+      
+      {thread.isSoftDeleted && (
+        <div className="absolute top-0 right-0 left-0 bg-amber-500/20 text-orange text-[9px] font-black uppercase tracking-wider py-1 px-4 flex items-center gap-1 z-20 border-b border-amber-500/20 backdrop-blur-xs select-none">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>Moderator: This charcha is soft-deleted and hidden from general feed</span>
+        </div>
+      )}
+
       {/* Author card & Category tag */}
-      <div className="flex items-center justify-between">
+      <div className={`flex items-center justify-between ${thread.isSoftDeleted ? "mt-4" : ""}`}>
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-2xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden">
             {thread.author.avatar && (thread.author.avatar.startsWith("http") || thread.author.avatar.startsWith("/")) ? (
@@ -334,6 +375,30 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                 </svg>
               </button>
             </div>
+          )}
+
+          {isCommunityMod && thread.community && (
+            <button
+              onClick={handleSoftDeleteToggle}
+              disabled={isSoftDeletingLoading}
+              className={`p-1 rounded-full transition-all cursor-pointer ${
+                thread.isSoftDeleted 
+                  ? "text-orange hover:bg-orange/15" 
+                  : "text-dust-grey hover:text-orange hover:bg-orange/10"
+              }`}
+              title={thread.isSoftDeleted ? "Restore Charcha" : "Soft Delete Charcha"}
+            >
+              {thread.isSoftDeleted ? (
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.43 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                </svg>
+              )}
+            </button>
           )}
 
           <span className={`rounded-full text-[10px] font-bold border px-2 py-0.5 ${

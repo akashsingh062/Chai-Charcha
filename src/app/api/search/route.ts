@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/connectDB";
 import { Post } from "@/lib/models/Post";
 import { User } from "@/lib/models/User"; // Ensure registered schema
+import { Community } from "@/lib/models/Community";
 import { mapPostToSearchItem } from "@/lib/search/dataset";
 import { FUSE_OPTIONS } from "@/lib/search/fuseConfig";
 import { rankSearchResults } from "@/lib/search/ranking";
@@ -61,6 +62,15 @@ export async function GET(req: Request) {
       ]
     }).limit(3);
 
+    // Fetch matching communities from DB
+    const matchedCommunities = await Community.find({
+      $or: [
+        { name: { $regex: cleanQuery, $options: "i" } },
+        { slug: { $regex: cleanQuery, $options: "i" } },
+        { description: { $regex: cleanQuery, $options: "i" } }
+      ]
+    }).limit(3);
+
     // Map DB posts to searchable documents
     const searchItems = posts.map(mapPostToSearchItem);
 
@@ -91,7 +101,16 @@ export async function GET(req: Request) {
       karma: u.karma,
     }));
 
-    const suggestions = [...userSuggestions, ...postSuggestions];
+    // Format community suggestions
+    const communitySuggestions = matchedCommunities.map((c) => ({
+      id: c._id.toString(),
+      title: `c/${c.slug} (${c.name})`,
+      type: "community" as const,
+      category: "Community",
+      score: 0.1,
+    }));
+
+    const suggestions = [...communitySuggestions, ...userSuggestions, ...postSuggestions];
 
     // Build spelling correction (Did You Mean) system
     let didYouMean: string | null = null;

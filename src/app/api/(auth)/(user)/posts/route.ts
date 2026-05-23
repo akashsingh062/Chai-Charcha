@@ -25,17 +25,51 @@ export async function GET(req: Request) {
     const userId = session?.user?.id || null;
 
     let query: Record<string, any> = {};
+    let isCurrentUserMod = false;
+
     if (communityId) {
       if (mongoose.Types.ObjectId.isValid(communityId)) {
         query.community = new mongoose.Types.ObjectId(communityId);
+        const comm = await Community.findById(communityId);
+        if (comm && userId) {
+          const isAdmin = comm.creator.toString() === userId;
+          isCurrentUserMod = isAdmin || (comm.moderators && comm.moderators.some((id: any) => id.toString() === userId));
+        }
       }
     } else if (communitySlug) {
       const comm = await Community.findOne({ slug: communitySlug });
       if (comm) {
         query.community = comm._id;
+        if (userId) {
+          const isAdmin = comm.creator.toString() === userId;
+          isCurrentUserMod = isAdmin || (comm.moderators && comm.moderators.some((id: any) => id.toString() === userId));
+        }
       } else {
         return NextResponse.json({ posts: [] });
       }
+    }
+
+    const feed = searchParams.get("feed");
+    if (feed === "home" && userId) {
+      const currentUser = await User.findById(userId);
+      if (currentUser) {
+        let joined: any[] = [];
+        if (Array.isArray(currentUser.joinedCommunities)) {
+          joined = currentUser.joinedCommunities.map((id: any) => new mongoose.Types.ObjectId(id.toString()));
+        } else if (typeof currentUser.joinedCommunities === "string") {
+          try {
+            joined = JSON.parse(currentUser.joinedCommunities).map((id: any) => new mongoose.Types.ObjectId(id.toString()));
+          } catch (e) {
+            joined = [];
+          }
+        }
+        query.community = { $in: joined };
+      }
+    }
+
+    // Hide soft deleted posts, unless the user is a moderator of this specific community
+    if (!isCurrentUserMod) {
+      query.isSoftDeleted = { $ne: true };
     }
 
     // Recalculate trending scores of active posts (created in the last 48 hours) to ensure correct time decay
@@ -114,6 +148,16 @@ export async function POST(req: Request) {
     }
 
     await connectDB();
+
+    // Check if user is banned in the community
+    if (validatedData.data.community) {
+      const comm = await Community.findById(validatedData.data.community);
+      if (comm) {
+        if (comm.bannedUsers && comm.bannedUsers.some((uid: any) => uid.toString() === session.user.id)) {
+          return NextResponse.json({ error: "You are banned from posting in this community." }, { status: 403 });
+        }
+      }
+    }
 
     let category = validatedData.data.category;
     if (!category || category === "undefined" || category === "null") {

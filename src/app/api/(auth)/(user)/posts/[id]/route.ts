@@ -30,6 +30,23 @@ export async function GET(
     if (!dbPostDoc) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
+
+    // Check if post is soft deleted
+    if (dbPostDoc.isSoftDeleted) {
+      let allowed = false;
+      if (userId && dbPostDoc.community) {
+        const comm = await Community.findById(dbPostDoc.community);
+        if (comm) {
+          const isAdmin = comm.creator.toString() === userId;
+          const isMod = isAdmin || (comm.moderators && comm.moderators.some((uid: any) => uid.toString() === userId));
+          if (isMod) allowed = true;
+        }
+      }
+      if (!allowed) {
+        return NextResponse.json({ error: "This post has been removed by community moderators." }, { status: 404 });
+      }
+    }
+
     const dbPost = dbPostDoc as unknown as DBPost;
 
     // Fetch all comments for this post

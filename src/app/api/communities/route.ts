@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { name, slug, description } = await req.json();
+    const { name, slug, description, isPrivate, rules } = await req.json();
 
     if (!name || name.trim().length < 3 || name.trim().length > 30) {
       return NextResponse.json({ error: "Community name must be between 3 and 30 characters" }, { status: 400 });
@@ -77,6 +77,8 @@ export async function POST(req: Request) {
       creator: creatorId,
       moderators: [creatorId],
       membersCount: 1, // Creator is the first member
+      isPrivate: !!isPrivate,
+      rules: Array.isArray(rules) && rules.length > 0 ? rules.map(r => r.trim()).filter(Boolean) : undefined,
     });
 
     // Add to creator's joined communities

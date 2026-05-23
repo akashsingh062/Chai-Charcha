@@ -12,6 +12,8 @@ export const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ onCl
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [rulesText, setRulesText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -58,10 +60,18 @@ export const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ onCl
 
     try {
       setIsSubmitting(true);
+      
+      const rulesList = rulesText
+        .split("\n")
+        .map((r) => r.trim())
+        .filter((r) => r.length > 0);
+
       const res = await axiosInstance.post("/api/communities", {
         name: name.trim(),
         slug: slug.trim(),
         description: description.trim(),
+        isPrivate,
+        rules: rulesList.length > 0 ? rulesList : undefined,
       });
 
       if (res.data?.success && res.data?.community) {
@@ -150,6 +160,43 @@ export const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ onCl
               required
               disabled={isSubmitting}
             />
+          </div>
+          
+          {/* Community Privacy Toggle */}
+          <div className="flex items-center gap-3 py-2.5 bg-orange/5 px-4 rounded-xl border border-orange/15">
+            <input
+              type="checkbox"
+              id="comm-private"
+              checked={isPrivate}
+              onChange={(e) => setIsPrivate(e.target.checked)}
+              className="h-4.5 w-4.5 rounded border-orange/30 text-orange focus:ring-orange cursor-pointer accent-orange"
+              disabled={isSubmitting}
+            />
+            <div className="flex flex-col">
+              <label htmlFor="comm-private" className="text-xs font-bold text-(--foreground) cursor-pointer select-none">
+                Restricted Community
+              </label>
+              <p className="text-[9px] text-dust-grey leading-tight">
+                Approval is required to join. Only approved users can post.
+              </p>
+            </div>
+          </div>
+
+          {/* Rules Input Textarea */}
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="comm-rules" className="text-xs font-bold text-dust-grey uppercase tracking-wider">
+              Community Rules (One per line)
+            </label>
+            <textarea
+              id="comm-rules"
+              value={rulesText}
+              onChange={(e) => setRulesText(e.target.value)}
+              placeholder="e.g. Be respectful to all members&#10;No spam or self-promotion&#10;Keep discussions relevant"
+              className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) placeholder-dust-grey/50 outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) focus:ring-1 focus:ring-(--input-focus-ring) resize-none"
+              rows={3}
+              disabled={isSubmitting}
+            />
+            <p className="text-[9px] text-dust-grey italic px-1">Leave empty to use standard Charcha guidelines.</p>
           </div>
 
           {/* Action buttons */}

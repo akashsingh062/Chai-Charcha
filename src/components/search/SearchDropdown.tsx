@@ -117,6 +117,11 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                     setDropdownOpen(false);
                     setQuery("");
                     router.push(`/profile?username=${encodeURIComponent(username)}`);
+                  } else if (s.type === "community") {
+                    const slug = s.title.split(" ")[0].replace("c/", "");
+                    setDropdownOpen(false);
+                    setQuery("");
+                    router.push(`/c/${slug}`);
                   } else {
                     onSearch(s.title);
                   }

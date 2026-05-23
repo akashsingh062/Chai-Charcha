@@ -21,6 +21,7 @@ interface DiscussionFeedProps {
   onUpdateThread?: (thread: Thread) => void;
   onDeletePost?: (id: string) => void;
   hasMore?: boolean;
+  isCommunityMod?: boolean;
 }
 
 export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
@@ -41,6 +42,7 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
   onUpdateThread,
   onDeletePost,
   hasMore = false,
+  isCommunityMod = false,
 }) => {
   return (
     <main className="lg:col-span-6 flex flex-col gap-6">
@@ -137,6 +139,7 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
               onCommentVote={onCommentVote}
               onUpdateThread={onUpdateThread}
               onDeletePost={onDeletePost}
+              isCommunityMod={isCommunityMod}
             />
           ))
         )}

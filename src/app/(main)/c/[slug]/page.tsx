@@ -40,9 +40,13 @@ function CommunityPageContent() {
   const router = useRouter();
 
   // State Management
-  const [community, setCommunity] = useState<CommunityInfo | null>(null);
+  const [community, setCommunity] = useState<any | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
   const [isJoined, setIsJoined] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [isBanned, setIsBanned] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
   const [membersCount, setMembersCount] = useState(0);
   const [sortBy, setSortBy] = useState<"trending" | "recent">("trending");
   
@@ -54,6 +58,21 @@ function CommunityPageContent() {
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [visibleCount, setVisibleCount] = useState(10);
 
+  // Roster Directory Modal State
+  const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
+  const [membersList, setMembersList] = useState<any[]>([]);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+
+  // Moderator Hub State
+  const [isModPortalOpen, setIsModPortalOpen] = useState(false);
+  const [modTab, setModTab] = useState<"requests" | "bans" | "moderators" | "settings">("requests");
+  const [pendingRequestsList, setPendingRequestsList] = useState<any[]>([]);
+  const [bannedUsersList, setBannedUsersList] = useState<any[]>([]);
+  const [banInput, setBanInput] = useState("");
+  const [modInput, setModInput] = useState("");
+  const [rulesInput, setRulesInput] = useState("");
+  const [isModActionLoading, setIsModActionLoading] = useState(false);
+
   // 1. Fetch Community Metadata
   const loadCommunityInfo = useCallback(async () => {
     try {
@@ -62,7 +81,12 @@ function CommunityPageContent() {
       if (res.data?.success && res.data?.community) {
         setCommunity(res.data.community);
         setIsJoined(res.data.isJoined || false);
+        setIsPending(res.data.isPending || false);
+        setIsBanned(res.data.isBanned || false);
+        setIsAdmin(res.data.isAdmin || false);
+        setIsModerator(res.data.isModerator || false);
         setMembersCount(res.data.community.membersCount || 0);
+        setRulesInput(res.data.community.rules ? res.data.community.rules.join("\n") : "");
       } else {
         toast.error("Failed to load community information.");
       }
@@ -75,6 +99,105 @@ function CommunityPageContent() {
       setIsLoadingCommunity(false);
     }
   }, [slug]);
+
+  // Fetch Member Roster
+  const fetchMembersList = async () => {
+    try {
+      setIsLoadingMembers(true);
+      const res = await axiosInstance.get(`/api/communities/${slug}/members`);
+      if (res.data?.success) {
+        setMembersList(res.data.members);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Failed to load members roster.");
+    } finally {
+      setIsLoadingMembers(false);
+    }
+  };
+
+  // Fetch Pending Queue
+  const fetchPendingRequests = async () => {
+    try {
+      const res = await axiosInstance.get(`/api/communities/${slug}/requests`);
+      if (res.data?.success) {
+        setPendingRequestsList(res.data.requests);
+      }
+    } catch (err) {
+      console.error("Error fetching requests:", err);
+    }
+  };
+
+  // Process Approval Queue
+  const handleProcessRequest = async (userId: string, action: "approve" | "reject") => {
+    try {
+      setIsModActionLoading(true);
+      const res = await axiosInstance.post(`/api/communities/${slug}/requests`, { userId, action });
+      if (res.data?.success) {
+        toast.success(`Request ${action}d successfully!`);
+        setPendingRequestsList((prev) => prev.filter((r) => r._id !== userId));
+        loadCommunityInfo();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Action failed.");
+    } finally {
+      setIsModActionLoading(false);
+    }
+  };
+
+  // Fetch Banned Users
+  const fetchBannedUsers = async () => {
+    try {
+      const res = await axiosInstance.get(`/api/communities/${slug}/bans`);
+      if (res.data?.success) {
+        setBannedUsersList(res.data.bannedUsers);
+      }
+    } catch (err) {
+      console.error("Error fetching bans:", err);
+    }
+  };
+
+  // Process Bans
+  const handleBanAction = async (action: "ban" | "unban", usernameStr?: string) => {
+    const uName = usernameStr || banInput;
+    if (!uName.trim()) return;
+    try {
+      setIsModActionLoading(true);
+      const res = await axiosInstance.post(`/api/communities/${slug}/bans`, { username: uName.trim(), action });
+      if (res.data?.success) {
+        toast.success(`User @${uName} successfully ${action}ned!`);
+        if (action === "ban") {
+          setBanInput("");
+          fetchBannedUsers();
+        } else {
+          setBannedUsersList((prev) => prev.filter((u) => u.username !== uName));
+        }
+        loadCommunityInfo();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Action failed.");
+    } finally {
+      setIsModActionLoading(false);
+    }
+  };
+
+  // Appoint Moderators
+  const handleModAction = async (action: "promote" | "demote", usernameStr?: string) => {
+    const uName = usernameStr || modInput;
+    if (!uName.trim()) return;
+    try {
+      setIsModActionLoading(true);
+      const res = await axiosInstance.post(`/api/communities/${slug}/moderators`, { username: uName.trim(), action });
+      if (res.data?.success) {
+        toast.success(`User @${uName} successfully ${action === "promote" ? "appointed moderator" : "demoted"}!`);
+        setModInput("");
+        loadCommunityInfo();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Action failed.");
+    } finally {
+      setIsModActionLoading(false);
+    }
+  };
 
   // 2. Fetch Posts for this community
   const loadCommunityPosts = useCallback(async () => {
@@ -139,19 +262,25 @@ function CommunityPageContent() {
 
     try {
       setIsJoinActionLoading(true);
-      const action = isJoined ? "leave" : "join";
+      const action = (isJoined || isPending) ? "leave" : "join";
       const res = await axiosInstance.post(`/api/communities/${slug}/join`, { action });
 
       if (res.data?.success) {
-        setIsJoined(res.data.isJoined);
+        setIsJoined(res.data.isJoined || false);
+        setIsPending(res.data.isPending || false);
         setMembersCount(res.data.membersCount);
-        toast.success(res.data.isJoined ? `Joined c/${slug}!` : `Left c/${slug}!`);
-        // Notify sidebar/app to update joined communities lists
+        
+        if (res.data.isPending) {
+          toast.success("Join request sent! Pending moderator approval.");
+        } else {
+          toast.success(res.data.isJoined ? `Joined c/${slug}!` : `Left c/${slug}!`);
+        }
+        
         window.dispatchEvent(new Event("joined-communities-changed"));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to toggle join status:", err);
-      toast.error("Failed to update membership. Please try again.");
+      toast.error(err.response?.data?.error || "Failed to update membership. Please try again.");
     } finally {
       setIsJoinActionLoading(false);
     }

@@ -35,6 +35,8 @@ export interface Thread {
   userVoted?: "up" | "down" | null;
   content?: string;
   comments?: Comment[];
+  isSoftDeleted?: boolean;
+  softDeletedBy?: string;
   community?: {
     id: string;
     name: string;

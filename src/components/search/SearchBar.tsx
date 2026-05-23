@@ -106,6 +106,11 @@ const SearchBarInner: React.FC = () => {
           setDropdownOpen(false);
           setQuery("");
           router.push(`/profile?username=${encodeURIComponent(username)}`);
+        } else if (suggestion.type === "community") {
+          const slug = suggestion.title.split(" ")[0].replace("c/", "");
+          setDropdownOpen(false);
+          setQuery("");
+          router.push(`/c/${slug}`);
         } else {
           handleSearchExecute(suggestion.title);
         }
