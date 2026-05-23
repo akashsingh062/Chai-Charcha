@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axiosInstance from "@/lib/axios";
 import { AdminBadge } from "@/components/admin/AdminBadge";
@@ -51,10 +51,9 @@ export default function UserDetailPage() {
   const [avatar, setAvatar] = useState("");
   const [banner, setBanner] = useState("");
 
-  // Modals state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  const fetchUserDetails = async () => {
+  const fetchUserDetails = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(`/api/admin/users/${userId}`);
@@ -70,19 +69,23 @@ export default function UserDetailPage() {
       setBio(userData.bio);
       setAvatar(userData.avatar || "");
       setBanner(userData.banner || "");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to load user details", err);
-      setError(err.response?.data?.error || "Failed to load user details");
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      setError(errorMsg || "Failed to load user details");
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     if (userId) {
       fetchUserDetails();
     }
-  }, [userId]);
+  }, [userId, fetchUserDetails]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,10 +105,13 @@ export default function UserDetailPage() {
         banner: banner || undefined,
       });
       setSuccess("User updated successfully");
-      // Reload details to get fresh audit logs or update counts
       fetchUserDetails();
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to update user");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      setError(errorMsg || "Failed to update user");
     } finally {
       setSaving(false);
     }
@@ -118,8 +124,12 @@ export default function UserDetailPage() {
         setUser((prev) => (prev ? { ...prev, isBanned: res.data.isBanned } : null));
         setSuccess(`User successfully ${res.data.isBanned ? "banned" : "unbanned"}`);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to toggle ban status");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      setError(errorMsg || "Failed to toggle ban status");
     }
   };
 
@@ -129,8 +139,12 @@ export default function UserDetailPage() {
       if (res.status === 200) {
         router.push("/admin/users");
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to delete user");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      setError(errorMsg || "Failed to delete user");
     }
   };
 

@@ -2,8 +2,19 @@ import { NextResponse } from "next/server";
 import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Comment } from "@/lib/models/Comment";
-import { User } from "@/lib/models/User";
-import { Post } from "@/lib/models/Post";
+import mongoose from "mongoose";
+
+interface CommentDoc {
+  _id: mongoose.Types.ObjectId;
+  postId: { _id: mongoose.Types.ObjectId; title: string } | null;
+  author: { name: string; username: string; email: string; avatar?: string } | null;
+  content: string;
+  parentId: mongoose.Types.ObjectId | null;
+  upvotes?: mongoose.Types.ObjectId[];
+  replies?: mongoose.Types.ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // GET /api/admin/comments — List comments with pagination, search, author/post filters
 export async function GET(req: Request) {
@@ -49,22 +60,25 @@ export async function GET(req: Request) {
         .populate("postId", "title")
         .sort(sortCriteria)
         .skip(skip)
-        .limit(limit),
+        .limit(limit)
+        .lean() as unknown as CommentDoc[],
       Comment.countDocuments(query),
     ]);
 
-    const formattedComments = comments.map((c) => ({
-      id: c._id.toString(),
-      postId: c.postId ? (c.postId as any)._id?.toString() : null,
-      postTitle: c.postId ? (c.postId as any).title : "Deleted Post",
-      content: c.content,
-      parentId: c.parentId?.toString() || null,
-      upvotesCount: c.upvotes?.length || 0,
-      repliesCount: c.replies?.length || 0,
-      author: c.author,
-      createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
-    }));
+    const formattedComments = comments.map((c) => {
+      return {
+        id: c._id.toString(),
+        postId: c.postId?._id ? c.postId._id.toString() : null,
+        postTitle: c.postId?.title ? c.postId.title : "Deleted Post",
+        content: c.content,
+        parentId: c.parentId?.toString() || null,
+        upvotesCount: c.upvotes?.length || 0,
+        repliesCount: c.replies?.length || 0,
+        author: c.author,
+        createdAt: c.createdAt.toISOString(),
+        updatedAt: c.updatedAt.toISOString(),
+      };
+    });
 
     return NextResponse.json({
       comments: formattedComments,

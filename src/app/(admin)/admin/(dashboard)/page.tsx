@@ -74,7 +74,7 @@ export default function AdminDashboard() {
         ]);
         setStats(statsRes.data);
         setRecentLogs(logsRes.data.auditLogs || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Dashboard load failed", err);
         setError("Failed to load dashboard data. Please try again.");
       } finally {

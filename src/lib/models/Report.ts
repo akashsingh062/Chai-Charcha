@@ -6,6 +6,8 @@ export interface Report extends Document {
     reporter: mongoose.Types.ObjectId;
     reason: string;
     status: 'pending' | 'resolved' | 'rejected';
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export const ReportSchema = new Schema<Report>({

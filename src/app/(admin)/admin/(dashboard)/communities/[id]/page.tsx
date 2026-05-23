@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axiosInstance from "@/lib/axios";
 import { AdminBadge } from "@/components/admin/AdminBadge";
@@ -67,7 +67,7 @@ export default function CommunityDetailPage() {
   // Modals state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  const fetchCommunityDetails = async () => {
+  const fetchCommunityDetails = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(`/api/admin/communities/${communityId}`);
@@ -81,19 +81,23 @@ export default function CommunityDetailPage() {
       setAvatar(data.avatar || "");
       setBanner(data.banner || "");
       setRules(data.rules || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to load community details", err);
-      setError(err.response?.data?.error || "Failed to load community details");
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      setError(errorMsg || "Failed to load community details");
     } finally {
       setLoading(false);
     }
-  };
+  }, [communityId]);
 
   useEffect(() => {
     if (communityId) {
       fetchCommunityDetails();
     }
-  }, [communityId]);
+  }, [communityId, fetchCommunityDetails]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,8 +117,12 @@ export default function CommunityDetailPage() {
       });
       setSuccess("Community updated successfully");
       fetchCommunityDetails();
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to update community");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      setError(errorMsg || "Failed to update community");
     } finally {
       setSaving(false);
     }
@@ -137,8 +145,12 @@ export default function CommunityDetailPage() {
       if (res.status === 200) {
         router.push("/admin/communities");
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to delete community");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      setError(errorMsg || "Failed to delete community");
     }
   };
 

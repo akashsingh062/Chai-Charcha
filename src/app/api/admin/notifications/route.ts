@@ -35,7 +35,7 @@ export async function GET(req: Request) {
       type: n.type,
       link: n.link,
       isRead: !!n.isRead,
-      createdAt: (n as any).createdAt,
+      createdAt: n.createdAt,
     }));
 
     return NextResponse.json({
@@ -156,7 +156,7 @@ export async function DELETE(req: Request) {
     const cutOffDate = new Date();
     cutOffDate.setDate(cutOffDate.getDate() - olderThanDays);
 
-    const query: Record<string, any> = {
+    const query: Record<string, unknown> = {
       createdAt: { $lt: cutOffDate },
     };
 

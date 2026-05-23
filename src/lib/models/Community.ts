@@ -13,6 +13,8 @@ export interface Community extends Document {
     rules?: string[];
     avatar?: string;
     banner?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export const CommunitySchema = new Schema<Community>({

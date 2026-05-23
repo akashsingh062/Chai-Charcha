@@ -7,6 +7,8 @@ export interface Comment extends Document {
     parentId?: mongoose.Types.ObjectId | null;
     replies: mongoose.Types.ObjectId[];
     upvotes: mongoose.Types.ObjectId[];
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export const CommentSchema = new Schema<Comment>({

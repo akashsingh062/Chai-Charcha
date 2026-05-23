@@ -88,7 +88,7 @@ export function DataTable<T extends { id: string | number }>({
                 <tr key={row.id} className="hover:bg-stormy-teal/5 transition-colors">
                   {columns.map((col) => (
                     <td key={col.key} className="px-6 py-4 text-xs font-semibold text-foreground/90">
-                      {col.render ? col.render(row) : (row as any)[col.key]}
+                      {col.render ? col.render(row) : (row[col.key as keyof T] as React.ReactNode)}
                     </td>
                   ))}
                 </tr>

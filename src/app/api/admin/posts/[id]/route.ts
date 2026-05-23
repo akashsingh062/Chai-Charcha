@@ -73,8 +73,8 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    const changes: Record<string, { old: any; new: any }> = {};
-    const updates: Record<string, any> = {};
+    const changes: Record<string, { old: unknown; new: unknown }> = {};
+    const updates: Record<string, unknown> = {};
 
     if (title !== undefined && title !== post.title) {
       changes.title = { old: post.title, new: title };

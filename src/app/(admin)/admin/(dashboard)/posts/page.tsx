@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
-import Link from "next/link";
 
 interface PostItem {
   id: string;
@@ -34,6 +33,7 @@ export default function PostManagementPage() {
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [category, setCategory] = useState("");
   const [showDeleted, setShowDeleted] = useState("true"); // "true", "false", "only"
   const [sort, setSort] = useState("createdAt");
@@ -54,14 +54,14 @@ export default function PostManagementPage() {
   const [editTags, setEditTags] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/api/admin/posts", {
         params: {
           page,
           limit: 15,
-          search,
+          search: debouncedSearch,
           category,
           showDeleted,
           sort,
@@ -76,17 +76,17 @@ export default function PostManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, debouncedSearch, category, showDeleted, sort, order]);
 
   useEffect(() => {
     fetchPosts();
-  }, [page, category, showDeleted, sort, order]);
+  }, [fetchPosts]);
 
   // Debounced search trigger
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
+      setDebouncedSearch(search);
       setPage(1);
-      fetchPosts();
     }, 400);
 
     return () => clearTimeout(delayDebounceFn);
@@ -110,8 +110,12 @@ export default function PostManagementPage() {
           prev.map((p) => (p.id === post.id ? { ...p, isSoftDeleted: res.data.isSoftDeleted } : p))
         );
       }
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to toggle deletion status");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      alert(errorMsg || "Failed to toggle deletion status");
     }
   };
 
@@ -123,8 +127,12 @@ export default function PostManagementPage() {
         setPosts((prev) => prev.filter((p) => p.id !== selectedPost.id));
         setTotalPosts((prev) => prev - 1);
       }
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to hard delete post");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      alert(errorMsg || "Failed to hard delete post");
     }
   };
 
@@ -171,8 +179,12 @@ export default function PostManagementPage() {
 
       setEditModalOpen(false);
       setSelectedPost(null);
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to update post");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      alert(errorMsg || "Failed to update post");
     } finally {
       setSavingEdit(false);
     }

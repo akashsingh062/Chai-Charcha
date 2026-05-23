@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 
@@ -14,7 +14,7 @@ interface AuditLogItem {
   action: string;
   targetType: string;
   targetId: string | null;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   createdAt: string;
 }
 
@@ -30,7 +30,7 @@ export default function AuditLogPage() {
   // Inspector state
   const [inspectedLog, setInspectedLog] = useState<AuditLogItem | null>(null);
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/api/admin/audit-log", {
@@ -49,11 +49,11 @@ export default function AuditLogPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, action, targetType]);
 
   useEffect(() => {
     fetchLogs();
-  }, [page, action, targetType]);
+  }, [fetchLogs]);
 
   const columns = [
     {

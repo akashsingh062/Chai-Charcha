@@ -111,8 +111,9 @@ export default function CommentManagementPage() {
 
       setEditModalOpen(false);
       setSelectedComment(null);
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to update comment");
+    } catch (err) {
+      const errorMsg = (err as { response?: { data?: { error?: string } } }).response?.data?.error;
+      alert(errorMsg || "Failed to update comment");
     } finally {
       setSavingEdit(false);
     }
@@ -127,8 +128,9 @@ export default function CommentManagementPage() {
         // The API returns message about comments deleted. Let's refetch to keep data accurate.
         fetchComments();
       }
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to delete comment");
+    } catch (err) {
+      const errorMsg = (err as { response?: { data?: { error?: string } } }).response?.data?.error;
+      alert(errorMsg || "Failed to delete comment");
     }
   };
 

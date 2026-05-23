@@ -17,9 +17,9 @@ export default async function AdminDashboardLayout({
   try {
     const { user } = await requireAdmin();
     isAdmin = user.role === "admin";
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If unauthorized, redirect to admin login
-    if (error && error.status === 401) {
+    if (error && typeof error === "object" && "status" in error && error.status === 401) {
       redirect("/admin/login");
     }
     // If forbidden, redirect to homepage

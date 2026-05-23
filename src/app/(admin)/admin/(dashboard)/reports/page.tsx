@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
@@ -39,7 +39,7 @@ export default function ModerationQueuePage() {
   const [selectedReport, setSelectedReport] = useState<ReportItem | null>(null);
   const [modAction, setModAction] = useState<"delete_content" | "keep_content" | "reject">("keep_content");
 
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/api/admin/reports", {
@@ -58,11 +58,11 @@ export default function ModerationQueuePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, status, targetType]);
 
   useEffect(() => {
     fetchReports();
-  }, [page, status, targetType]);
+  }, [fetchReports]);
 
   const handleActionClick = (report: ReportItem, action: "delete_content" | "keep_content" | "reject") => {
     setSelectedReport(report);
@@ -78,10 +78,13 @@ export default function ModerationQueuePage() {
         status: nextStatus,
         action: modAction,
       });
-      // Refresh log
       fetchReports();
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to submit moderation decision");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      alert(errorMsg || "Failed to submit moderation decision");
     }
   };
 
@@ -93,8 +96,12 @@ export default function ModerationQueuePage() {
         setReports((prev) => prev.filter((r) => r.id !== reportId));
         setTotalReports((prev) => prev - 1);
       }
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to delete report record");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      alert(errorMsg || "Failed to delete report record");
     }
   };
 

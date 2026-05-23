@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
@@ -29,6 +29,7 @@ export default function CommunityManagementPage() {
   const [communities, setCommunities] = useState<CommunityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sort, setSort] = useState("createdAt");
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
@@ -39,14 +40,14 @@ export default function CommunityManagementPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState<CommunityItem | null>(null);
 
-  const fetchCommunities = async () => {
+  const fetchCommunities = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/api/admin/communities", {
         params: {
           page,
           limit: 15,
-          search,
+          search: debouncedSearch,
           sort,
           order,
         },
@@ -59,17 +60,17 @@ export default function CommunityManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, debouncedSearch, sort, order]);
 
   useEffect(() => {
     fetchCommunities();
-  }, [page, sort, order]);
+  }, [fetchCommunities]);
 
   // Debounced search trigger
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
+      setDebouncedSearch(search);
       setPage(1);
-      fetchCommunities();
     }, 400);
 
     return () => clearTimeout(delayDebounceFn);
@@ -93,8 +94,12 @@ export default function CommunityManagementPage() {
         setCommunities((prev) => prev.filter((c) => c.id !== selectedCommunity.id));
         setTotalCommunities((prev) => prev - 1);
       }
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to delete community");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      alert(errorMsg || "Failed to delete community");
     }
   };
 

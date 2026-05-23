@@ -35,7 +35,7 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
     report.status = status;
     await report.save();
 
-    let details: Record<string, any> = {
+    const details: Record<string, unknown> = {
       oldStatus,
       newStatus: status,
       targetType: report.targetType,

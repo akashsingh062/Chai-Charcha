@@ -6,6 +6,8 @@ export interface Notification extends Document {
     type: string;
     link: string;
     isRead: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export const NotificationSchema = new Schema<Notification>({

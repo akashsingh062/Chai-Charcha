@@ -47,8 +47,8 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
       bannedUsers: community.bannedUsers || [],
       pendingRequests: community.pendingRequests || [],
       postsCount,
-      createdAt: (community as any).createdAt,
-      updatedAt: (community as any).updatedAt,
+      createdAt: community.createdAt,
+      updatedAt: community.updatedAt,
     };
 
     return NextResponse.json({ community: formattedCommunity });
@@ -77,8 +77,8 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
       return NextResponse.json({ error: "Community not found" }, { status: 404 });
     }
 
-    const changes: Record<string, { old: any; new: any }> = {};
-    const updates: Record<string, any> = {};
+    const changes: Record<string, { old: unknown; new: unknown }> = {};
+    const updates: Record<string, unknown> = {};
 
     if (name !== undefined && name !== community.name) {
       changes.name = { old: community.name, new: name };
@@ -169,11 +169,11 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
     for (const u of users) {
       let joined: string[] = [];
       if (Array.isArray(u.joinedCommunities)) {
-        joined = u.joinedCommunities.map((id: any) => id.toString());
+        joined = (u.joinedCommunities as unknown[]).map((id) => String(id));
       } else if (typeof u.joinedCommunities === "string") {
         try {
-          joined = JSON.parse(u.joinedCommunities).map((id: any) => id.toString());
-        } catch (e) {
+          joined = (JSON.parse(u.joinedCommunities) as unknown[]).map((id) => String(id));
+        } catch {
           joined = [];
         }
       }

@@ -58,8 +58,8 @@ export async function GET(req: Request) {
       bannedUsersCount: c.bannedUsers?.length || 0,
       pendingRequestsCount: c.pendingRequests?.length || 0,
       creator: c.creator,
-      createdAt: (c as any).createdAt,
-      updatedAt: (c as any).updatedAt,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
     }));
 
     return NextResponse.json({

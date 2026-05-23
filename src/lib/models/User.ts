@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 
@@ -73,11 +73,11 @@ export const UserSchema = new Schema<User>({
     joinedCommunities: {
         type: mongoose.Schema.Types.Mixed,
         default: [],
-        get: function(val: any) {
+        get: function(val: unknown) {
             if (typeof val === "string") {
                 try {
                     return JSON.parse(val);
-                } catch (e) {
+                } catch {
                     return [];
                 }
             }

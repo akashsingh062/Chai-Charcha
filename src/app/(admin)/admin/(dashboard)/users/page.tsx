@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
@@ -24,6 +24,7 @@ export default function UserManagementPage() {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [role, setRole] = useState("");
   const [banned, setBanned] = useState("");
   const [sort, setSort] = useState("createdAt");
@@ -36,14 +37,14 @@ export default function UserManagementPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/api/admin/users", {
         params: {
           page,
           limit: 15,
-          search,
+          search: debouncedSearch,
           role,
           banned: banned || undefined,
           sort,
@@ -58,17 +59,17 @@ export default function UserManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, debouncedSearch, role, banned, sort, order]);
 
   useEffect(() => {
     fetchUsers();
-  }, [page, role, banned, sort, order]);
+  }, [fetchUsers]);
 
   // Debounced search trigger
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
+      setDebouncedSearch(search);
       setPage(1);
-      fetchUsers();
     }, 400);
 
     return () => clearTimeout(delayDebounceFn);
@@ -92,8 +93,12 @@ export default function UserManagementPage() {
           prev.map((u) => (u.id === user.id ? { ...u, isBanned: res.data.isBanned } : u))
         );
       }
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to update ban status");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      alert(errorMsg || "Failed to update ban status");
     }
   };
 
@@ -105,8 +110,12 @@ export default function UserManagementPage() {
         setUsers((prev) => prev.filter((u) => u.id !== selectedUser.id));
         setTotalUsers((prev) => prev - 1);
       }
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to delete user");
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      alert(errorMsg || "Failed to delete user");
     }
   };
 
