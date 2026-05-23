@@ -34,6 +34,8 @@ interface CommunityInfo {
   createdAt: string;
   isPrivate?: boolean;
   rules?: string[];
+  avatar?: string;
+  banner?: string;
 }
 
 interface CommunityUserInfo {
@@ -88,8 +90,54 @@ function CommunityPageContent() {
   const [banInput, setBanInput] = useState("");
   const [modInput, setModInput] = useState("");
   const [rulesInput, setRulesInput] = useState("");
+  const [avatarInput, setAvatarInput] = useState("");
+  const [bannerInput, setBannerInput] = useState("");
   const [isModActionLoading, setIsModActionLoading] = useState(false);
   const [allUsersList, setAllUsersList] = useState<CommunityUserInfo[]>([]);
+  const [isResolvingAvatar, setIsResolvingAvatar] = useState(false);
+  const [isResolvingBanner, setIsResolvingBanner] = useState(false);
+
+  const isAvatarResolvable = avatarInput.trim().startsWith("http") && 
+    (avatarInput.includes("pin.it") || 
+     avatarInput.includes("pinterest.com") || 
+     !/\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/i.test(avatarInput));
+
+  const isBannerResolvable = bannerInput.trim().startsWith("http") && 
+    (bannerInput.includes("pin.it") || 
+     bannerInput.includes("pinterest.com") || 
+     !/\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/i.test(bannerInput));
+
+  const handleResolveCommunityAvatar = async () => {
+    if (!avatarInput.trim()) return;
+    setIsResolvingAvatar(true);
+    try {
+      const res = await axiosInstance.post("/api/resolve-avatar", { url: avatarInput.trim() });
+      if (res.data?.imageUrl) {
+        setAvatarInput(res.data.imageUrl);
+        toast.success("Successfully resolved avatar image URL!");
+      }
+    } catch (err) {
+      toast.error("Failed to resolve image URL.");
+    } finally {
+      setIsResolvingAvatar(false);
+    }
+  };
+
+  const handleResolveCommunityBanner = async () => {
+    if (!bannerInput.trim()) return;
+    setIsResolvingBanner(true);
+    try {
+      const res = await axiosInstance.post("/api/resolve-avatar", { url: bannerInput.trim() });
+      if (res.data?.imageUrl) {
+        setBannerInput(res.data.imageUrl);
+        toast.success("Successfully resolved banner image URL!");
+      }
+    } catch (err) {
+      toast.error("Failed to resolve image URL.");
+    } finally {
+      setIsResolvingBanner(false);
+    }
+  };
 
   // 1. Fetch Community Metadata
   const loadCommunityInfo = useCallback(async () => {
@@ -105,6 +153,8 @@ function CommunityPageContent() {
         setIsModerator(res.data.isModerator || false);
         setMembersCount(res.data.community.membersCount || 0);
         setRulesInput(res.data.community.rules ? res.data.community.rules.join("\n") : "");
+        setAvatarInput(res.data.community.avatar || "");
+        setBannerInput(res.data.community.banner || "");
       } else {
         toast.error("Failed to load community information.");
       }
@@ -1092,6 +1142,62 @@ function CommunityPageContent() {
               {/* Tab 4: SETTINGS / RULES / DELETION */}
               {modTab === "settings" && (
                 <div className="space-y-4">
+                  {/* Community Avatar URL */}
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="settings-avatar" className="block text-2xs font-extrabold text-dust-grey uppercase">
+                      Community Avatar URL
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        id="settings-avatar"
+                        value={avatarInput}
+                        onChange={(e) => setAvatarInput(e.target.value)}
+                        placeholder="https://example.com/logo.png"
+                        className="flex-1 text-xs rounded-xl border border-(--input-border) bg-(--input-bg) px-3 py-2.5 outline-none focus:border-orange text-(--foreground)"
+                        disabled={isModActionLoading}
+                      />
+                      {isAvatarResolvable && (
+                        <button
+                          type="button"
+                          onClick={handleResolveCommunityAvatar}
+                          disabled={isResolvingAvatar}
+                          className="px-3.5 py-2.5 bg-orange/15 hover:bg-orange/25 border border-orange/20 rounded-xl text-[10px] font-bold text-orange hover:text-orange-600 transition-all cursor-pointer disabled:opacity-50 shrink-0"
+                        >
+                          {isResolvingAvatar ? "Resolving..." : "⚡ Resolve"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Community Banner URL */}
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="settings-banner" className="block text-2xs font-extrabold text-dust-grey uppercase">
+                      Community Banner URL
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        id="settings-banner"
+                        value={bannerInput}
+                        onChange={(e) => setBannerInput(e.target.value)}
+                        placeholder="https://example.com/banner.png"
+                        className="flex-1 text-xs rounded-xl border border-(--input-border) bg-(--input-bg) px-3 py-2.5 outline-none focus:border-orange text-(--foreground)"
+                        disabled={isModActionLoading}
+                      />
+                      {isBannerResolvable && (
+                        <button
+                          type="button"
+                          onClick={handleResolveCommunityBanner}
+                          disabled={isResolvingBanner}
+                          className="px-3.5 py-2.5 bg-orange/15 hover:bg-orange/25 border border-orange/20 rounded-xl text-[10px] font-bold text-orange hover:text-orange-600 transition-all cursor-pointer disabled:opacity-50 shrink-0"
+                        >
+                          {isResolvingBanner ? "Resolving..." : "⚡ Resolve"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Update Rules Text */}
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="settings-rules" className="block text-2xs font-extrabold text-dust-grey uppercase">
@@ -1113,20 +1219,24 @@ function CommunityPageContent() {
                       try {
                         setIsModActionLoading(true);
                         const ruleArr = rulesInput.split("\n").map(r => r.trim()).filter(Boolean);
-                        const res = await axiosInstance.put(`/api/communities/${slug}`, { rules: ruleArr });
+                        const res = await axiosInstance.put(`/api/communities/${slug}`, { 
+                          rules: ruleArr,
+                          avatar: avatarInput,
+                          banner: bannerInput
+                        });
                         if (res.data?.success) {
-                          toast.success("Community rules updated successfully!");
+                          toast.success("Community settings updated successfully!");
                           loadCommunityInfo();
                         }
                       } catch (err) {
                         const error = err as { response?: { data?: { error?: string } } };
-                        toast.error(error.response?.data?.error || "Failed to save rules.");
+                        toast.error(error.response?.data?.error || "Failed to save settings.");
                       } finally {
                         setIsModActionLoading(false);
                       }
                     }}
                     disabled={isModActionLoading}
-                    className="px-4 py-2 rounded-xl bg-orange text-ink-black font-extrabold text-xs cursor-pointer shadow-md hover:bg-orange-600 disabled:opacity-50"
+                    className="px-4 py-2.5 rounded-xl bg-orange text-ink-black font-extrabold text-xs cursor-pointer shadow-md hover:bg-orange-600 disabled:opacity-50"
                   >
                     Save Settings
                   </button>
@@ -1197,36 +1307,62 @@ function CommunityPageContent() {
           )}
 
           {/* Glassmorphic Community Banner Panel */}
-          <div className="relative overflow-hidden rounded-3xl border border-(--card-border) bg-(--card-background) p-6 sm:p-8 shadow-2xl transition-all duration-300 mb-6">
-            {/* Ambient Background Glows */}
-            <div className="absolute -top-16 -left-16 w-64 h-64 rounded-full bg-orange/10 blur-[80px] pointer-events-none" />
-            <div className="absolute -bottom-16 -right-16 w-64 h-64 rounded-full bg-spicy-paprika/10 blur-[80px] pointer-events-none" />
+          <div className="relative overflow-hidden rounded-3xl border border-(--card-border) bg-(--card-background) shadow-2xl transition-all duration-300 mb-6">
+            {community.banner ? (
+              <div className="h-32 sm:h-44 w-full relative overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src={community.banner} 
+                  alt={`${community.name} Banner`} 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-(--card-background) via-(--card-background)/35 to-transparent" />
+              </div>
+            ) : (
+              <>
+                {/* Ambient Background Glows */}
+                <div className="absolute -top-16 -left-16 w-64 h-64 rounded-full bg-orange/10 blur-[80px] pointer-events-none" />
+                <div className="absolute -bottom-16 -right-16 w-64 h-64 rounded-full bg-spicy-paprika/10 blur-[80px] pointer-events-none" />
+              </>
+            )}
 
-            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-orange bg-orange/10 border border-orange/20 mb-1">
-                    c/{community.slug}
-                  </span>
-                  {community.isPrivate && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider text-amber-500 bg-amber-500/10 border border-amber-500/25 mb-1">
-                      <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                      </svg>
-                      Restricted
-                    </span>
+            <div className={`relative z-10 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${community.banner ? "-mt-12 sm:-mt-16" : ""}`}>
+              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
+                {/* Community Avatar */}
+                <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden border-4 border-(--card-background) bg-(--profile-bg) flex items-center justify-center text-xl font-bold text-floral-white font-mono shrink-0 shadow-lg relative">
+                  {community.avatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={community.avatar} alt={community.name} className="h-full w-full object-cover" />
+                  ) : (
+                    community.name.substring(0, 2).toUpperCase()
                   )}
                 </div>
-                <h1 className="text-3xl font-black tracking-tight text-(--foreground)">
-                  {community.name}
-                </h1>
-                <p className="text-xs text-(--text-secondary) leading-relaxed max-w-xl">
-                  {community.description}
-                </p>
+
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-orange bg-orange/10 border border-orange/20">
+                      c/{community.slug}
+                    </span>
+                    {community.isPrivate && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider text-amber-500 bg-amber-500/10 border border-amber-500/25">
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                        </svg>
+                        Restricted
+                      </span>
+                    )}
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-(--foreground)">
+                    {community.name}
+                  </h1>
+                  <p className="text-xs text-(--text-secondary) leading-relaxed max-w-xl">
+                    {community.description}
+                  </p>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
-                {isLoggedIn && !isBanned && (
+                {isLoggedIn && !isBanned && !isAdmin && (
                   <button
                     onClick={handleJoinLeave}
                     disabled={isJoinActionLoading}
@@ -1240,6 +1376,12 @@ function CommunityPageContent() {
                   >
                     {isJoined ? "Leave" : isPending ? "Request Pending" : "Join"}
                   </button>
+                )}
+
+                {isLoggedIn && !isBanned && isAdmin && (
+                  <span className="rounded-2xl px-5 py-2.5 text-xs font-extrabold bg-orange/15 border border-orange/25 text-orange shrink-0 select-none">
+                    Admin / Creator
+                  </span>
                 )}
 
                 {isLoggedIn && isBanned && (

@@ -26,7 +26,7 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [tagSearch, setTagSearch] = useState("");
   const { user: isLoggedIn } = useAuth();
-  const [joinedComms, setJoinedComms] = useState<{ _id: string; name: string; slug: string }[]>([]);
+  const [joinedComms, setJoinedComms] = useState<{ _id: string; name: string; slug: string; avatar?: string }[]>([]);
   const [isCreateCommOpen, setIsCreateCommOpen] = useState(false);
   const [isCommAccordionOpen, setIsCommAccordionOpen] = useState(true);
 
@@ -311,9 +311,14 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
                   <Link
                     key={c._id}
                     href={`/c/${c.slug}`}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl text-(--text-secondary) hover:bg-orange/5 hover:text-orange transition-all duration-200"
+                    className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-xl text-(--text-secondary) hover:bg-orange/5 hover:text-orange transition-all duration-200"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange shrink-0" />
+                    {c.avatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.avatar} alt={c.name} className="w-5 h-5 rounded-md object-cover border border-orange/15 shrink-0" />
+                    ) : (
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange shrink-0" />
+                    )}
                     <span className="truncate">c/{c.slug}</span>
                   </Link>
                 ))}

@@ -25,6 +25,8 @@ export const EditProfileTab: React.FC<EditProfileTabProps> = ({
   const [username, setUsername] = useState(user?.username || "");
   const [bio, setBio] = useState(user?.bio || "");
   const [avatar, setAvatar] = useState(user?.avatar || "");
+  const [banner, setBanner] = useState(user?.banner || "");
+  const [isResolvingBanner, setIsResolvingBanner] = useState(false);
   const [seed, setSeed] = useState(() => {
     const avatarUrl = user?.avatar || "";
     const dicebearMatch = avatarUrl.match(/api\.dicebear\.com\/.*?\/svg\?seed=(.*)/);
@@ -94,6 +96,41 @@ export const EditProfileTab: React.FC<EditProfileTabProps> = ({
      avatar.includes("pinterest.com") || 
      !/\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/i.test(avatar));
 
+  const isBannerResolvable = banner.trim().startsWith("http") && 
+    (banner.includes("pin.it") || 
+     banner.includes("pinterest.com") || 
+     !/\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/i.test(banner));
+
+  const handleResolveBannerUrl = async () => {
+    if (!banner.trim()) return;
+    setIsResolvingBanner(true);
+    setGlobalError("");
+    setSuccessMessage("");
+    try {
+      const res = await fetch("/api/resolve-avatar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: banner.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to resolve image URL");
+      }
+      if (data.imageUrl) {
+        setBanner(data.imageUrl);
+        setSuccessMessage("Successfully resolved banner image URL!");
+        setTimeout(() => setSuccessMessage(""), 4000);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error resolving image URL";
+      setGlobalError(msg);
+    } finally {
+      setIsResolvingBanner(false);
+    }
+  };
+
   // Save profile changes
   const handleSubmitProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +144,7 @@ export const EditProfileTab: React.FC<EditProfileTabProps> = ({
       username,
       bio,
       image: avatar || undefined,
+      banner: banner || "",
     });
 
     if (!validation.success) {
@@ -132,6 +170,7 @@ export const EditProfileTab: React.FC<EditProfileTabProps> = ({
           username,
           bio,
           image: avatar,
+          banner,
         }),
       });
 
@@ -236,6 +275,49 @@ export const EditProfileTab: React.FC<EditProfileTabProps> = ({
                   </button>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Banner Cover URL */}
+      <div className="p-5 rounded-2xl border border-(--card-border) bg-(--card-background)/40 backdrop-blur-xs shadow-xs space-y-4">
+        <h3 className="text-xs font-bold text-(--foreground) uppercase tracking-wider border-b border-(--divider-color) pb-2">
+          Profile Banner Cover
+        </h3>
+        <div className="space-y-3.5">
+          <div className="space-y-1">
+            <label className="block text-[10px] font-bold text-dust-grey uppercase tracking-wider">
+              Custom Banner Image URL
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={banner}
+                onChange={(e) => setBanner(e.target.value)}
+                placeholder="https://example.com/banner.jpg"
+                className="flex-1 px-3 py-2 bg-(--input-bg) border border-(--input-border) rounded-xl text-xs text-(--foreground) focus:outline-none focus:border-(--input-focus-border) focus:ring-1 focus:ring-(--input-focus-ring) transition-all"
+              />
+              {isBannerResolvable && (
+                <button
+                  type="button"
+                  onClick={handleResolveBannerUrl}
+                  disabled={isResolvingBanner}
+                  className="px-3.5 py-2 bg-orange/15 hover:bg-orange/25 border border-orange/20 rounded-xl text-[10px] font-bold text-orange hover:text-orange-600 transition-all cursor-pointer disabled:opacity-50 flex items-center gap-1.5 shrink-0"
+                >
+                  {isResolvingBanner ? (
+                    <>
+                      <svg className="animate-spin h-3.5 w-3.5 text-orange" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>Resolving...</span>
+                    </>
+                  ) : (
+                    <span>⚡ Resolve Link</span>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>

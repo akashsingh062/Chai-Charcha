@@ -41,6 +41,8 @@ interface CommunitySearchInfo {
   isJoined?: boolean;
   isPending?: boolean;
   rules?: string[];
+  avatar?: string;
+  banner?: string;
   createdAt: string;
 }
 
@@ -63,6 +65,107 @@ function SearchPageContent() {
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [isLoadingCommunities, setIsLoadingCommunities] = useState(false);
   const [visibleCount, setVisibleCount] = useState(10);
+
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
+  const getCategoryColor = (cat: string) => {
+    switch (cat) {
+      case "All": return "text-orange";
+      case "Tech & Code": return "text-stormy-teal";
+      case "Startups & Business": return "text-vivid-tangerine";
+      case "Career & Salary": return "text-spicy-paprika";
+      case "Lifestyle & Hobbies": return "text-brandy-700";
+      case "Gaming & Entertainment": return "text-orange";
+      case "Education & Learning": return "text-stormy-teal";
+      case "Health & Fitness": return "text-spicy-paprika";
+      case "Showcase & Projects": return "text-vivid-tangerine";
+      case "General Charcha": return "text-orange";
+      default: return "text-spicy-paprika";
+    }
+  };
+
+  const getCategoryIcon = (cat: string, className = "w-4 h-4 shrink-0 transition-transform duration-300 group-hover:scale-110") => {
+    if (cat === "All") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v2a2 2 0 01-2 2h-2v-4z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
+        </svg>
+      );
+    }
+    if (cat === "Tech & Code") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      );
+    }
+    if (cat === "Startups & Business") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      );
+    }
+    if (cat === "Career & Salary") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+    }
+    if (cat === "Education & Learning") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 14v7" />
+        </svg>
+      );
+    }
+    if (cat === "Lifestyle & Hobbies") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      );
+    }
+    if (cat === "Gaming & Entertainment") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+        </svg>
+      );
+    }
+    if (cat === "Health & Fitness") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h2l2 4 2-6 2 2h2m-9 9a9 9 0 110-18 9 9 0 010 18z" />
+        </svg>
+      );
+    }
+    if (cat === "Showcase & Projects") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.907c.969 0 1.371 1.24.588 1.81l-3.97 2.883a1 1 0 00-.364 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.97-2.883a1 1 0 00-1.178 0l-3.97 2.883c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.364-1.118L2.98 10.1c-.783-.57-.38-1.81.588-1.81h4.906a1 1 0 00.95-.69l1.519-4.674z" />
+        </svg>
+      );
+    }
+    if (cat === "General Charcha") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      );
+    }
+    return (
+      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    );
+  };
 
   // Fetch all posts from API
   const loadPosts = useCallback(async () => {
@@ -458,86 +561,92 @@ function SearchPageContent() {
     <div className="flex flex-col flex-1 bg-(--background) font-sans text-(--foreground) transition-all duration-300">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Search header status */}
-        <div className="mb-8 border-b border-(--divider-color) pb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-(--foreground) flex items-center gap-2">
-              <span>Search Results for</span>
-              <span className="text-vivid-tangerine bg-vivid-tangerine/10 px-3 py-1 rounded-xl text-xl md:text-2xl font-mono">
-                &ldquo;{queryParam || "All Topics"}&rdquo;
-              </span>
-            </h1>
-            <p className="text-xs text-dust-grey mt-1.5 font-medium">
-              Found {filteredThreads.length} discussions, {searchedCommunities.length} communities, and {searchedUsers.length} developer profiles.
-            </p>
-          </div>
+        {/* Title & Info Card Container */}
+        <div className="w-full p-5 rounded-3xl border border-(--card-border) bg-(--card-background)/40 backdrop-blur-xs shadow-md mb-4 flex flex-col gap-1.5">
+          <h1 className="text-xl md:text-2xl font-black text-(--foreground) flex flex-wrap items-center gap-2">
+            <span>Search Results for</span>
+            <span className="text-orange bg-orange/10 px-3 py-1 rounded-xl text-lg md:text-xl font-mono">
+              &ldquo;{queryParam || "All Topics"}&rdquo;
+            </span>
+          </h1>
+          <p className="text-xs text-dust-grey font-semibold">
+            Found {filteredThreads.length} discussions, {searchedCommunities.length} communities, and {searchedUsers.length} developer profiles.
+          </p>
+        </div>
 
-          {/* Toggle Tab Selection */}
-          <div className="flex items-center gap-4">
-            <div className="flex rounded-full border border-(--card-border) bg-(--card-background) p-0.5 shadow-sm text-xs font-semibold shrink-0">
-              <button
-                onClick={() => setActiveSearchTab("discussions")}
-                className={`rounded-full px-4 py-1.5 transition-all cursor-pointer ${
-                  activeSearchTab === "discussions"
-                    ? "bg-spicy-paprika text-floral-white shadow-md shadow-spicy-paprika/20"
-                    : "text-dust-grey hover:text-(--foreground)"
-                }`}
-              >
-                Discussions ({filteredThreads.length})
-              </button>
-              <button
-                onClick={() => setActiveSearchTab("communities")}
-                className={`rounded-full px-4 py-1.5 transition-all cursor-pointer ${
-                  activeSearchTab === "communities"
-                    ? "bg-spicy-paprika text-floral-white shadow-md shadow-spicy-paprika/20"
-                    : "text-dust-grey hover:text-(--foreground)"
-                }`}
-              >
-                Communities ({searchedCommunities.length})
-              </button>
-              <button
-                onClick={() => setActiveSearchTab("profiles")}
-                className={`rounded-full px-4 py-1.5 transition-all cursor-pointer ${
-                  activeSearchTab === "profiles"
-                    ? "bg-spicy-paprika text-floral-white shadow-md shadow-spicy-paprika/20"
-                    : "text-dust-grey hover:text-(--foreground)"
-                }`}
-              >
-                Profiles ({searchedUsers.length})
-              </button>
-            </div>
-
-            {/* Sort Buttons (Only for Discussions) */}
-            {activeSearchTab === "discussions" && (
-              <div className="hidden sm:flex rounded-full border border-(--card-border) bg-(--card-background) p-0.5 shadow-sm text-xs font-semibold shrink-0">
-                <button
-                  onClick={() => setSortBy("relevance")}
-                  className={`rounded-full px-4 py-1.5 transition-all cursor-pointer ${
-                    sortBy === "relevance" ? "bg-spicy-paprika text-floral-white" : "text-dust-grey hover:text-(--foreground)"
-                  }`}
-                >
-                  Relevance
-                </button>
-                <button
-                  onClick={() => setSortBy("popular")}
-                  className={`rounded-full px-4 py-1.5 transition-all cursor-pointer ${
-                    sortBy === "popular" ? "bg-spicy-paprika text-floral-white" : "text-dust-grey hover:text-(--foreground)"
-                  }`}
-                >
-                  Popular
-                </button>
-                <button
-                  onClick={() => setSortBy("recent")}
-                  className={`rounded-full px-4 py-1.5 transition-all cursor-pointer ${
-                    sortBy === "recent" ? "bg-spicy-paprika text-floral-white" : "text-dust-grey hover:text-(--foreground)"
-                  }`}
-                >
-                  Recent
-                </button>
-              </div>
-            )}
+        {/* Tabs switcher container card */}
+        <div className="w-full p-4 rounded-3xl border border-(--card-border) bg-(--card-background)/40 backdrop-blur-xs shadow-md mb-4">
+          <div className="flex flex-wrap gap-2 w-full">
+            <button
+              onClick={() => setActiveSearchTab("discussions")}
+              className={`flex-1 min-w-[120px] text-center rounded-2xl px-5 py-3 transition-all cursor-pointer font-bold text-sm ${
+                activeSearchTab === "discussions"
+                  ? "bg-spicy-paprika text-floral-white shadow-md shadow-spicy-paprika/20"
+                  : "bg-(--card-background) border border-(--card-border) text-dust-grey hover:text-(--foreground)"
+              }`}
+            >
+              Discussions ({filteredThreads.length})
+            </button>
+            <button
+              onClick={() => setActiveSearchTab("communities")}
+              className={`flex-1 min-w-[120px] text-center rounded-2xl px-5 py-3 transition-all cursor-pointer font-bold text-sm ${
+                activeSearchTab === "communities"
+                  ? "bg-spicy-paprika text-floral-white shadow-md shadow-spicy-paprika/20"
+                  : "bg-(--card-background) border border-(--card-border) text-dust-grey hover:text-(--foreground)"
+              }`}
+            >
+              Communities ({searchedCommunities.length})
+            </button>
+            <button
+              onClick={() => setActiveSearchTab("profiles")}
+              className={`flex-1 min-w-[120px] text-center rounded-2xl px-5 py-3 transition-all cursor-pointer font-bold text-sm ${
+                activeSearchTab === "profiles"
+                  ? "bg-spicy-paprika text-floral-white shadow-md shadow-spicy-paprika/20"
+                  : "bg-(--card-background) border border-(--card-border) text-dust-grey hover:text-(--foreground)"
+              }`}
+            >
+              Profiles ({searchedUsers.length})
+            </button>
           </div>
         </div>
+
+        {/* Sorting options container card */}
+        {activeSearchTab === "discussions" && (
+          <div className="w-full p-4 rounded-3xl border border-(--card-border) bg-(--card-background)/40 backdrop-blur-xs shadow-md mb-6">
+            <div className="flex flex-wrap gap-2 w-full">
+              <button
+                onClick={() => setSortBy("relevance")}
+                className={`flex-1 min-w-[100px] text-center rounded-xl px-4 py-2.5 transition-all cursor-pointer font-bold text-xs ${
+                  sortBy === "relevance"
+                    ? "bg-spicy-paprika text-floral-white shadow-sm"
+                    : "bg-(--card-background) border border-(--card-border) text-dust-grey hover:text-(--foreground)"
+                }`}
+              >
+                Relevance
+              </button>
+              <button
+                onClick={() => setSortBy("popular")}
+                className={`flex-1 min-w-[100px] text-center rounded-xl px-4 py-2.5 transition-all cursor-pointer font-bold text-xs ${
+                  sortBy === "popular"
+                    ? "bg-spicy-paprika text-floral-white shadow-sm"
+                    : "bg-(--card-background) border border-(--card-border) text-dust-grey hover:text-(--foreground)"
+                }`}
+              >
+                Popular
+              </button>
+              <button
+                onClick={() => setSortBy("recent")}
+                className={`flex-1 min-w-[100px] text-center rounded-xl px-4 py-2.5 transition-all cursor-pointer font-bold text-xs ${
+                  sortBy === "recent"
+                    ? "bg-spicy-paprika text-floral-white shadow-sm"
+                    : "bg-(--card-background) border border-(--card-border) text-dust-grey hover:text-(--foreground)"
+                }`}
+              >
+                Recent
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Dynamic Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -545,29 +654,77 @@ function SearchPageContent() {
           {/* LEFT COLUMN: Filter Sidebar (Only rendered if discussions active) */}
           {activeSearchTab === "discussions" && (
             <aside className="lg:col-span-3 flex flex-col gap-6">
-              {/* Category selection */}
-              <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-5 shadow-sm">
-                <h2 className="text-xs font-extrabold tracking-wider text-dust-grey uppercase mb-3.5">
-                  Categories
-                </h2>
-                <div className="space-y-1">
-                  {categoriesList.map((cat) => {
-                    const isActive = cat === activeCategory;
+              {/* Category selection - Redesigned as Dropdown only */}
+              <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm relative z-20">
+                <div className="flex items-center justify-between px-2 mb-3">
+                  <h2 className="text-xs font-black uppercase tracking-widest bg-linear-to-r from-orange to-spicy-paprika bg-clip-text text-transparent">
+                    Category Filter
+                  </h2>
+                </div>
 
-                    return (
-                      <button
-                        key={cat}
-                        onClick={() => setActiveCategory(cat)}
-                        className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-bold transition-all duration-200 cursor-pointer ${
-                          isActive
-                            ? "bg-spicy-paprika/10 text-spicy-paprika font-black"
-                            : "text-(--text-secondary) hover:bg-(--btn-icon-hover-bg) hover:text-(--foreground)"
-                        }`}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                    className={`w-full flex items-center justify-between rounded-xl border border-(--input-border)/50 bg-(--input-bg)/30 hover:bg-(--input-bg)/50 px-4 py-2.5 text-sm font-semibold transition-all cursor-pointer ${
+                      activeCategory !== "All" ? `${getCategoryColor(activeCategory)} border-${getCategoryColor(activeCategory)}/30` : "text-(--foreground)"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      {getCategoryIcon(activeCategory, `w-4 h-4 shrink-0 ${activeCategory !== "All" ? getCategoryColor(activeCategory) : "text-dust-grey/80"}`)}
+                      <span>{activeCategory === "All" ? "All Discussions" : activeCategory}</span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <svg 
+                        className={`w-4 h-4 text-dust-grey transition-transform duration-300 ${isCategoryOpen ? "rotate-180" : ""}`} 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor" 
+                        strokeWidth="2.5"
                       >
-                        <span className="truncate pr-2">{cat}</span>
-                      </button>
-                    );
-                  })}
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    </span>
+                  </button>
+
+                  {isCategoryOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setIsCategoryOpen(false)} />
+                      
+                      <div className="absolute left-0 right-0 mt-2 z-50 rounded-xl border border-(--dropdown-border) bg-(--dropdown-bg) p-1.5 shadow-2xl backdrop-blur-xl animate-fade-in max-h-64 overflow-y-auto">
+                        {categoriesList.map((cat) => {
+                          const isActive = activeCategory === cat;
+                          return (
+                            <button
+                              key={cat}
+                              type="button"
+                              onClick={() => {
+                                setActiveCategory(cat);
+                                setIsCategoryOpen(false);
+                              }}
+                              className={`group flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer hover:bg-(--btn-secondary-hover-bg) ${
+                                isActive ? `${getCategoryColor(cat)} font-bold bg-white/5` : "text-(--text-secondary)"
+                              }`}
+                            >
+                              <span className="flex items-center gap-2.5">
+                                {getCategoryIcon(cat, `w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
+                                  isActive ? getCategoryColor(cat) : "text-dust-grey/80"
+                                }`)}
+                                <span>{cat === "All" ? "All Discussions" : cat}</span>
+                              </span>
+                              <span className="flex items-center gap-2">
+                                {isActive && (
+                                  <svg className={`w-4 h-4 ${getCategoryColor(cat)}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                )}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -716,9 +873,18 @@ function SearchPageContent() {
                         <Link href={`/c/${comm.slug}`} className="group flex-1">
                           <div className="flex items-center gap-3.5 mb-4">
                             <div className="w-12 h-12 rounded-2xl bg-orange/10 border border-orange/20 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-300">
-                              <svg className="w-6 h-6 text-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 3.03v.568c0 .334.148.65.405.864l.406.34a.75.75 0 010 1.142l-.406.34a1.204 1.204 0 00-.405.864v.568c0 .26.104.51.29.697l.406.406a.75.75 0 001.061 0l.406-.406a1.204 1.204 0 01.864-.405h.568c.26 0 .51-.104.697-.29l.406-.406a.75.75 0 000-1.061l-.406-.406a1.204 1.204 0 01-.29-.864v-.568a.75.75 0 00-.75-.75h-.568a1.204 1.204 0 01-.864-.29l-.406-.406a.75.75 0 00-1.061 0l-.406.406a1.204 1.204 0 01-.29.29zm-6.75 4.5v.568c0 .334.148.65.405.864l.406.34a.75.75 0 010 1.142l-.406.34a1.204 1.204 0 00-.405.864v.568c0 .26.104.51.29.697l.406.406a.75.75 0 001.061 0l.406-.406a1.204 1.204 0 01.864-.405h.568c.26 0 .51-.104.697-.29l.406-.406a.75.75 0 000-1.061l-.406-.406a1.204 1.204 0 01-.29-.864v-.568a.75.75 0 00-.75-.75h-.568a1.204 1.204 0 01-.864-.29l-.406-.406a.75.75 0 00-1.061 0l-.406.406a1.204 1.204 0 01-.29.29zM18 15.75a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
+                              {comm.avatar ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={comm.avatar}
+                                  alt={comm.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <svg className="w-6 h-6 text-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 3.03v.568c0 .334.148.65.405.864l.406.34a.75.75 0 010 1.142l-.406.34a1.204 1.204 0 00-.405.864v.568c0 .26.104.51.29.697l.406.406a.75.75 0 001.061 0l.406-.406a1.204 1.204 0 01.864-.405h.568c.26 0 .51-.104.697-.29l.406-.406a.75.75 0 000-1.061l-.406-.406a1.204 1.204 0 01-.29-.864v-.568a.75.75 0 00-.75-.75h-.568a1.204 1.204 0 01-.864-.29l-.406-.406a.75.75 0 00-1.061 0l-.406.406a1.204 1.204 0 01-.29.29zm-6.75 4.5v.568c0 .334.148.65.405.864l.406.34a.75.75 0 010 1.142l-.406.34a1.204 1.204 0 00-.405.864v.568c0 .26.104.51.29.697l.406.406a.75.75 0 001.061 0l.406-.406a1.204 1.204 0 01.864-.405h.568c.26 0 .51-.104.697-.29l.406-.406a.75.75 0 000-1.061l-.406-.406a1.204 1.204 0 01-.29-.864v-.568a.75.75 0 00-.75-.75h-.568a1.204 1.204 0 01-.864-.29l-.406-.406a.75.75 0 00-1.061 0l-.406.406a1.204 1.204 0 01-.29.29zM18 15.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                              )}
                             </div>
                             <div className="min-w-0">
                               <h3 className="text-xs font-black text-(--foreground) truncate group-hover:text-orange transition-colors">

@@ -5,6 +5,7 @@ import connectDB from "@/lib/connectDB";
 import { Community } from "@/lib/models/Community";
 import { User } from "@/lib/models/User";
 import { Post } from "@/lib/models/Post";
+import { resolveImageLink } from "@/lib/resolveImage";
 
 // GET /api/communities/[slug] - Get metadata for a community, populated with creator info
 export async function GET(
@@ -93,7 +94,7 @@ export async function PUT(
     }
 
     const { slug } = await params;
-    const { description, isPrivate, rules } = await req.json();
+    const { description, isPrivate, rules, avatar, banner } = await req.json();
 
     await connectDB();
 
@@ -123,6 +124,32 @@ export async function PUT(
 
     if (rules !== undefined && Array.isArray(rules)) {
       community.rules = rules.map((r: string) => r.trim()).filter(Boolean);
+    }
+
+    if (avatar !== undefined) {
+      const avatarUrl = (avatar || "").trim();
+      if (avatarUrl) {
+        const resolved = await resolveImageLink(avatarUrl);
+        if (!resolved) {
+          return NextResponse.json({ error: "Provided community avatar URL is not resolvable" }, { status: 400 });
+        }
+        community.avatar = resolved;
+      } else {
+        community.avatar = "";
+      }
+    }
+
+    if (banner !== undefined) {
+      const bannerUrl = (banner || "").trim();
+      if (bannerUrl) {
+        const resolved = await resolveImageLink(bannerUrl);
+        if (!resolved) {
+          return NextResponse.json({ error: "Provided community banner URL is not resolvable" }, { status: 400 });
+        }
+        community.banner = resolved;
+      } else {
+        community.banner = "";
+      }
     }
 
     await community.save();

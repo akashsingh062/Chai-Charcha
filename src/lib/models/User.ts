@@ -8,6 +8,7 @@ export interface User extends Document {
     email: string;
     password: string;
     avatar?: string;
+    banner?: string;
     bio: string;
     role: 'member' | 'moderator' | 'admin';
     karma: number;
@@ -47,6 +48,10 @@ export const UserSchema = new Schema<User>({
         default: function (this: User) {
             return `https://api.dicebear.com/7.x/avataaars/svg?seed=${this.username || Math.random().toString(36).substring(7)}`;
         },
+        required: false
+    },
+    banner: {
+        type: String,
         required: false
     },
     bio: {

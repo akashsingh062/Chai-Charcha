@@ -5,6 +5,7 @@ import connectDB from "@/lib/connectDB";
 import { User } from "@/lib/models/User";
 import { profileUpdateSchema } from "@/lib/Schemas/profileUpdateSchema";
 import mongoose from "mongoose";
+import { resolveImageLink } from "@/lib/resolveImage";
 
 // GET /api/profile - Retrieve active user profile, a user by username, or list all profiles
 export async function GET(req: Request) {
@@ -26,7 +27,7 @@ export async function GET(req: Request) {
     // 2. Fetch specific user profile by username handle
     if (usernameParam) {
       const dbUser = await User.findOne({ username: usernameParam.toLowerCase() })
-        .select("name username avatar role karma bio createdAt joinedCommunities followers following");
+        .select("name username avatar banner role karma bio createdAt joinedCommunities followers following");
       if (!dbUser) {
         return NextResponse.json({ error: "User profile not found" }, { status: 404 });
       }
@@ -91,7 +92,7 @@ export async function PUT(req: Request) {
         );
       }
 
-      const { name, username, bio, image } = validatedData.data;
+      const { name, username, bio, image, banner } = validatedData.data;
 
       // Check username uniqueness if it changed
       if (username && username !== dbUser.username) {
@@ -113,8 +114,31 @@ export async function PUT(req: Request) {
           // Handle Cloudinary upload schema
           avatarUrl = (image as { secure_url?: string; url?: string }).secure_url || (image as { secure_url?: string; url?: string }).url || "";
         }
-        if (avatarUrl) {
-          dbUser.avatar = avatarUrl;
+        if (avatarUrl.trim()) {
+          const resolved = await resolveImageLink(avatarUrl);
+          if (!resolved) {
+            return NextResponse.json({ error: "Provided avatar URL is not resolvable" }, { status: 400 });
+          }
+          dbUser.avatar = resolved;
+        }
+      }
+
+      if (banner !== undefined) {
+        let bannerUrl = "";
+        if (typeof banner === "string") {
+          bannerUrl = banner;
+        } else if (typeof banner === "object" && banner !== null) {
+          bannerUrl = (banner as { secure_url?: string; url?: string }).secure_url || (banner as { secure_url?: string; url?: string }).url || "";
+        }
+        
+        if (bannerUrl.trim()) {
+          const resolved = await resolveImageLink(bannerUrl);
+          if (!resolved) {
+            return NextResponse.json({ error: "Provided banner URL is not resolvable" }, { status: 400 });
+          }
+          dbUser.banner = resolved;
+        } else {
+          dbUser.banner = ""; // cleared
         }
       }
     }

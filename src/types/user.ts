@@ -8,6 +8,7 @@ export interface DbUser {
   updatedAt?: string | Date;
   username?: string;
   avatar?: string;
+  banner?: string;
   bio?: string;
   role?: string;
   karma?: number;

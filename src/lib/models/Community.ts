@@ -11,6 +11,8 @@ export interface Community extends Document {
     pendingRequests?: mongoose.Types.ObjectId[];
     bannedUsers?: mongoose.Types.ObjectId[];
     rules?: string[];
+    avatar?: string;
+    banner?: string;
 }
 
 export const CommunitySchema = new Schema<Community>({
@@ -45,6 +47,14 @@ export const CommunitySchema = new Schema<Community>({
     isPrivate: {
         type: Boolean,
         default: false
+    },
+    avatar: {
+        type: String,
+        required: false
+    },
+    banner: {
+        type: String,
+        required: false
     },
     pendingRequests: [{
         type: mongoose.Schema.Types.ObjectId,
