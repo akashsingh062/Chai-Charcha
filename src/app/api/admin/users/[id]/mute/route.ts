@@ -5,7 +5,7 @@ import { User } from "@/lib/models/User";
 import { AuditLog } from "@/lib/models/AuditLog";
 import mongoose from "mongoose";
 
-// POST /api/admin/users/[id]/ban — Toggle ban status for a user
+// POST /api/admin/users/[id]/mute — Toggle comment block (mute) status for a user
 export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
     const params = await props.params;
@@ -17,9 +17,9 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    // Safeguard: Admin cannot ban themselves
+    // Safeguard: Admin cannot mute themselves
     if (userId === adminUser.id) {
-      return NextResponse.json({ error: "You cannot ban your own admin account" }, { status: 400 });
+      return NextResponse.json({ error: "You cannot block comments on your own admin account" }, { status: 400 });
     }
 
     const user = await User.findById(userId);
@@ -37,50 +37,41 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       // Body may be empty, ignore
     }
 
-    const currentlyBanned = !!user.isBanned;
-    const nextBanStatus = !currentlyBanned;
+    const currentlyMuted = !!user.isMuted;
+    const nextMuteStatus = !currentlyMuted;
 
-    user.isBanned = nextBanStatus;
-    user.bannedAt = nextBanStatus ? new Date() : undefined;
-    user.bannedBy = nextBanStatus ? new mongoose.Types.ObjectId(adminUser.id) : undefined;
+    user.isMuted = nextMuteStatus;
+    user.mutedAt = nextMuteStatus ? new Date() : null;
+    user.mutedBy = nextMuteStatus ? new mongoose.Types.ObjectId(adminUser.id) : null;
     
-    if (nextBanStatus && durationHours && durationHours > 0) {
-      user.banExpiresAt = new Date(Date.now() + durationHours * 60 * 60 * 1000);
+    if (nextMuteStatus && durationHours && durationHours > 0) {
+      user.muteExpiresAt = new Date(Date.now() + durationHours * 60 * 60 * 1000);
     } else {
-      user.banExpiresAt = null;
+      user.muteExpiresAt = null;
     }
 
     await user.save();
 
-    // Invalidate user sessions if they are banned
-    if (nextBanStatus) {
-      const db = mongoose.connection.db;
-      if (db) {
-        // Delete all better-auth sessions for the user to force immediate logout
-        await db.collection("session").deleteMany({ userId: userId });
-      }
-    }
-
     // Log action to AuditLog
     await AuditLog.create({
       admin: adminUser.id,
-      action: nextBanStatus ? "ban_user" : "unban_user",
+      action: nextMuteStatus ? "mute_user" : "unmute_user",
       targetType: "User",
       targetId: user._id,
       details: {
-        bannedUser: {
+        mutedUser: {
           name: user.name,
           username: user.username,
           email: user.email,
         },
-        durationHours: nextBanStatus ? durationHours : undefined,
-        expiresAt: nextBanStatus ? user.banExpiresAt : undefined,
+        durationHours: nextMuteStatus ? durationHours : undefined,
+        expiresAt: nextMuteStatus ? user.muteExpiresAt : undefined,
       },
     });
 
     return NextResponse.json({
-      message: `User successfully ${nextBanStatus ? "banned" : "unbanned"}`,
-      isBanned: nextBanStatus,
+      message: `User successfully ${nextMuteStatus ? "blocked from commenting" : "unblocked from commenting"}`,
+      isMuted: nextMuteStatus,
     });
   } catch (error) {
     return adminErrorResponse(error);

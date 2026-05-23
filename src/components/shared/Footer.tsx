@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 
 const Footer = () => {
   const pathname = usePathname();
-  if (pathname === "/messages") return null;
+  if (pathname?.startsWith("/admin") || pathname === "/messages") return null;
   return (
     <footer className="w-full bg-(--nav-bg) border-t border-(--nav-border) text-(--foreground) transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">

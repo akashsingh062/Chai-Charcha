@@ -13,9 +13,10 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search") || "";
 
-    let query = {};
+    let query: Record<string, any> = { isBanned: { $ne: true } };
     if (search.trim()) {
       query = {
+        isBanned: { $ne: true },
         $or: [
           { name: { $regex: search.trim(), $options: "i" } },
           { description: { $regex: search.trim(), $options: "i" } }

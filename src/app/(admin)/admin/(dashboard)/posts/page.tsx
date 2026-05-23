@@ -5,7 +5,7 @@ import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
-
+import Link from "next/link";
 interface PostItem {
   id: string;
   title: string;
@@ -46,13 +46,7 @@ export default function PostManagementPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostItem | null>(null);
   
-  // Edit post modal state
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editTitle, setEditTitle] = useState("");
-  const [editContent, setEditContent] = useState("");
-  const [editCategory, setEditCategory] = useState("");
-  const [editTags, setEditTags] = useState("");
-  const [savingEdit, setSavingEdit] = useState(false);
+
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -137,59 +131,7 @@ export default function PostManagementPage() {
     }
   };
 
-  const handleEditClick = (post: PostItem) => {
-    setSelectedPost(post);
-    setEditTitle(post.title);
-    setEditContent(post.content);
-    setEditCategory(post.category);
-    setEditTags(post.tags.join(", "));
-    setEditModalOpen(true);
-  };
 
-  const handleEditSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedPost) return;
-    setSavingEdit(true);
-
-    try {
-      const tagsArray = editTags
-        .split(",")
-        .map((t) => t.trim())
-        .filter((t) => t.length > 0);
-
-      await axiosInstance.put(`/api/admin/posts/${selectedPost.id}`, {
-        title: editTitle,
-        content: editContent,
-        category: editCategory,
-        tags: tagsArray,
-      });
-
-      setPosts((prev) =>
-        prev.map((p) =>
-          p.id === selectedPost.id
-            ? {
-                ...p,
-                title: editTitle,
-                content: editContent,
-                category: editCategory,
-                tags: tagsArray,
-              }
-            : p
-        )
-      );
-
-      setEditModalOpen(false);
-      setSelectedPost(null);
-    } catch (err: unknown) {
-      const errorMsg =
-        err && typeof err === "object" && "response" in err
-          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
-          : "";
-      alert(errorMsg || "Failed to update post");
-    } finally {
-      setSavingEdit(false);
-    }
-  };
 
   const columns = [
     {
@@ -200,7 +142,18 @@ export default function PostManagementPage() {
         <div className="min-w-0 max-w-xs">
           <span className="font-bold text-floral-white block truncate">{row.title}</span>
           <span className="text-3xs text-dust-grey/60 block truncate">
-            By @{row.author?.username || "deleted"} • in {row.community?.name || "General"}
+            By{" "}
+            {row.author?.username ? (
+              <Link
+                href={`/admin/users?search=${row.author.username}`}
+                className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
+              >
+                @{row.author.username}
+              </Link>
+            ) : (
+              "deleted"
+            )}{" "}
+            • in {row.community?.name || "General"}
           </span>
         </div>
       ),
@@ -251,12 +204,6 @@ export default function PostManagementPage() {
       label: "Actions",
       render: (row: PostItem) => (
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleEditClick(row)}
-            className="px-2.5 py-1 rounded bg-stormy-teal/10 hover:bg-stormy-teal/20 text-stormy-teal border border-stormy-teal/20 text-3xs font-bold uppercase transition-all cursor-pointer"
-          >
-            Edit
-          </button>
           <button
             onClick={() => handleSoftDeleteToggle(row)}
             className={`px-2.5 py-1 rounded text-3xs font-bold uppercase transition-all border cursor-pointer ${
@@ -360,93 +307,7 @@ export default function PostManagementPage() {
         emptyMessage="No posts found matching search criteria"
       />
 
-      {/* Edit Post Modal */}
-      {editModalOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-xl rounded-2xl border border-stormy-teal/20 bg-ink-black p-6 shadow-2xl">
-            <h3 className="text-base font-extrabold text-floral-white uppercase tracking-wider mb-4 border-b border-stormy-teal/10 pb-2">
-              Edit Post Content
-            </h3>
 
-            <form onSubmit={handleEditSave} className="space-y-4">
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  Post Title
-                </label>
-                <input
-                  type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  required
-                  className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                />
-              </div>
-
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  Category
-                </label>
-                <select
-                  value={editCategory}
-                  onChange={(e) => setEditCategory(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine"
-                >
-                  <option value="General Charcha">General Charcha</option>
-                  <option value="Tech Support">Tech Support</option>
-                  <option value="Coding Lounge">Coding Lounge</option>
-                  <option value="Showcase">Showcase</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  Tags (comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={editTags}
-                  onChange={(e) => setEditTags(e.target.value)}
-                  placeholder="nextjs, react, tailwind"
-                  className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                />
-              </div>
-
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  Post Content
-                </label>
-                <textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  rows={6}
-                  required
-                  className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs text-floral-white focus:outline-none focus:border-vivid-tangerine resize-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 border-t border-stormy-teal/10 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditModalOpen(false);
-                    setSelectedPost(null);
-                  }}
-                  className="px-4 py-2 rounded-xl text-2xs font-extrabold uppercase tracking-wider text-dust-grey hover:bg-white/5 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingEdit}
-                  className="px-4 py-2 rounded-xl bg-stormy-teal hover:bg-stormy-teal/80 text-floral-white font-extrabold uppercase tracking-wider text-2xs cursor-pointer"
-                >
-                  {savingEdit ? "Saving..." : "Save changes"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal

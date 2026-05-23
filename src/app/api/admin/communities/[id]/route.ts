@@ -39,6 +39,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
       description: community.description,
       membersCount: community.membersCount,
       isPrivate: !!community.isPrivate,
+      isBanned: !!community.isBanned,
       avatar: community.avatar,
       banner: community.banner,
       rules: community.rules || [],

@@ -155,6 +155,19 @@ export async function POST(req: Request) {
 
     await connectDB();
 
+    // Check if user is globally banned
+    const { checkUserStatus } = await import("@/lib/adminAuth");
+    const { isBanned, banExpiresAt } = await checkUserStatus(session.user.id);
+    if (isBanned) {
+      const expirationMsg = banExpiresAt
+        ? ` until ${new Date(banExpiresAt).toLocaleString()}`
+        : " permanently";
+      return NextResponse.json(
+        { error: `Your account is banned${expirationMsg}.` },
+        { status: 403 }
+      );
+    }
+
     // Check if user is banned in the community
     if (validatedData.data.community) {
       const comm = await Community.findById(validatedData.data.community);

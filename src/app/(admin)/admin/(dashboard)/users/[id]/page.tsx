@@ -21,6 +21,10 @@ interface UserDetail {
   karma: number;
   isBanned: boolean;
   bannedAt: string;
+  banExpiresAt?: string | null;
+  isMuted?: boolean;
+  mutedAt?: string | null;
+  muteExpiresAt?: string | null;
   followersCount: number;
   followingCount: number;
   communitiesCount: number;
@@ -52,6 +56,8 @@ export default function UserDetailPage() {
   const [banner, setBanner] = useState("");
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [banDuration, setBanDuration] = useState("0");
+  const [muteDuration, setMuteDuration] = useState("0");
 
   const fetchUserDetails = useCallback(async () => {
     try {
@@ -120,10 +126,14 @@ export default function UserDetailPage() {
 
   const handleBanToggle = async () => {
     try {
-      const res = await axiosInstance.post(`/api/admin/users/${userId}/ban`);
+      const payload = !user?.isBanned && banDuration !== "0"
+        ? { durationHours: parseInt(banDuration) }
+        : {};
+      const res = await axiosInstance.post(`/api/admin/users/${userId}/ban`, payload);
       if (res.status === 200) {
         setUser((prev) => (prev ? { ...prev, isBanned: res.data.isBanned } : null));
         setSuccess(`User successfully ${res.data.isBanned ? "banned" : "unbanned"}`);
+        fetchUserDetails();
       }
     } catch (err: unknown) {
       const errorMsg =
@@ -131,6 +141,26 @@ export default function UserDetailPage() {
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
           : "";
       setError(errorMsg || "Failed to toggle ban status");
+    }
+  };
+
+  const handleMuteToggle = async () => {
+    try {
+      const payload = !user?.isMuted && muteDuration !== "0"
+        ? { durationHours: parseInt(muteDuration) }
+        : {};
+      const res = await axiosInstance.post(`/api/admin/users/${userId}/mute`, payload);
+      if (res.status === 200) {
+        setUser((prev) => (prev ? { ...prev, isMuted: res.data.isMuted } : null));
+        setSuccess(`User comment access successfully ${res.data.isMuted ? "blocked" : "restored"}`);
+        fetchUserDetails();
+      }
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      setError(errorMsg || "Failed to toggle comment block status");
     }
   };
 
@@ -190,7 +220,14 @@ export default function UserDetailPage() {
             User details: {user.name}
           </h1>
         </div>
-        <AdminBadge type={user.isBanned ? "banned" : user.role} />
+        <div className="flex items-center gap-2">
+          <AdminBadge type={user.isBanned ? "banned" : user.role} />
+          {user.isMuted && (
+            <span className="px-2 py-0.5 rounded text-3xs font-extrabold bg-orange/15 text-orange border border-orange/20 uppercase tracking-widest">
+              Muted
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Grid */}
@@ -414,25 +451,94 @@ export default function UserDetailPage() {
               Danger Zone
             </h3>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h4 className="text-xs font-bold text-floral-white">Ban Account</h4>
-                <p className="text-3xs text-dust-grey/60 mt-0.5">
-                  Temporarily lock out this user from all community posting and active sessions.
-                </p>
-              </div>
+            <div className="flex flex-col gap-4 border-b border-stormy-teal/10 pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h4 className="text-xs font-bold text-floral-white">
+                    Ban Account {user.isBanned && <span className="text-spicy-paprika">(Currently Banned)</span>}
+                  </h4>
+                  <p className="text-3xs text-dust-grey/60 mt-0.5">
+                    {user.isBanned 
+                      ? user.banExpiresAt 
+                        ? `Temporary ban active. Expires: ${new Date(user.banExpiresAt).toLocaleString()}`
+                        : "Permanent account ban active. User cannot log in."
+                      : "Lock out this user from all community posting and active sessions."}
+                  </p>
+                </div>
 
-              <button
-                onClick={handleBanToggle}
-                disabled={isSelf}
-                className={`sm:self-center px-4 py-2 rounded-xl text-2xs font-extrabold uppercase tracking-wider border cursor-pointer transition-all disabled:opacity-40 ${
-                  user.isBanned
-                    ? "bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/25"
-                    : "bg-orange/10 hover:bg-orange/20 text-orange border-orange/25"
-                }`}
-              >
-                {user.isBanned ? "Unban Account" : "Ban Account"}
-              </button>
+                <div className="flex items-center gap-2">
+                  {!user.isBanned && (
+                    <select
+                      value={banDuration}
+                      onChange={(e) => setBanDuration(e.target.value)}
+                      className="px-2.5 py-1.5 bg-ink-black border border-stormy-teal/20 rounded-lg text-3xs font-extrabold uppercase tracking-widest text-dust-grey focus:outline-none focus:border-vivid-tangerine"
+                    >
+                      <option value="0">Permanent</option>
+                      <option value="1">1 Hour</option>
+                      <option value="24">1 Day</option>
+                      <option value="168">1 Week</option>
+                      <option value="720">30 Days</option>
+                    </select>
+                  )}
+
+                  <button
+                    onClick={handleBanToggle}
+                    disabled={isSelf}
+                    className={`px-4 py-2 rounded-xl text-2xs font-extrabold uppercase tracking-wider border cursor-pointer transition-all disabled:opacity-40 ${
+                      user.isBanned
+                        ? "bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/25"
+                        : "bg-orange/10 hover:bg-orange/20 text-orange border-orange/25"
+                    }`}
+                  >
+                    {user.isBanned ? "Unban Account" : "Ban Account"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 border-b border-stormy-teal/10 pb-4 pt-1">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h4 className="text-xs font-bold text-floral-white">
+                    Comment Block (Mute) {user.isMuted && <span className="text-spicy-paprika">(Currently Muted)</span>}
+                  </h4>
+                  <p className="text-3xs text-dust-grey/60 mt-0.5">
+                    {user.isMuted 
+                      ? user.muteExpiresAt 
+                        ? `Temporary block active. Expires: ${new Date(user.muteExpiresAt).toLocaleString()}`
+                        : "Permanent comment block active. User cannot reply or post comments."
+                      : "Block this user from writing new comments and replies across the community."}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {!user.isMuted && (
+                    <select
+                      value={muteDuration}
+                      onChange={(e) => setMuteDuration(e.target.value)}
+                      className="px-2.5 py-1.5 bg-ink-black border border-stormy-teal/20 rounded-lg text-3xs font-extrabold uppercase tracking-widest text-dust-grey focus:outline-none focus:border-vivid-tangerine"
+                    >
+                      <option value="0">Permanent</option>
+                      <option value="1">1 Hour</option>
+                      <option value="24">1 Day</option>
+                      <option value="168">1 Week</option>
+                      <option value="720">30 Days</option>
+                    </select>
+                  )}
+
+                  <button
+                    onClick={handleMuteToggle}
+                    disabled={isSelf}
+                    className={`px-4 py-2 rounded-xl text-2xs font-extrabold uppercase tracking-wider border cursor-pointer transition-all disabled:opacity-40 ${
+                      user.isMuted
+                        ? "bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/25"
+                        : "bg-orange/10 hover:bg-orange/20 text-orange border-orange/25"
+                    }`}
+                  >
+                    {user.isMuted ? "Restore Comment Access" : "Block Commenting"}
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-stormy-teal/10 pt-4">

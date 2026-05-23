@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
@@ -17,14 +18,18 @@ interface UserItem {
   role: string;
   karma: number;
   isBanned: boolean;
+  isMuted?: boolean;
   createdAt: string;
 }
 
-export default function UserManagementPage() {
+function UserManagementPageContent() {
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams?.get("search") || "";
+
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [role, setRole] = useState("");
   const [banned, setBanned] = useState("");
   const [sort, setSort] = useState("createdAt");
@@ -36,6 +41,14 @@ export default function UserManagementPage() {
   // Modals state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
+
+  // Ban Modal
+  const [banModalOpen, setBanModalOpen] = useState(false);
+  const [banDuration, setBanDuration] = useState("0");
+
+  // Mute Modal
+  const [muteModalOpen, setMuteModalOpen] = useState(false);
+  const [muteDuration, setMuteDuration] = useState("0");
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -66,15 +79,24 @@ export default function UserManagementPage() {
     fetchUsers();
   }, [fetchUsers]);
 
+  // Synchronize URL search params
+  useEffect(() => {
+    const s = searchParams?.get("search") || "";
+    setSearch(s);
+    setDebouncedSearch(s);
+    setPage(1);
+  }, [searchParams]);
+
   // Debounced search trigger
   useEffect(() => {
+    if (search === (searchParams?.get("search") || "")) return;
     const delayDebounceFn = setTimeout(() => {
       setDebouncedSearch(search);
       setPage(1);
     }, 400);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [search]);
+  }, [search, searchParams]);
 
   const handleSort = (key: string) => {
     if (sort === key) {
@@ -86,20 +108,77 @@ export default function UserManagementPage() {
     setPage(1);
   };
 
-  const handleBanToggle = async (user: UserItem) => {
+  const handleBanClick = async (user: UserItem) => {
+    if (user.isBanned) {
+      // Unban directly
+      try {
+        const res = await axiosInstance.post(`/api/admin/users/${user.id}/ban`);
+        if (res.status === 200) {
+          setUsers((prev) =>
+            prev.map((u) => (u.id === user.id ? { ...u, isBanned: res.data.isBanned } : u))
+          );
+        }
+      } catch (err: unknown) {
+        alert("Failed to unban user");
+      }
+    } else {
+      setSelectedUser(user);
+      setBanDuration("0");
+      setBanModalOpen(true);
+    }
+  };
+
+  const handleConfirmBan = async () => {
+    if (!selectedUser) return;
     try {
-      const res = await axiosInstance.post(`/api/admin/users/${user.id}/ban`);
+      const payload = banDuration !== "0" ? { durationHours: parseInt(banDuration) } : {};
+      const res = await axiosInstance.post(`/api/admin/users/${selectedUser.id}/ban`, payload);
       if (res.status === 200) {
         setUsers((prev) =>
-          prev.map((u) => (u.id === user.id ? { ...u, isBanned: res.data.isBanned } : u))
+          prev.map((u) => (u.id === selectedUser.id ? { ...u, isBanned: res.data.isBanned } : u))
         );
       }
+      setBanModalOpen(false);
+      setSelectedUser(null);
     } catch (err: unknown) {
-      const errorMsg =
-        err && typeof err === "object" && "response" in err
-          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
-          : "";
-      alert(errorMsg || "Failed to update ban status");
+      alert("Failed to ban user");
+    }
+  };
+
+  const handleMuteClick = async (user: UserItem) => {
+    if (user.isMuted) {
+      // Unmute directly
+      try {
+        const res = await axiosInstance.post(`/api/admin/users/${user.id}/mute`);
+        if (res.status === 200) {
+          setUsers((prev) =>
+            prev.map((u) => (u.id === user.id ? { ...u, isMuted: res.data.isMuted } : u))
+          );
+        }
+      } catch (err: unknown) {
+        alert("Failed to unmute user");
+      }
+    } else {
+      setSelectedUser(user);
+      setMuteDuration("0");
+      setMuteModalOpen(true);
+    }
+  };
+
+  const handleConfirmMute = async () => {
+    if (!selectedUser) return;
+    try {
+      const payload = muteDuration !== "0" ? { durationHours: parseInt(muteDuration) } : {};
+      const res = await axiosInstance.post(`/api/admin/users/${selectedUser.id}/mute`, payload);
+      if (res.status === 200) {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === selectedUser.id ? { ...u, isMuted: res.data.isMuted } : u))
+        );
+      }
+      setMuteModalOpen(false);
+      setSelectedUser(null);
+    } catch (err: unknown) {
+      alert("Failed to mute user");
     }
   };
 
@@ -166,7 +245,14 @@ export default function UserManagementPage() {
       key: "status",
       label: "Status",
       render: (row: UserItem) => (
-        <AdminBadge type={row.isBanned ? "banned" : "active"} />
+        <div className="flex flex-col gap-1 items-start">
+          <AdminBadge type={row.isBanned ? "banned" : "active"} />
+          {row.isMuted && (
+            <span className="px-1.5 py-0.5 rounded text-4xs font-black bg-orange/15 text-orange border border-orange/20 uppercase tracking-widest leading-none">
+              Muted
+            </span>
+          )}
+        </div>
       ),
     },
     {
@@ -191,8 +277,8 @@ export default function UserManagementPage() {
             Edit
           </Link>
           <button
-            onClick={() => handleBanToggle(row)}
-            className={`px-2.5 py-1 rounded text-3xs font-bold uppercase transition-all border ${
+            onClick={() => handleBanClick(row)}
+            className={`px-2.5 py-1 rounded text-3xs font-bold uppercase transition-all border cursor-pointer ${
               row.isBanned
                 ? "bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20"
                 : "bg-orange/10 hover:bg-orange/20 text-orange border-orange/20"
@@ -201,11 +287,21 @@ export default function UserManagementPage() {
             {row.isBanned ? "Unban" : "Ban"}
           </button>
           <button
+            onClick={() => handleMuteClick(row)}
+            className={`px-2.5 py-1 rounded text-3xs font-bold uppercase transition-all border cursor-pointer ${
+              row.isMuted
+                ? "bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20"
+                : "bg-orange/10 hover:bg-orange/20 text-orange border-orange/20"
+            }`}
+          >
+            {row.isMuted ? "Unmute" : "Mute"}
+          </button>
+          <button
             onClick={() => {
               setSelectedUser(row);
               setDeleteModalOpen(true);
             }}
-            className="px-2.5 py-1 rounded bg-spicy-paprika/10 hover:bg-spicy-paprika/20 text-spicy-paprika border border-spicy-paprika/20 text-3xs font-bold uppercase transition-all"
+            className="px-2.5 py-1 rounded bg-spicy-paprika/10 hover:bg-spicy-paprika/20 text-spicy-paprika border border-spicy-paprika/20 text-3xs font-bold uppercase transition-all cursor-pointer"
           >
             Delete
           </button>
@@ -294,6 +390,100 @@ export default function UserManagementPage() {
         emptyMessage="No users found matching search criteria"
       />
 
+      {/* Ban Duration Modal */}
+      {banModalOpen && selectedUser && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border border-stormy-teal/20 bg-ink-black p-6 shadow-2xl space-y-4">
+            <h3 className="text-base font-extrabold text-floral-white uppercase tracking-wider border-b border-stormy-teal/10 pb-2">
+              Ban User: @{selectedUser.username}
+            </h3>
+            
+            <div>
+              <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
+                Ban Duration
+              </label>
+              <select
+                value={banDuration}
+                onChange={(e) => setBanDuration(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine"
+              >
+                <option value="0">Permanent Ban</option>
+                <option value="1">1 Hour Ban</option>
+                <option value="24">1 Day Ban</option>
+                <option value="168">1 Week Ban</option>
+                <option value="720">30 Days Ban</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setBanModalOpen(false);
+                  setSelectedUser(null);
+                }}
+                className="px-4 py-2 rounded-xl text-2xs font-extrabold uppercase tracking-wider text-dust-grey hover:bg-white/5 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmBan}
+                className="px-4 py-2 rounded-xl bg-orange hover:bg-orange/80 text-ink-black font-extrabold uppercase tracking-wider text-2xs cursor-pointer"
+              >
+                Confirm Ban
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mute Duration Modal */}
+      {muteModalOpen && selectedUser && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border border-stormy-teal/20 bg-ink-black p-6 shadow-2xl space-y-4">
+            <h3 className="text-base font-extrabold text-floral-white uppercase tracking-wider border-b border-stormy-teal/10 pb-2">
+              Mute User Comments: @{selectedUser.username}
+            </h3>
+            
+            <div>
+              <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
+                Mute Duration
+              </label>
+              <select
+                value={muteDuration}
+                onChange={(e) => setMuteDuration(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine"
+              >
+                <option value="0">Permanent Mute</option>
+                <option value="1">1 Hour Mute</option>
+                <option value="24">1 Day Mute</option>
+                <option value="168">1 Week Mute</option>
+                <option value="720">30 Days Mute</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setMuteModalOpen(false);
+                  setSelectedUser(null);
+                }}
+                className="px-4 py-2 rounded-xl text-2xs font-extrabold uppercase tracking-wider text-dust-grey hover:bg-white/5 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmMute}
+                className="px-4 py-2 rounded-xl bg-orange hover:bg-orange/80 text-ink-black font-extrabold uppercase tracking-wider text-2xs cursor-pointer"
+              >
+                Confirm Mute
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={deleteModalOpen}
@@ -308,5 +498,13 @@ export default function UserManagementPage() {
         isDanger={true}
       />
     </div>
+  );
+}
+
+export default function UserManagementPage() {
+  return (
+    <Suspense fallback={<div className="text-xs text-dust-grey font-bold uppercase tracking-wider">Loading User Panel...</div>}>
+      <UserManagementPageContent />
+    </Suspense>
   );
 }

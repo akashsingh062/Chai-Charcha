@@ -20,6 +20,11 @@ interface UserDoc {
   isBanned?: boolean;
   bannedAt?: Date;
   bannedBy?: mongoose.Types.ObjectId;
+  banExpiresAt?: Date;
+  isMuted?: boolean;
+  mutedAt?: Date;
+  mutedBy?: mongoose.Types.ObjectId;
+  muteExpiresAt?: Date;
   followers?: mongoose.Types.ObjectId[];
   following?: mongoose.Types.ObjectId[];
   joinedCommunities?: string[] | string;
@@ -62,6 +67,11 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
       isBanned: !!user.isBanned,
       bannedAt: user.bannedAt ? user.bannedAt.toISOString() : null,
       bannedBy: user.bannedBy ? user.bannedBy.toString() : null,
+      banExpiresAt: user.banExpiresAt ? user.banExpiresAt.toISOString() : null,
+      isMuted: !!user.isMuted,
+      mutedAt: user.mutedAt ? user.mutedAt.toISOString() : null,
+      mutedBy: user.mutedBy ? user.mutedBy.toString() : null,
+      muteExpiresAt: user.muteExpiresAt ? user.muteExpiresAt.toISOString() : null,
       followersCount: user.followers?.length || 0,
       followingCount: user.following?.length || 0,
       communitiesCount: Array.isArray(user.joinedCommunities) ? user.joinedCommunities.length : 0,

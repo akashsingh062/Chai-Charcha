@@ -96,7 +96,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
         <div className="space-y-6">
           {/* Logo / Header */}
           <div className="flex items-center justify-between border-b border-stormy-teal/15 pb-4">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/admin" className="flex items-center gap-2">
               <span className="text-lg font-black text-floral-white uppercase tracking-wider flex items-center gap-1.5">
                 Chai <span className="text-vivid-tangerine">Charcha</span>
                 <span className="text-2xs bg-vivid-tangerine/10 text-vivid-tangerine px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">

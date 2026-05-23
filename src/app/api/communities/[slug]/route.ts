@@ -25,6 +25,13 @@ export async function GET(
       return NextResponse.json({ error: "Community not found" }, { status: 404 });
     }
 
+    if (community.isBanned) {
+      return NextResponse.json(
+        { error: "This community has been suspended/banned by administrators." },
+        { status: 403 }
+      );
+    }
+
     const session = await auth.api.getSession({
       headers: await headers(),
     });

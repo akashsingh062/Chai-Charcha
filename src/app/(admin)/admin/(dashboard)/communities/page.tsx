@@ -18,6 +18,7 @@ interface CommunityItem {
   avatar: string;
   banner: string;
   moderatorsCount: number;
+  isBanned?: boolean;
   creator?: {
     name: string;
     username: string;
@@ -77,6 +78,23 @@ export default function CommunityManagementPage() {
     return () => clearTimeout(delayDebounceFn);
   }, [search]);
 
+  const handleBanToggle = async (community: CommunityItem) => {
+    try {
+      const res = await axiosInstance.post(`/api/admin/communities/${community.id}/ban`);
+      if (res.status === 200) {
+        setCommunities((prev) =>
+          prev.map((c) => (c.id === community.id ? { ...c, isBanned: res.data.isBanned } : c))
+        );
+      }
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      alert(errorMsg || "Failed to update community ban status");
+    }
+  };
+
   const handleSort = (key: string) => {
     if (sort === key) {
       setOrder(order === "asc" ? "desc" : "asc");
@@ -132,7 +150,16 @@ export default function CommunityManagementPage() {
       label: "Creator",
       render: (row: CommunityItem) => (
         <span className="text-2xs font-semibold text-dust-grey/80">
-          @{row.creator?.username || "deleted"}
+          {row.creator?.username ? (
+            <Link
+              href={`/admin/users?search=${row.creator.username}`}
+              className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
+            >
+              @{row.creator.username}
+            </Link>
+          ) : (
+            "deleted"
+          )}
         </span>
       ),
     },
@@ -155,7 +182,11 @@ export default function CommunityManagementPage() {
       key: "isPrivate",
       label: "Visibility",
       render: (row: CommunityItem) => (
-        <AdminBadge type={row.isPrivate ? "rejected" : "active"} />
+        row.isBanned ? (
+          <AdminBadge type="banned" />
+        ) : (
+          <AdminBadge type={row.isPrivate ? "rejected" : "active"} />
+        )
       ),
     },
     {
@@ -179,6 +210,16 @@ export default function CommunityManagementPage() {
           >
             Edit / View
           </Link>
+          <button
+            onClick={() => handleBanToggle(row)}
+            className={`px-2.5 py-1 rounded text-3xs font-bold uppercase transition-all border cursor-pointer ${
+              row.isBanned
+                ? "bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20"
+                : "bg-orange/10 hover:bg-orange/20 text-orange border-orange/20"
+            }`}
+          >
+            {row.isBanned ? "Unban" : "Ban"}
+          </button>
           <button
             onClick={() => {
               setSelectedCommunity(row);

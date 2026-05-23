@@ -16,8 +16,13 @@ export interface User extends Document {
     followers: mongoose.Types.ObjectId[];
     following: mongoose.Types.ObjectId[];
     isBanned?: boolean;
-    bannedAt?: Date;
-    bannedBy?: mongoose.Types.ObjectId;
+    bannedAt?: Date | null;
+    bannedBy?: mongoose.Types.ObjectId | null;
+    banExpiresAt?: Date | null;
+    isMuted?: boolean;
+    mutedAt?: Date | null;
+    mutedBy?: mongoose.Types.ObjectId | null;
+    muteExpiresAt?: Date | null;
 }
 
 export const UserSchema = new Schema<User>({
@@ -103,6 +108,27 @@ export const UserSchema = new Schema<User>({
     bannedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        default: null
+    },
+    banExpiresAt: {
+        type: Date,
+        default: null
+    },
+    isMuted: {
+        type: Boolean,
+        default: false
+    },
+    mutedAt: {
+        type: Date,
+        default: null
+    },
+    mutedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    muteExpiresAt: {
+        type: Date,
         default: null
     }
 }, { 

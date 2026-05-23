@@ -51,6 +51,7 @@ export async function GET(req: Request) {
       description: c.description,
       membersCount: c.membersCount,
       isPrivate: !!c.isPrivate,
+      isBanned: !!c.isBanned,
       avatar: c.avatar,
       banner: c.banner,
       rules: c.rules || [],

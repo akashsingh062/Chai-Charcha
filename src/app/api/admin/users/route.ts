@@ -15,6 +15,8 @@ interface UserDoc {
   bio: string;
   isBanned?: boolean;
   bannedAt?: Date;
+  isMuted?: boolean;
+  muteExpiresAt?: Date;
   followers?: mongoose.Types.ObjectId[];
   following?: mongoose.Types.ObjectId[];
   joinedCommunities?: string[] | string;
@@ -70,7 +72,7 @@ export async function GET(req: Request) {
 
     const [users, total] = await Promise.all([
       User.find(query)
-        .select("name username email avatar role karma bio isBanned bannedAt createdAt updatedAt followers following joinedCommunities")
+        .select("name username email avatar role karma bio isBanned bannedAt isMuted muteExpiresAt createdAt updatedAt followers following joinedCommunities")
         .sort(sortCriteria)
         .skip(skip)
         .limit(limit)
@@ -89,6 +91,8 @@ export async function GET(req: Request) {
       bio: u.bio,
       isBanned: !!u.isBanned,
       bannedAt: u.bannedAt ? u.bannedAt.toISOString() : null,
+      isMuted: !!u.isMuted,
+      muteExpiresAt: u.muteExpiresAt ? u.muteExpiresAt.toISOString() : null,
       followersCount: u.followers?.length || 0,
       followingCount: u.following?.length || 0,
       communitiesCount: Array.isArray(u.joinedCommunities) ? u.joinedCommunities.length : 0,

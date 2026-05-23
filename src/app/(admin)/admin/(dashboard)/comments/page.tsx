@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import Link from "next/link";
 
 interface CommentItem {
   id: string;
@@ -37,10 +38,7 @@ export default function CommentManagementPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null);
 
-  // Edit modal state
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editContent, setEditContent] = useState("");
-  const [savingEdit, setSavingEdit] = useState(false);
+
 
   const fetchComments = useCallback(async () => {
     try {
@@ -91,35 +89,7 @@ export default function CommentManagementPage() {
     setPage(1);
   };
 
-  const handleEditClick = (comment: CommentItem) => {
-    setSelectedComment(comment);
-    setEditContent(comment.content);
-    setEditModalOpen(true);
-  };
 
-  const handleEditSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedComment) return;
-    setSavingEdit(true);
-
-    try {
-      await axiosInstance.put(`/api/admin/comments/${selectedComment.id}`, {
-        content: editContent,
-      });
-
-      setComments((prev) =>
-        prev.map((c) => (c.id === selectedComment.id ? { ...c, content: editContent } : c))
-      );
-
-      setEditModalOpen(false);
-      setSelectedComment(null);
-    } catch (err) {
-      const errorMsg = (err as { response?: { data?: { error?: string } } }).response?.data?.error;
-      alert(errorMsg || "Failed to update comment");
-    } finally {
-      setSavingEdit(false);
-    }
-  };
 
   const handleDeleteConfirm = async () => {
     if (!selectedComment) return;
@@ -146,7 +116,18 @@ export default function CommentManagementPage() {
             {row.content}
           </p>
           <span className="text-3xs text-dust-grey/60 block truncate mt-1">
-            By @{row.author?.username || "deleted"} • on post &ldquo;{row.postTitle}&rdquo;
+            By{" "}
+            {row.author?.username ? (
+              <Link
+                href={`/admin/users?search=${row.author.username}`}
+                className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
+              >
+                @{row.author.username}
+              </Link>
+            ) : (
+              "deleted"
+            )}{" "}
+            • on post &ldquo;{row.postTitle}&rdquo;
           </span>
         </div>
       ),
@@ -184,12 +165,6 @@ export default function CommentManagementPage() {
       label: "Actions",
       render: (row: CommentItem) => (
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleEditClick(row)}
-            className="px-2.5 py-1 rounded bg-stormy-teal/10 hover:bg-stormy-teal/20 text-stormy-teal border border-stormy-teal/20 text-3xs font-bold uppercase transition-all cursor-pointer"
-          >
-            Edit
-          </button>
           <button
             onClick={() => {
               setSelectedComment(row);
@@ -261,51 +236,7 @@ export default function CommentManagementPage() {
         emptyMessage="No comments found matching search criteria"
       />
 
-      {/* Edit Comment Modal */}
-      {editModalOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-xl rounded-2xl border border-stormy-teal/20 bg-ink-black p-6 shadow-2xl">
-            <h3 className="text-base font-extrabold text-floral-white uppercase tracking-wider mb-4 border-b border-stormy-teal/10 pb-2">
-              Edit Comment Content
-            </h3>
 
-            <form onSubmit={handleEditSave} className="space-y-4">
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  Comment Text
-                </label>
-                <textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  rows={6}
-                  required
-                  className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs text-floral-white focus:outline-none focus:border-vivid-tangerine resize-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 border-t border-stormy-teal/10 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditModalOpen(false);
-                    setSelectedComment(null);
-                  }}
-                  className="px-4 py-2 rounded-xl text-2xs font-extrabold uppercase tracking-wider text-dust-grey hover:bg-white/5 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingEdit}
-                  className="px-4 py-2 rounded-xl bg-stormy-teal hover:bg-stormy-teal/80 text-floral-white font-extrabold uppercase tracking-wider text-2xs cursor-pointer"
-                >
-                  {savingEdit ? "Saving..." : "Save changes"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal

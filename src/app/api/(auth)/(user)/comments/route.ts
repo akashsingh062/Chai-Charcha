@@ -31,6 +31,30 @@ export async function POST(req: Request) {
 
     await connectDB();
 
+    // Check if user is globally banned or muted
+    const { checkUserStatus } = await import("@/lib/adminAuth");
+    const { isBanned, banExpiresAt, isMuted, muteExpiresAt } = await checkUserStatus(session.user.id);
+
+    if (isBanned) {
+      const expirationMsg = banExpiresAt
+        ? ` until ${new Date(banExpiresAt).toLocaleString()}`
+        : " permanently";
+      return NextResponse.json(
+        { error: `Your account is banned${expirationMsg}.` },
+        { status: 403 }
+      );
+    }
+
+    if (isMuted) {
+      const expirationMsg = muteExpiresAt
+        ? ` until ${new Date(muteExpiresAt).toLocaleString()}`
+        : " permanently";
+      return NextResponse.json(
+        { error: `You are temporarily blocked from commenting${expirationMsg}.` },
+        { status: 403 }
+      );
+    }
+
     const { postId, content, parentId } = validatedData.data;
 
     // Check if post exists

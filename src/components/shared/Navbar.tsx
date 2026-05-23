@@ -9,12 +9,17 @@ import { SearchBar } from "@/components/search/SearchBar";
 import axiosInstance from "@/lib/axios";
 
 const Navbar = () => {
+  const pathname = usePathname();
   const { user, userData, handelSignOut, setIsCreatePostOpen } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [avatarError, setAvatarError] = useState(false);
   const [prevAvatar, setPrevAvatar] = useState<string | undefined>(userData?.avatar);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   if (userData?.avatar !== prevAvatar) {
     setPrevAvatar(userData?.avatar);

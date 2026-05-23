@@ -73,3 +73,56 @@ export function adminErrorResponse(error: unknown) {
     error instanceof Error ? error.message : "Internal Server Error";
   return Response.json({ error: message }, { status: 500 });
 }
+
+/**
+ * Verifies if the user is currently banned or muted.
+ * If a temporary ban/mute has expired, it automatically lifts it in the database.
+ */
+export async function checkUserStatus(userId: string): Promise<{
+  isBanned: boolean;
+  banExpiresAt: Date | null;
+  isMuted: boolean;
+  muteExpiresAt: Date | null;
+}> {
+  await connectDB();
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return { isBanned: false, banExpiresAt: null, isMuted: false, muteExpiresAt: null };
+  }
+
+  const now = new Date();
+  let updated = false;
+
+  let isBanned = !!user.isBanned;
+  let banExpiresAt = user.banExpiresAt || null;
+  if (isBanned && banExpiresAt && now > new Date(banExpiresAt)) {
+    user.isBanned = false;
+    user.banExpiresAt = null;
+    isBanned = false;
+    banExpiresAt = null;
+    updated = true;
+  }
+
+  let isMuted = !!user.isMuted;
+  let muteExpiresAt = user.muteExpiresAt || null;
+  if (isMuted && muteExpiresAt && now > new Date(muteExpiresAt)) {
+    user.isMuted = false;
+    user.muteExpiresAt = null;
+    isMuted = false;
+    muteExpiresAt = null;
+    updated = true;
+  }
+
+  if (updated) {
+    await user.save();
+  }
+
+  return {
+    isBanned,
+    banExpiresAt,
+    isMuted,
+    muteExpiresAt,
+  };
+}
+

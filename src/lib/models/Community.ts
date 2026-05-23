@@ -13,6 +13,9 @@ export interface Community extends Document {
     rules?: string[];
     avatar?: string;
     banner?: string;
+    isBanned?: boolean;
+    bannedAt?: Date | null;
+    bannedBy?: mongoose.Types.ObjectId | null;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -66,6 +69,19 @@ export const CommunitySchema = new Schema<Community>({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
+    isBanned: {
+        type: Boolean,
+        default: false
+    },
+    bannedAt: {
+        type: Date,
+        default: null
+    },
+    bannedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
     rules: {
         type: [String],
         default: [

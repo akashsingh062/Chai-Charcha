@@ -5,6 +5,7 @@ import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import Link from "next/link";
 
 interface ReportItem {
   id: string;
@@ -119,7 +120,17 @@ export default function ModerationQueuePage() {
             {row.contentPreview}
           </p>
           <span className="text-4xs text-dust-grey/50 uppercase tracking-wider block mt-1">
-            Author: @{row.author?.username || "deleted"}
+            Author:{" "}
+            {row.author?.username ? (
+              <Link
+                href={`/admin/users?search=${row.author.username}`}
+                className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
+              >
+                @{row.author.username}
+              </Link>
+            ) : (
+              "deleted"
+            )}
           </span>
         </div>
       ),
@@ -133,7 +144,17 @@ export default function ModerationQueuePage() {
             &ldquo;{row.reason}&rdquo;
           </p>
           <span className="text-4xs text-dust-grey/50 uppercase tracking-wider block mt-1">
-            Reporter: @{row.reporter?.username || "deleted"}
+            Reporter:{" "}
+            {row.reporter?.username ? (
+              <Link
+                href={`/admin/users?search=${row.reporter.username}`}
+                className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
+              >
+                @{row.reporter.username}
+              </Link>
+            ) : (
+              "deleted"
+            )}
           </span>
         </div>
       ),
