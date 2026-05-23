@@ -88,14 +88,21 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
       return;
     }
 
+    const parsedTags = editTagsString
+      .split(",")
+      .map((t) => t.trim().toLowerCase())
+      .filter((t) => t.length > 0);
+
+    const hasSpaces = parsedTags.some((tag) => /\s/.test(tag));
+    if (hasSpaces) {
+      setEditError("Hashtags cannot contain spaces. Use hyphens (e.g. 'web-dev') or run words together (e.g. 'webdev').");
+      return;
+    }
+
     setEditError(null);
     setIsSaving(true);
 
     try {
-      const parsedTags = editTagsString
-        .split(",")
-        .map((t) => t.trim().toLowerCase())
-        .filter((t) => t.length > 0);
 
       const res = await axiosInstance.put(`/api/posts/${thread.id}`, {
         title: titleTrimmed,
@@ -197,7 +204,17 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                 onChange={(e) => setEditCategory(e.target.value)}
                 className="w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-3 py-2 text-sm outline-none focus:border-vivid-tangerine transition-all text-(--foreground)"
               >
-                {["Tech & Architecture", "System Design", "DevOps & Cloud", "AI & Machine Learning", "Open Source", "Career Prep", "General Charcha", "Showcase"].map((cat) => (
+                {[
+                  "Tech & Code",
+                  "Startups & Business",
+                  "Career & Salary",
+                  "Education & Learning",
+                  "Lifestyle & Hobbies",
+                  "Gaming & Entertainment",
+                  "Health & Fitness",
+                  "General Charcha",
+                  "Showcase & Projects",
+                ].map((cat) => (
                   <option key={cat} value={cat} className="bg-(--dropdown-bg) text-(--foreground)">{cat}</option>
                 ))}
               </select>
@@ -302,22 +319,31 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
             (() => {
               const cat = thread.category.toLowerCase().trim();
               if (
-                cat === "tech & architecture" || 
+                cat === "tech & code" || 
                 cat === "tech" || 
-                cat === "system design" || 
-                cat === "devops & cloud" || 
-                cat === "ai & machine learning" || 
-                cat === "open source"
+                cat === "education & learning"
               ) {
                 return "bg-stormy-teal/10 text-stormy-teal border-stormy-teal/25";
               }
-              if (cat === "career prep" || cat === "career") {
+              if (
+                cat === "career & salary" || 
+                cat === "career" || 
+                cat === "health & fitness"
+              ) {
                 return "bg-spicy-paprika/10 text-spicy-paprika border-spicy-paprika/25";
               }
-              if (cat === "general charcha" || cat === "general") {
+              if (
+                cat === "general charcha" || 
+                cat === "general" || 
+                cat === "gaming & entertainment"
+              ) {
                 return "bg-orange/10 text-orange border-orange/25";
               }
-              if (cat === "showcase") {
+              if (
+                cat === "showcase & projects" || 
+                cat === "showcase" || 
+                cat === "startups & business"
+              ) {
                 return "bg-vivid-tangerine/10 text-vivid-tangerine border-vivid-tangerine/25";
               }
               return "bg-brandy/10 text-brandy-700 border-brandy-700/25";

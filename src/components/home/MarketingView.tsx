@@ -20,18 +20,18 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
           </svg>
-          <span>India&apos;s Ultimate Dev Chai Club</span>
+          <span>India&apos;s Ultimate Chai Charcha Club</span>
         </div>
 
         {/* Main Headline */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.15] max-w-4xl text-(--foreground)">
-          Where Indian Developers Gather <br />
-          Over <span className="bg-linear-to-r from-spicy-paprika to-orange bg-clip-text text-transparent">Chai & Code</span>
+          Where People Gather <br />
+          Over <span className="bg-linear-to-r from-spicy-paprika to-orange bg-clip-text text-transparent">Chai & Charcha</span>
         </h1>
 
         {/* Subtitle */}
         <p className="mt-6 text-base sm:text-lg md:text-xl text-(--text-secondary) max-w-2xl leading-relaxed">
-          Skip the noise. Pull up a chair to discuss real system design architectures, remote career growth paths, FAANG prep, and tech ecosystem realities with Indian engineers.
+          Skip the noise. Pull up a chair to discuss startups, career growth, lifestyle, gaming, health, tech, and everything in between.
         </p>
 
         {/* CTAs */}
@@ -56,7 +56,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
 
         {/* Tech badging grid */}
         <div className="mt-16 flex flex-wrap justify-center gap-2.5 max-w-2xl">
-          {["#nextjs15", "#react19", "#system-design", "#bangalore-remote", "#faang-prep", "#golang-architecture", "#tech-salaries"].map((tag) => (
+          {["#startups", "#career-advice", "#lifestyle", "#gaming", "#learning", "#fitness", "#tech-code", "#general-charcha"].map((tag) => (
             <span key={tag} className="rounded-full border border-(--card-border) bg-(--card-background) px-4 py-1.5 text-xs font-medium text-(--text-secondary) shadow-sm hover:border-orange transition-all duration-200 cursor-default">
               {tag}
             </span>
@@ -68,8 +68,8 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
       <section className="w-full bg-(--card-background) border-y border-(--card-border) transition-all duration-300 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-(--foreground)">Why Indian Engineers Join Chai Charcha</h2>
-            <p className="mt-3 text-sm sm:text-base text-(--text-secondary)">A community curated to elevate your technical craftsmanship and career.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-(--foreground)">Why People Join Chai Charcha</h2>
+            <p className="mt-3 text-sm sm:text-base text-(--text-secondary)">A community curated for engaging conversations, career growth, and sharing hobbies.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -84,7 +84,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
               </div>
               <h3 className="text-lg font-bold text-(--foreground)">Chai & Real Talks</h3>
               <p className="mt-2 text-sm text-(--text-secondary) leading-relaxed">
-                Zero spam, zero vanity metrics. Enjoy high-quality nested threads on production bottlenecks, memory leaks, CSS architecture, and codebases.
+                Zero spam, zero vanity metrics. Enjoy high-quality nested threads on startups, career growth, technology, hobbies, and ideas.
               </p>
             </div>
 
@@ -122,7 +122,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
       <section id="public-preview" className="w-full max-w-4xl px-4 py-16 sm:py-24">
         <div className="text-center mb-10">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-(--foreground)">Trending Public Discussions</h2>
-          <p className="mt-2 text-xs sm:text-sm text-(--text-secondary)">Take a peek at hot questions circulating in the developer ecosystem.</p>
+          <p className="mt-2 text-xs sm:text-sm text-(--text-secondary)">Take a peek at hot questions circulating in the community.</p>
         </div>
 
         {/* Blurred Preview Feed */}
@@ -150,14 +150,14 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
 
           {/* Blurred Thread 1 */}
           <div className="mb-6 border-b border-(--divider-color) pb-6 blur-xs select-none pointer-events-none opacity-50">
-            <span className="rounded-full bg-orange/10 text-orange border border-orange/20 px-2 py-0.5 text-xs font-semibold">Career Prep</span>
+            <span className="rounded-full bg-orange/10 text-orange border border-orange/20 px-2 py-0.5 text-xs font-semibold">Career & Salary</span>
             <h3 className="text-lg font-bold mt-2 text-(--foreground)">Is there a real hiring slowdown in Bangalore for remote developers?</h3>
             <p className="mt-2 text-sm text-(--text-secondary)">Local Indian startups are offering roughly 30-40% lower compensation packages...</p>
           </div>
 
           {/* Blurred Thread 2 */}
           <div className="blur-xs select-none pointer-events-none opacity-30">
-            <span className="rounded-full bg-stormy-teal/10 text-stormy-teal border border-stormy-teal/20 px-2 py-0.5 text-xs font-semibold">Tech & Architecture</span>
+            <span className="rounded-full bg-stormy-teal/10 text-stormy-teal border border-stormy-teal/20 px-2 py-0.5 text-xs font-semibold">Tech & Code</span>
             <h3 className="text-lg font-bold mt-2 text-(--foreground)">Why we migrated our Next.js 15 site back to native CSS variables...</h3>
             <p className="mt-2 text-sm text-(--text-secondary)">Tailwind v4 is fantastic for core design systems, but we hit complex specificity overrides...</p>
           </div>

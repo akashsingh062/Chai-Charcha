@@ -8,7 +8,7 @@ interface CreatePostModalProps {
 export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSubmit }) => {
   const [newTitle, setNewTitle] = useState("");
   const [newExcerpt, setNewExcerpt] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Tech & Architecture");
+  const [selectedCategory, setSelectedCategory] = useState("General Charcha");
   const [customCategory, setCustomCategory] = useState("");
   const [newTagsStr, setNewTagsStr] = useState("");
 
@@ -19,6 +19,17 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
     const categoryToSend = selectedCategory === "Other" ? customCategory.trim() : selectedCategory;
     if (selectedCategory === "Other" && !customCategory.trim()) {
       alert("Please specify a custom category name.");
+      return;
+    }
+
+    const tagsArray = newTagsStr
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+
+    const hasSpaces = tagsArray.some((tag) => /\s/.test(tag));
+    if (hasSpaces) {
+      alert("Hashtags cannot contain spaces. Use hyphens (e.g. 'web-dev') or run words together (e.g. 'webdev').");
       return;
     }
     
@@ -80,14 +91,15 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
               }}
               className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) cursor-pointer"
             >
-              <option value="Tech & Architecture">Tech & Architecture</option>
-              <option value="System Design">System Design</option>
-              <option value="DevOps & Cloud">DevOps & Cloud</option>
-              <option value="AI & Machine Learning">AI & Machine Learning</option>
-              <option value="Open Source">Open Source</option>
-              <option value="Career Prep">Career Prep</option>
               <option value="General Charcha">General Charcha</option>
-              <option value="Showcase">Showcase</option>
+              <option value="Tech & Code">Tech & Code</option>
+              <option value="Startups & Business">Startups & Business</option>
+              <option value="Career & Salary">Career & Salary</option>
+              <option value="Education & Learning">Education & Learning</option>
+              <option value="Lifestyle & Hobbies">Lifestyle & Hobbies</option>
+              <option value="Gaming & Entertainment">Gaming & Entertainment</option>
+              <option value="Health & Fitness">Health & Fitness</option>
+              <option value="Showcase & Projects">Showcase & Projects</option>
               <option value="Other">Other (Specify...)</option>
             </select>
           </div>

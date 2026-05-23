@@ -22,6 +22,9 @@ export const postSchema = z.object({
             .max(30, "Tag must be at most 30 characters")
             .trim()
             .lowercase()
+            .refine((tag) => !/\s/.test(tag), {
+                message: "Hashtags cannot contain spaces. Use hyphens or join words."
+            })
     ).max(10, "You can assign up to 10 tags only").optional().default(["general"]),
     
     community: z.string({
@@ -35,7 +38,7 @@ export const postSchema = z.object({
         message: "Category must be a valid string"
     })
         .optional()
-        .default("Tech & Architecture"),
+        .default("General Charcha"),
     
     media: z.array(
         z.string().url("Invalid media URL")

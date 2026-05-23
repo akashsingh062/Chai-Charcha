@@ -98,7 +98,7 @@ export async function POST(req: Request) {
 
     let category = validatedData.data.category;
     if (!category || category === "undefined" || category === "null") {
-      category = "Tech & Architecture";
+      category = "General Charcha";
     }
 
     const newPost = new Post({

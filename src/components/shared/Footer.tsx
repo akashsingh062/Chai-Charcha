@@ -29,13 +29,13 @@ const Footer = () => {
                   Chai <span className="text-spicy-paprika">Charcha</span>
                 </span>
                 <span className="text-[8px] font-mono tracking-widest text-(--nav-subtitle) uppercase">
-                  Indian Developer Forum
+                  Charcha Forum
                 </span>
               </div>
             </Link>
             
             <p className="text-xs text-(--text-secondary) leading-relaxed max-w-sm">
-              The premier community-driven hub built by Indian software engineers, for software engineers. Join nested architectural discussions, evaluate remote salaries, and share career advice over code and hot chai.
+              The premier community-driven hub for all topics. Join nested discussions, evaluate career growth, and share advice over hot chai and charcha.
             </p>
           </div>
 
@@ -165,7 +165,7 @@ const Footer = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 3v2M10 3v2M14 3v2" />
               </svg>
-              for Indian Developers.
+              for Charcha & Community.
             </span>
           </div>
           

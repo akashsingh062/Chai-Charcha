@@ -91,7 +91,7 @@ const Navbar = () => {
                   Chai <span className="text-spicy-paprika">Charcha</span>
                 </span>
                 <span className="hidden sm:inline text-[9px] font-mono tracking-widest text-(--nav-subtitle) uppercase">
-                  Indian Developer Forum
+                  Charcha Forum
                 </span>
               </div>
             </Link>

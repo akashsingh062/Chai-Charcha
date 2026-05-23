@@ -111,7 +111,7 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
       role: post.author?.role || "Member",
       reputation: post.author?.karma || 0,
     },
-    category: post.category || "Tech & Architecture",
+    category: post.category || "General Charcha",
     tags: post.tags || [],
     upvotes: (post.upvotes?.length || 0) - (post.downvotes?.length || 0), // Net score
     commentsCount: Array.isArray(commentsList) ? commentsList.length : 0,

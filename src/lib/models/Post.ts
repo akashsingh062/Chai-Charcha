@@ -57,7 +57,7 @@ export const PostSchema = new Schema<Post>({
     },
     category: {
         type: String,
-        default: 'Tech & Architecture'
+        default: 'General Charcha'
     },
     trendingScore: {
         type: Number,

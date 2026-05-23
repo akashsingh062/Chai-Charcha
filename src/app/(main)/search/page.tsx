@@ -328,7 +328,18 @@ function SearchPageContent() {
 
   // Dynamic filter lists
   const categoriesList = useMemo(() => {
-    const defaultCats = ["All", "Tech & Architecture", "System Design", "DevOps & Cloud", "AI & Machine Learning", "Open Source", "Career Prep", "General Charcha", "Showcase"];
+    const defaultCats = [
+      "All",
+      "Tech & Code",
+      "Startups & Business",
+      "Career & Salary",
+      "Lifestyle & Hobbies",
+      "Gaming & Entertainment",
+      "Education & Learning",
+      "Health & Fitness",
+      "General Charcha",
+      "Showcase & Projects"
+    ];
     const extraCats = Array.from(new Set(searchedThreads.map((t) => t.category).filter(Boolean)));
     return Array.from(new Set([...defaultCats, ...extraCats]));
   }, [searchedThreads]);

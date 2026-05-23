@@ -88,7 +88,7 @@ export async function PUT(
     // Update fields
     let category = validatedData.data.category;
     if (category === "undefined" || category === "null") {
-      category = "Tech & Architecture";
+      category = "General Charcha";
     }
     if (category) {
       post.category = category;

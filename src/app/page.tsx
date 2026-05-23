@@ -250,7 +250,18 @@ export default function Home() {
   }, []);
 
   // Dynamic categories calculation
-  const defaultCategories = ["All", "Tech & Architecture", "System Design", "DevOps & Cloud", "AI & Machine Learning", "Open Source", "Career Prep", "General Charcha", "Showcase"];
+  const defaultCategories = [
+    "All",
+    "Tech & Code",
+    "Startups & Business",
+    "Career & Salary",
+    "Lifestyle & Hobbies",
+    "Gaming & Entertainment",
+    "Education & Learning",
+    "Health & Fitness",
+    "General Charcha",
+    "Showcase & Projects"
+  ];
   const extraCategories = Array.from(new Set(threads.map((t) => t.category).filter(Boolean)));
   const categoriesList = Array.from(new Set([...defaultCategories, ...extraCategories]));
 

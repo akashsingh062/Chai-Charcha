@@ -59,9 +59,9 @@ async function run() {
             { category: { $exists: false } }
           ]
         },
-        { $set: { category: "Tech & Architecture" } }
+        { $set: { category: "General Charcha" } }
       );
-      console.log(`Successfully updated ${result.modifiedCount} posts to "Tech & Architecture".`);
+      console.log(`Successfully updated ${result.modifiedCount} posts to "General Charcha".`);
     } else {
       console.log("Database is already fully sanitized.");
     }
