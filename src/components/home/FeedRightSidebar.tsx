@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/store/useToastStore";
 
 interface LeaderboardUser {
   id: string;
@@ -88,7 +89,7 @@ export const FeedRightSidebar: React.FC = () => {
 
   const handleRSVP = async (meetupId: string) => {
     if (!user) {
-      alert("Grab a cup of cutting chai and Log In to RSVP!");
+      toast.warning("Grab a cup of cutting chai and Log In to RSVP!");
       return;
     }
 
@@ -96,6 +97,7 @@ export const FeedRightSidebar: React.FC = () => {
       setRsvpLoading((prev) => ({ ...prev, [meetupId]: true }));
       const res = await axiosInstance.post(`/api/meetups/${meetupId}/rsvp`);
       if (res.data?.success) {
+        toast.success(res.data.hasJoined ? "RSVP submitted successfully!" : "RSVP cancelled successfully!");
         setMeetups((prev) =>
           prev.map((m) => {
             if (m.id !== meetupId) return m;
@@ -115,7 +117,7 @@ export const FeedRightSidebar: React.FC = () => {
         const axiosErr = err as { response?: { data?: { error?: string } } };
         errMsg = axiosErr.response?.data?.error || errMsg;
       }
-      alert(errMsg);
+      toast.error(errMsg);
     } finally {
       setRsvpLoading((prev) => ({ ...prev, [meetupId]: false }));
     }

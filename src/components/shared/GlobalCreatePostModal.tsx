@@ -6,6 +6,8 @@ import { CreatePostModal } from "@/components/home/CreatePostModal";
 import axiosInstance from "@/lib/axios";
 import { useRouter, usePathname } from "next/navigation";
 
+import { toast } from "@/store/useToastStore";
+
 export const GlobalCreatePostModal = () => {
   const { isCreatePostOpen, setIsCreatePostOpen } = useAuth();
   const router = useRouter();
@@ -30,6 +32,7 @@ export const GlobalCreatePostModal = () => {
 
       if (res.data?.post) {
         setIsCreatePostOpen(false);
+        toast.success("Charcha posted successfully!");
         
         // Dispatch custom event to notify current page to reload/refresh posts list
         window.dispatchEvent(new Event("new-post-created"));
@@ -41,7 +44,7 @@ export const GlobalCreatePostModal = () => {
       }
     } catch (err) {
       console.error("Error creating post:", err);
-      alert("Failed to create post. Please check the character requirements (Title: 3-100 chars, Body: 10-1000 chars).");
+      toast.error("Failed to create post. Please check the character requirements (Title: 3-100 chars, Body: 10-1000 chars).");
     }
   };
 

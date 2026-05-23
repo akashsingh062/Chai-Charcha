@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axios";
+import { toast } from "@/store/useToastStore";
 
 interface UserProfileData {
   _id: string;
@@ -59,7 +60,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
 
   const handleFollowToggle = async () => {
     if (!isLoggedIn) {
-      alert("Please Log In to follow other developers!");
+      toast.warning("Please Log In to follow other developers!");
       router.push("/auth/signin");
       return;
     }
@@ -72,6 +73,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
       });
       if (res.data?.success) {
         setIsFollowing(res.data.following);
+        toast.success(res.data.following ? `Following ${user.name}` : `Unfollowed ${user.name}`);
 
         // Update local arrays to sync counts
         if (onProfileUpdate && user.followers) {

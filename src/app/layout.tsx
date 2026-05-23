@@ -5,6 +5,7 @@ import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { GlobalCreatePostModal } from "@/components/shared/GlobalCreatePostModal";
+import { ToastContainer } from "@/components/shared/ToastContainer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,6 +59,7 @@ export default function RootLayout({
           <Navbar />
           {children}
           <GlobalCreatePostModal />
+          <ToastContainer />
           <Footer />
         </AuthProvider>
       </body>
