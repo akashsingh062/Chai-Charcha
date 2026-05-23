@@ -5,7 +5,6 @@ import "@/lib/models/Comment";
 import "@/lib/models/Community";
 import "@/lib/models/Notification";
 import "@/lib/models/Report";
-import "@/lib/models/Meetup";
 
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 

@@ -15,6 +15,9 @@ export interface User extends Document {
     joinedCommunities: any;
     followers: mongoose.Types.ObjectId[];
     following: mongoose.Types.ObjectId[];
+    isBanned?: boolean;
+    bannedAt?: Date;
+    bannedBy?: mongoose.Types.ObjectId;
 }
 
 export const UserSchema = new Schema<User>({
@@ -88,6 +91,19 @@ export const UserSchema = new Schema<User>({
     following: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         default: []
+    },
+    isBanned: {
+        type: Boolean,
+        default: false
+    },
+    bannedAt: {
+        type: Date,
+        default: null
+    },
+    bannedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
     }
 }, { 
     timestamps: true,
