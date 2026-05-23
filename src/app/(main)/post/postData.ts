@@ -35,6 +35,12 @@ export interface Thread {
   userVoted?: "up" | "down" | null;
   content?: string;
   comments?: Comment[];
+  community?: {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string;
+  } | null;
 }
 
 export const SAMPLE_POSTS: Thread[] = [

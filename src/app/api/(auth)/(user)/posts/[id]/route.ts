@@ -6,6 +6,7 @@ import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { postSchema } from "@/lib/Schemas/postSchema";
 import { formatPostForFrontend, DBPost, DBComment } from "@/lib/apiHelpers";
+import { Community } from "@/lib/models/Community";
 import mongoose from "mongoose";
 
 // GET /api/posts/[id] - Get a single post populated with author and comment tree
@@ -22,10 +23,9 @@ export async function GET(
     });
     const userId = session?.user?.id || null;
 
-    const dbPostDoc = await Post.findById(id).populate(
-      "author",
-      "name username avatar role karma"
-    );
+    const dbPostDoc = await Post.findById(id)
+      .populate("author", "name username avatar role karma")
+      .populate("community", "name slug description membersCount");
 
     if (!dbPostDoc) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });

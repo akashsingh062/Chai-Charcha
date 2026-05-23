@@ -12,6 +12,8 @@ export interface Post extends Document {
     trendingScore?: number;
     community?: mongoose.Types.ObjectId | null;
     category?: string;
+    isSoftDeleted?: boolean;
+    softDeletedBy?: mongoose.Types.ObjectId | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -62,10 +64,25 @@ export const PostSchema = new Schema<Post>({
     trendingScore: {
         type: Number,
         default: 0
+    },
+    isSoftDeleted: {
+        type: Boolean,
+        default: false
+    },
+    softDeletedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
     }
 }, { timestamps: true });
 
 PostSchema.index({ createdAt: -1 });
 PostSchema.index({ trendingScore: -1 });
 
+// Clear compiled model cache in development to force re-compilation of updated schema
+if (mongoose.models && mongoose.models.Post) {
+    delete mongoose.models.Post;
+}
+
 export const Post = mongoose.models.Post as Model<Post> || mongoose.model<Post>("Post", PostSchema);
+

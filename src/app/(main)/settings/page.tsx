@@ -4,7 +4,7 @@ import { SettingsForm } from "@/components/settings/SettingsForm";
 
 export const metadata: Metadata = {
   title: "Account Settings - Chai Charcha Forum",
-  description: "Customize your developer profile details, update your display name, username, bio, and choose or generate a unique avatar seed.",
+  description: "Customize your profile details, update your display name, username, bio, and choose or generate a unique avatar seed.",
 };
 
 export default function SettingsPage() {
@@ -28,7 +28,7 @@ export default function SettingsPage() {
             Account <span className="text-spicy-paprika">Settings</span>
           </h1>
           <p className="text-xs text-(--text-secondary) leading-relaxed">
-            Update your identity credentials and developer presence details across the Chai Charcha developer forum.
+            Update your identity credentials and presence details across the Chai Charcha forum.
           </p>
         </div>
       </div>

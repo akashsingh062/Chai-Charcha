@@ -6,6 +6,8 @@ import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { postSchema } from "@/lib/Schemas/postSchema";
 import { formatPostForFrontend, DBPost, DBComment, calculateTrendingScore } from "@/lib/apiHelpers";
+import { Community } from "@/lib/models/Community";
+import mongoose from "mongoose";
 
 // GET /api/posts - Get all posts populated with author profiles and comment trees
 export async function GET(req: Request) {
@@ -14,11 +16,27 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const sort = searchParams.get("sort") || "trending";
+    const communityId = searchParams.get("communityId");
+    const communitySlug = searchParams.get("communitySlug");
 
     const session = await auth.api.getSession({
       headers: await headers(),
     });
     const userId = session?.user?.id || null;
+
+    let query: Record<string, any> = {};
+    if (communityId) {
+      if (mongoose.Types.ObjectId.isValid(communityId)) {
+        query.community = new mongoose.Types.ObjectId(communityId);
+      }
+    } else if (communitySlug) {
+      const comm = await Community.findOne({ slug: communitySlug });
+      if (comm) {
+        query.community = comm._id;
+      } else {
+        return NextResponse.json({ posts: [] });
+      }
+    }
 
     // Recalculate trending scores of active posts (created in the last 48 hours) to ensure correct time decay
     const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
@@ -37,9 +55,10 @@ export async function GET(req: Request) {
       sortCriteria = { createdAt: -1 };
     }
 
-    // Fetch posts populated with author
-    const dbPosts = await Post.find({})
+    // Fetch posts populated with author and community
+    const dbPosts = await Post.find(query)
       .populate("author", "name username avatar role karma")
+      .populate("community", "name slug description membersCount")
       .sort(sortCriteria) as unknown as DBPost[];
 
     const postIds = dbPosts.map((p) => p._id);

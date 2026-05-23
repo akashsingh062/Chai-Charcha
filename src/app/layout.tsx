@@ -18,9 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chai Charcha - Full Stack Developer Forum India",
+  title: "Chai Charcha - General Discussion & Charcha Forum",
   description:
-    "The premier community for Indian software engineers. Explore nested discussions on React, Node.js, and career growth. Built for developers, by developers.",
+    "The premier community-driven hub for all topics. Join nested discussions, evaluate career growth, and share advice over hot chai and charcha.",
   icons: {
     icon: "/chai.svg",
     shortcut: "/chai.svg",

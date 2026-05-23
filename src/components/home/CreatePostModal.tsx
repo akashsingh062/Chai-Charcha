@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { toast } from "@/store/useToastStore";
+import axiosInstance from "@/lib/axios";
 
 interface CreatePostModalProps {
   onClose: () => void;
-  onSubmit: (post: { title: string; excerpt: string; category: string; tagsStr: string }) => void;
+  onSubmit: (post: { title: string; excerpt: string; category: string; tagsStr: string; communityId: string | null }) => void;
 }
 
 export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSubmit }) => {
@@ -12,6 +14,30 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
   const [selectedCategory, setSelectedCategory] = useState("General Charcha");
   const [customCategory, setCustomCategory] = useState("");
   const [newTagsStr, setNewTagsStr] = useState("");
+  const [communities, setCommunities] = useState<{ _id: string; name: string; slug: string }[]>([]);
+  const [selectedCommunityId, setSelectedCommunityId] = useState<string>("none");
+  const params = useParams<{ slug?: string }>();
+ 
+  useEffect(() => {
+    const fetchComms = async () => {
+      try {
+        const res = await axiosInstance.get("/api/communities");
+        if (res.data?.success && res.data?.communities) {
+          setCommunities(res.data.communities);
+          
+          if (params?.slug) {
+            const active = res.data.communities.find((c: any) => c.slug === params.slug);
+            if (active) {
+              setSelectedCommunityId(active._id);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error loading communities for select:", err);
+      }
+    };
+    fetchComms();
+  }, [params?.slug]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +65,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
       excerpt: newExcerpt,
       category: categoryToSend || "General Charcha",
       tagsStr: newTagsStr,
+      communityId: selectedCommunityId === "none" ? null : selectedCommunityId,
     });
   };
 
@@ -102,6 +129,24 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
               <option value="Health & Fitness">Health & Fitness</option>
               <option value="Showcase & Projects">Showcase & Projects</option>
               <option value="Other">Other (Specify...)</option>
+            </select>
+          </div>
+ 
+          {/* Community input */}
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="community" className="text-xs font-bold text-dust-grey uppercase tracking-wider">Post in Community</label>
+            <select
+              id="community"
+              value={selectedCommunityId}
+              onChange={(e) => setSelectedCommunityId(e.target.value)}
+              className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) cursor-pointer"
+            >
+              <option value="none">General Feed (No Community)</option>
+              {communities.map((c) => (
+                <option key={c._id} value={c._id}>
+                  c/{c.slug} ({c.name})
+                </option>
+              ))}
             </select>
           </div>
 

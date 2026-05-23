@@ -15,7 +15,7 @@ export const GlobalCreatePostModal = () => {
 
   if (!isCreatePostOpen) return null;
 
-  const handleSubmit = async (post: { title: string; excerpt: string; category: string; tagsStr: string }) => {
+  const handleSubmit = async (post: { title: string; excerpt: string; category: string; tagsStr: string; communityId: string | null }) => {
     const tagsArray = post.tagsStr
       .split(",")
       .map((t) => t.trim().toLowerCase())
@@ -27,7 +27,7 @@ export const GlobalCreatePostModal = () => {
         content: post.excerpt,
         tags: tagsArray.length > 0 ? tagsArray : ["general"],
         category: post.category,
-        community: null,
+        community: post.communityId,
       });
 
       if (res.data?.post) {

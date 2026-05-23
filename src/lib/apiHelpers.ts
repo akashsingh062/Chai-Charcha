@@ -38,7 +38,7 @@ export interface DBPost {
   upvotes: mongoose.Types.ObjectId[];
   downvotes: mongoose.Types.ObjectId[];
   commentCount: number;
-  community?: mongoose.Types.ObjectId | null;
+  community?: any;
   category?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -98,6 +98,17 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
   
   const userVoted = isUpvoted ? "up" : isDownvoted ? "down" : null;
 
+  let community = null;
+  if (post.community && typeof post.community === "object") {
+    const com = post.community as any;
+    community = {
+      id: com._id?.toString() || "",
+      name: com.name || "",
+      slug: com.slug || "",
+      description: com.description || "",
+    };
+  }
+
   return {
     id: post._id.toString(),
     title: post.title,
@@ -119,6 +130,7 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
     createdAt: post.createdAt ? post.createdAt.toISOString() : undefined,
     userVoted,
     comments: buildCommentTree(commentsList),
+    community,
   };
 }
 

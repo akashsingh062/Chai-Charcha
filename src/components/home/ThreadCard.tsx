@@ -7,6 +7,7 @@ import axiosInstance from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/store/useToastStore";
 import { ConfirmModal } from "../shared/ConfirmModal";
+import Link from "next/link";
 
 interface ThreadCardProps {
   thread: Thread;
@@ -294,7 +295,20 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
           </div>
           <div className="flex flex-col">
             <span className="text-xs font-semibold text-(--foreground)">{thread.author.name}</span>
-            <span className="text-[10px] text-dust-grey font-mono leading-none mt-0.5">{thread.author.role}</span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-[10px] text-dust-grey font-mono leading-none">{thread.author.role}</span>
+              {thread.community && (
+                <>
+                  <span className="text-dust-grey text-[10px]">•</span>
+                  <Link 
+                    href={`/c/${thread.community.slug}`}
+                    className="text-[10px] font-bold text-orange hover:underline leading-none shrink-0"
+                  >
+                    c/{thread.community.slug}
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
         

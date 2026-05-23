@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import axiosInstance from "@/lib/axios";
+import { CreateCommunityModal } from "../community/CreateCommunityModal";
 
 interface FeedSidebarProps {
   activeCategory: string;
@@ -21,6 +25,57 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
 }) => {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [tagSearch, setTagSearch] = useState("");
+  const { user: isLoggedIn } = useAuth();
+  const [joinedComms, setJoinedComms] = useState<{ _id: string; name: string; slug: string }[]>([]);
+  const [isCreateCommOpen, setIsCreateCommOpen] = useState(false);
+  const [isCommAccordionOpen, setIsCommAccordionOpen] = useState(true);
+
+  const fetchJoinedCommunities = useCallback(async () => {
+    try {
+      const commsRes = await axiosInstance.get("/api/communities");
+      if (!commsRes.data?.success || !commsRes.data?.communities) return;
+      const allComms = commsRes.data.communities;
+
+      if (!isLoggedIn) {
+        setJoinedComms([]);
+        return;
+      }
+
+      const profileRes = await axiosInstance.get("/api/profile");
+      if (profileRes.data?.user) {
+        let joinedIds: string[] = [];
+        const val = profileRes.data.user.joinedCommunities;
+        if (Array.isArray(val)) {
+          joinedIds = val.map((id: any) => id.toString());
+        } else if (typeof val === "string") {
+          try {
+            joinedIds = JSON.parse(val).map((id: any) => id.toString());
+          } catch (e) {
+            joinedIds = [];
+          }
+        }
+
+        const joined = allComms.filter((c: any) => joinedIds.includes(c._id.toString()));
+        setJoinedComms(joined);
+      }
+    } catch (err) {
+      console.error("Failed to load joined communities:", err);
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    fetchJoinedCommunities();
+  }, [fetchJoinedCommunities]);
+
+  useEffect(() => {
+    const handleJoinedChanged = () => {
+      fetchJoinedCommunities();
+    };
+    window.addEventListener("joined-communities-changed", handleJoinedChanged);
+    return () => {
+      window.removeEventListener("joined-communities-changed", handleJoinedChanged);
+    };
+  }, [fetchJoinedCommunities]);
 
   const getCategoryIcon = (cat: string, className = "w-4 h-4 shrink-0 transition-transform duration-300 group-hover:scale-110") => {
     if (cat === "All") {
@@ -211,6 +266,63 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
         </div>
       </div>
 
+      {/* My Communities Section */}
+      <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300 hover:border-orange/10 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-orange/5 rounded-full blur-xl pointer-events-none" />
+        
+        <div className="flex items-center justify-between px-2 mb-3">
+          <button
+            type="button"
+            onClick={() => setIsCommAccordionOpen(!isCommAccordionOpen)}
+            className="flex items-center gap-1.5 cursor-pointer text-left focus:outline-hidden"
+          >
+            <h2 className="text-xs font-black uppercase tracking-widest bg-linear-to-r from-spicy-paprika to-vivid-tangerine bg-clip-text text-transparent">
+              My Communities
+            </h2>
+            <svg className={`w-3 h-3 text-spicy-paprika transition-transform duration-200 ${isCommAccordionOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+
+          {isLoggedIn && (
+            <button
+              onClick={() => setIsCreateCommOpen(true)}
+              className="p-1 rounded-full text-spicy-paprika hover:bg-spicy-paprika/10 cursor-pointer transition-all"
+              title="Create a Community"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {isCommAccordionOpen && (
+          <div className="space-y-1.5 mt-2 animate-fade-in">
+            {joinedComms.length === 0 ? (
+              <p className="text-[10px] text-dust-grey italic px-2 leading-relaxed">
+                {isLoggedIn 
+                  ? "You haven't joined any communities yet. Click + to create one!"
+                  : "Log In to join active sub-forums and communities!"}
+              </p>
+            ) : (
+              <div className="flex flex-col gap-1">
+                {joinedComms.map((c) => (
+                  <Link
+                    key={c._id}
+                    href={`/c/${c.slug}`}
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl text-(--text-secondary) hover:bg-orange/5 hover:text-orange transition-all duration-200"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange shrink-0" />
+                    <span className="truncate">c/{c.slug}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Redesigned Hashtag Section */}
       <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300 hover:border-orange/10 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-24 h-24 bg-spicy-paprika/5 rounded-full blur-xl pointer-events-none" />
@@ -295,6 +407,13 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
           </button>
         )}
       </div>
+
+      {isCreateCommOpen && (
+        <CreateCommunityModal
+          onClose={() => setIsCreateCommOpen(false)}
+          onSuccess={fetchJoinedCommunities}
+        />
+      )}
     </aside>
   );
 };
