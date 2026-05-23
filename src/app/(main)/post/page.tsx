@@ -2,14 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Thread, Comment } from "./postData";
+import { Thread } from "./postData";
 import { CommentSection } from "../../../components/post/CommentSection";
 import { 
   insertReply, 
   updateComment, 
   removeComment, 
-  updateCommentVote, 
-  findNodeAndGetCount 
+  updateCommentVote 
 } from "../../../components/post/commentHelpers";
 import { authClient } from "@/lib/auth-client";
 import axiosInstance from "@/lib/axios";
@@ -24,7 +23,10 @@ const MyPostPage = () => {
   const fetchMyPosts = React.useCallback(async () => {
     if (!sessionData?.user) return;
     try {
-      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(true);
+        setError(null);
+      }, 0);
       const res = await axiosInstance.get("/api/posts");
       if (res.data?.posts) {
         const myPosts = res.data.posts.filter((post: Thread) => {
@@ -47,10 +49,13 @@ const MyPostPage = () => {
   useEffect(() => {
     if (isPending) return;
     if (!sessionData?.user) {
-      setIsLoading(false);
-      return;
+      const timer = setTimeout(() => setIsLoading(false), 0);
+      return () => clearTimeout(timer);
     }
-    fetchMyPosts();
+    const timer = setTimeout(() => {
+      fetchMyPosts();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [sessionData, isPending, fetchMyPosts]);
 
   useEffect(() => {
@@ -348,6 +353,16 @@ const MyPostPage = () => {
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         <div className="flex flex-col gap-6">
+          {error && (
+            <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-xs font-semibold text-red-500 animate-fade-in">
+              <span className="flex items-center gap-2">
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>{error}</span>
+              </span>
+            </div>
+          )}
           {posts.length === 0 ? (
             <div className="text-center py-16 rounded-2xl border border-dashed border-(--input-border) bg-(--input-bg)/30 flex flex-col items-center justify-center">
               <div className="text-orange mb-3">
@@ -388,7 +403,14 @@ const MyPostPage = () => {
                       <span className={`rounded-full text-[10px] font-bold border px-2 py-0.5 ${
                         (() => {
                           const cat = thread.category.toLowerCase().trim();
-                          if (cat === "tech & architecture" || cat === "tech") {
+                          if (
+                            cat === "tech & architecture" || 
+                            cat === "tech" || 
+                            cat === "system design" || 
+                            cat === "devops & cloud" || 
+                            cat === "ai & machine learning" || 
+                            cat === "open source"
+                          ) {
                             return "bg-stormy-teal/10 text-stormy-teal border-stormy-teal/25";
                           }
                           if (cat === "career prep" || cat === "career") {
@@ -415,8 +437,8 @@ const MyPostPage = () => {
                     </p>
 
                     <div className="mt-4 flex flex-wrap gap-1.5">
-                      {thread.tags.map((tag) => (
-                        <span key={tag} className="text-[10px] font-bold text-orange hover:text-orange-600 transition-colors cursor-pointer">
+                      {thread.tags.map((tag, index) => (
+                        <span key={`${tag}-${index}`} className="text-[10px] font-bold text-orange hover:text-orange-600 transition-colors cursor-pointer">
                           #{tag}
                         </span>
                       ))}

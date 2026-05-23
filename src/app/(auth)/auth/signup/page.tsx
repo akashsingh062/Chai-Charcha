@@ -127,7 +127,7 @@ export default function SignUpPage() {
               <path strokeLinecap="round" d="M9 1v2M12 1v2M15 1v2" />
             </svg>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-(--foreground) via-(--foreground) to-(--link-color) bg-clip-text text-transparent">
+          <h1 className="text-3xl font-extrabold tracking-tight bg-linear-to-r from-(--foreground) via-(--foreground) to-(--link-color) bg-clip-text text-transparent">
             Chai Charcha
           </h1>
           <p className="text-(--text-secondary) text-sm mt-2">
@@ -383,7 +383,7 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3.5 px-4 bg-gradient-to-r from-[#D97706] to-[#F59E0B] hover:from-[#B45309] hover:to-[#D97706] text-white font-bold rounded-xl shadow-lg transition-all duration-300 transform active:scale-[0.98] ${loading ? "opacity-50 cursor-not-allowed" : "hover:shadow-[0_0_20px_rgba(245,158,11,0.35)]"}`}
+            className={`w-full py-3.5 px-4 bg-linear-to-r from-[#D97706] to-[#F59E0B] hover:from-[#B45309] hover:to-[#D97706] text-white font-bold rounded-xl shadow-lg transition-all duration-300 transform active:scale-[0.98] ${loading ? "opacity-50 cursor-not-allowed" : "hover:shadow-[0_0_20px_rgba(245,158,11,0.35)]"}`}
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">

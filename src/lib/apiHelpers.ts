@@ -113,7 +113,7 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
     category: post.category || "Tech & Architecture",
     tags: post.tags || [],
     upvotes: (post.upvotes?.length || 0) - (post.downvotes?.length || 0), // Net score
-    commentsCount: post.commentCount || 0,
+    commentsCount: Array.isArray(commentsList) ? commentsList.length : 0,
     timeAgo: formatTimeAgo(post.createdAt),
     createdAt: post.createdAt ? post.createdAt.toISOString() : undefined,
     userVoted,
@@ -122,17 +122,17 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
 }
 
 export function calculateTrendingScore(post: {
-  upvotes: mongoose.Types.ObjectId[] | any[];
-  downvotes: mongoose.Types.ObjectId[] | any[];
-  commentCount: number;
-  createdAt: Date;
+  upvotes?: mongoose.Types.ObjectId[] | unknown[];
+  downvotes?: mongoose.Types.ObjectId[] | unknown[];
+  commentCount?: number;
+  createdAt?: Date;
 }): number {
-  const upvotesCount = post.upvotes?.length || 0;
-  const downvotesCount = post.downvotes?.length || 0;
-  const commentCount = post.commentCount || 0;
+  const upvotesCount = Array.isArray(post.upvotes) ? post.upvotes.length : 0;
+  const downvotesCount = Array.isArray(post.downvotes) ? post.downvotes.length : 0;
+  const commentCount = typeof post.commentCount === "number" ? post.commentCount : 0;
 
-  // Calculate hours since creation
-  const createdTime = new Date(post.createdAt).getTime();
+  // Calculate hours since creation — guard against missing/invalid dates
+  const createdTime = post.createdAt ? new Date(post.createdAt).getTime() : Date.now();
   const hoursSincePost = (Date.now() - createdTime) / (1000 * 60 * 60);
 
   const netVotes = upvotesCount - downvotesCount;
@@ -142,7 +142,9 @@ export function calculateTrendingScore(post: {
   // Score = Engagement / (Hours_Since_Post + 2)^1.5
   const G = 1.5;
   const score = engagement / Math.pow(hoursSincePost + 2, G);
-  return score;
+
+  // Final NaN safety — always return a valid number
+  return Number.isFinite(score) ? score : 0;
 }
 
 export async function updatePostTrendingScore(postId: string | mongoose.Types.ObjectId): Promise<number> {

@@ -32,7 +32,7 @@ export async function GET(req: Request) {
       );
     }
 
-    let sortCriteria: Record<string, any> = { trendingScore: -1, createdAt: -1 };
+    let sortCriteria: Record<string, 1 | -1> = { trendingScore: -1, createdAt: -1 };
     if (sort === "recent") {
       sortCriteria = { createdAt: -1 };
     }

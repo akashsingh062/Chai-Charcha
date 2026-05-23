@@ -5,7 +5,7 @@ import connectDB from "@/lib/connectDB";
 import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { postSchema } from "@/lib/Schemas/postSchema";
-import { formatPostForFrontend, DBPost, DBComment, calculateTrendingScore } from "@/lib/apiHelpers";
+import { formatPostForFrontend, DBPost, DBComment } from "@/lib/apiHelpers";
 import mongoose from "mongoose";
 
 // GET /api/posts/[id] - Get a single post populated with author and comment tree

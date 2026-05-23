@@ -102,9 +102,9 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
 
       {/* Hashtags list */}
       <div className="mt-4 flex flex-wrap gap-1.5">
-        {thread.tags.map((tag) => (
+        {thread.tags.map((tag, index) => (
           <span 
-            key={tag} 
+            key={`${tag}-${index}`} 
             onClick={() => onTagClick?.(tag)}
             className="text-[10px] font-semibold text-(--link-color) hover:text-(--link-hover-color) transition-colors cursor-pointer"
           >

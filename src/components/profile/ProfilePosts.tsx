@@ -228,8 +228,8 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-1.5">
-              {post.tags.map((tag) => (
-                <span key={tag} className="text-[10px] font-semibold text-(--link-color)">
+              {post.tags.map((tag, index) => (
+                <span key={`${tag}-${index}`} className="text-[10px] font-semibold text-(--link-color)">
                   #{tag}
                 </span>
               ))}

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import connectDB from "@/lib/connectDB";
 import { Comment } from "@/lib/models/Comment";
 import { Post } from "@/lib/models/Post";
+import { User } from "@/lib/models/User";
 import { commentSchema } from "@/lib/Schemas/commentSchema";
 import { formatTimeAgo, updatePostTrendingScore } from "@/lib/apiHelpers";
 
