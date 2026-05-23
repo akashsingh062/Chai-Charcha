@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { SearchBar } from "@/components/search/SearchBar";
+import axiosInstance from "@/lib/axios";
 
 const Navbar = () => {
   const { user, userData, handelSignOut, setIsCreatePostOpen } = useAuth();
@@ -12,6 +13,7 @@ const Navbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [mounted, setMounted] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Check is system theme is dark or light
   useEffect(() => {
@@ -41,6 +43,31 @@ const Navbar = () => {
     localStorage.setItem("theme", newTheme);
     setTheme(newTheme);
   };
+
+  // Poll notifications count
+  useEffect(() => {
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
+
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await axiosInstance.get("/api/notifications");
+        if (res.data?.notifications) {
+          const count = res.data.notifications.filter((n: any) => !n.isRead).length;
+          setUnreadCount(count);
+        }
+      } catch (err) {
+        console.error("Error fetching unread notifications in navbar:", err);
+      }
+    };
+
+    fetchUnreadCount();
+
+    const interval = setInterval(fetchUnreadCount, 6000); // Poll every 6 seconds
+    return () => clearInterval(interval);
+  }, [user]);
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-(--nav-bg) border-b border-(--nav-border) text-(--foreground) shadow-lg backdrop-blur-md transition-all duration-300">
@@ -77,27 +104,7 @@ const Navbar = () => {
 
           {/* Right Side: Action Zone (Desktop) */}
           <div className="hidden md:flex items-center gap-4">
-            
-            {/* Theme Toggle Button */}
-            <button 
-              onClick={toggleTheme}
-              className="rounded-full p-2.5 text-(--btn-icon-text) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-all duration-200 cursor-pointer"
-              aria-label="Toggle Theme"
-            >
-              {!mounted ? (
-                <div className="h-5.5 w-5.5" />
-              ) : theme === "dark" ? (
-                // Sun Icon
-                <svg className="h-5.5 w-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m0 13.5V21M4.22 4.22l1.58 1.58m12.42 12.42l1.58 1.58M3 12h2.25m13.5 0H21M5.8 18.2l1.58-1.58m12.42-12.42l1.58-1.58M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
-                </svg>
-              ) : (
-                // Moon Icon
-                <svg className="h-5.5 w-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                </svg>
-              )}
-            </button>
+
 
             {user && userData ? (
               <div className="flex items-center gap-4">
@@ -112,19 +119,32 @@ const Navbar = () => {
                   <span>New Post</span>
                 </button>
 
-                {/* Notifications Button */}
-                <button 
-                  onClick={() => alert("Simulated: Notifications Clicked!")}
+                {/* Messages Shortcut Button */}
+                <Link 
+                  href="/messages"
                   className="relative rounded-full p-2.5 text-(--btn-icon-text) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-all duration-200 cursor-pointer"
+                  aria-label="Direct Messages"
                 >
                   <svg className="h-5.5 w-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379L12 21l3.12-3.134c1.153-.086 2.294-.213 3.423-.379 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                   </svg>
-                  <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-vivid-tangerine opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-vivid-tangerine"></span>
-                  </span>
-                </button>
+                </Link>
+
+                {/* Notifications Button */}
+                {unreadCount > 0 && (
+                  <Link 
+                    href="/notifications"
+                    className="relative rounded-full p-2.5 text-(--btn-icon-text) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-all duration-200 cursor-pointer"
+                  >
+                    <svg className="h-5.5 w-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                    </svg>
+                    <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-vivid-tangerine opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-vivid-tangerine"></span>
+                    </span>
+                  </Link>
+                )}
 
                 {/* User Profile Dropdown */}
                 <div className="relative">
@@ -151,6 +171,15 @@ const Navbar = () => {
                       <Link href="/" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">Home</Link>
                       <Link href="/profile" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
                         My Profile
+                      </Link>
+                      <Link href="/followers" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
+                        My Connections
+                      </Link>
+                      <Link href="/messages" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
+                        My Messages
+                      </Link>
+                      <Link href="/notifications" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
+                        My Notifications
                       </Link>
                       <Link href="/post" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
                         My Posts
@@ -189,29 +218,10 @@ const Navbar = () => {
           {/* Hamburger Menu Toggle (Mobile) */}
           <div className="flex md:hidden items-center gap-3">
             
-            {/* Theme Toggle Button for Mobile */}
-            <button 
-              onClick={toggleTheme}
-              className="rounded-full p-2.5 text-(--btn-icon-text) hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors duration-200 cursor-pointer"
-              aria-label="Toggle Theme"
-            >
-              {!mounted ? (
-                <div className="h-6 w-6" />
-              ) : theme === "dark" ? (
-                // Sun Icon
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m0 13.5V21M4.22 4.22l1.58 1.58m12.42 12.42l1.58 1.58M3 12h2.25m13.5 0H21M5.8 18.2l1.58-1.58m12.42-12.42l1.58-1.58M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
-                </svg>
-              ) : (
-                // Moon Icon
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                </svg>
-              )}
-            </button>
+
 
             {/* Pulsing notification dot even when menu is closed on mobile */}
-            {user && (
+            {user && unreadCount > 0 && (
               <span className="relative flex h-2.5 w-2.5 mr-1">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-vivid-tangerine opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-vivid-tangerine"></span>
@@ -283,6 +293,35 @@ const Navbar = () => {
                   className="flex w-full items-center justify-center rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
                 >
                   Home
+                </Link>
+
+                <Link 
+                  href="/notifications" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center gap-2 rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
+                >
+                  <span>Notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="rounded-full bg-spicy-paprika text-floral-white px-2 py-0.5 text-[10px] font-black font-mono">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Link>
+
+                <Link 
+                  href="/messages" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
+                >
+                  Messages
+                </Link>
+
+                <Link 
+                  href="/followers" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex w-full items-center justify-center rounded-full border border-(--input-border) bg-(--input-bg) py-2.5 text-sm font-semibold text-(--text-secondary) hover:text-(--btn-icon-hover-text)"
+                >
+                  My Connections
                 </Link>
 
                 <Link 

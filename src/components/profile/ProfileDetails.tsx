@@ -1,7 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import axiosInstance from "@/lib/axios";
 
 interface UserProfileData {
   _id: string;
@@ -13,6 +16,8 @@ interface UserProfileData {
   role: "member" | "moderator" | "admin";
   karma: number;
   joinedCommunities?: string[];
+  followers?: string[];
+  following?: string[];
   createdAt: string;
 }
 
@@ -20,14 +25,79 @@ interface ProfileDetailsProps {
   user: UserProfileData | null;
   isLoading: boolean;
   postCount: number;
+  isOwnProfile?: boolean;
+  onProfileUpdate?: (updatedUser: UserProfileData) => void;
 }
 
-export const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user, isLoading, postCount }) => {
+export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
+  user,
+  isLoading,
+  postCount,
+  isOwnProfile = true,
+  onProfileUpdate
+}) => {
+  const { user: isLoggedIn } = useAuth();
+  const router = useRouter();
+
+  // Follow state
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
+
+  // Fetch follow status if viewing another profile
+  useEffect(() => {
+    if (!isOwnProfile && user && isLoggedIn) {
+      axiosInstance
+        .get(`/api/follow/status?targetUserId=${user._id}`)
+        .then((res) => {
+          setIsFollowing(res.data.following);
+        })
+        .catch((err) => {
+          console.error("Error loading follow status:", err);
+        });
+    }
+  }, [isOwnProfile, user, isLoggedIn]);
+
+  const handleFollowToggle = async () => {
+    if (!isLoggedIn) {
+      alert("Please Log In to follow other developers!");
+      router.push("/auth/signin");
+      return;
+    }
+    if (!user || isFollowLoading) return;
+
+    try {
+      setIsFollowLoading(true);
+      const res = await axiosInstance.post("/api/follow", {
+        targetUserId: user._id
+      });
+      if (res.data?.success) {
+        setIsFollowing(res.data.following);
+
+        // Update local arrays to sync counts
+        if (onProfileUpdate && user.followers) {
+          const currentUserId = user._id; // Placeholder ID update
+          const updatedFollowers = res.data.following
+            ? [...(user.followers || []), currentUserId] // Add placeholder
+            : (user.followers || []).filter((id) => id !== currentUserId);
+
+          onProfileUpdate({
+            ...user,
+            followers: updatedFollowers
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Error toggling follow:", err);
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="w-full rounded-3xl border border-(--card-border) bg-(--card-background)/40 backdrop-blur-xs shadow-md overflow-hidden animate-pulse">
         {/* Banner cover skeleton */}
-        <div className="h-32 sm:h-40 bg-(--profile-bg) w-full"></div>
+        <div className="h-32 sm:h-44 bg-(--profile-bg) w-full"></div>
         
         {/* Profile Info block */}
         <div className="px-6 pb-6 relative">
@@ -118,16 +188,42 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user, isLoading,
             )}
           </div>
 
-          {/* Action button */}
-          <Link
-            href="/settings"
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-linear-to-r from-orange/10 to-spicy-paprika/10 hover:from-orange/20 hover:to-spicy-paprika/20 border border-orange/20 hover:border-orange/40 rounded-xl text-sm font-bold text-orange hover:text-orange-600 transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap self-start sm:self-end"
-          >
-            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-            </svg>
-            <span>Edit Profile</span>
-          </Link>
+          {/* Actions button group */}
+          {isOwnProfile ? (
+            <Link
+              href="/settings"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-linear-to-r from-orange/10 to-spicy-paprika/10 hover:from-orange/20 hover:to-spicy-paprika/20 border border-orange/20 hover:border-orange/40 rounded-xl text-sm font-bold text-orange hover:text-orange-600 transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap self-start sm:self-end"
+            >
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
+              <span>Edit Profile</span>
+            </Link>
+          ) : (
+            <div className="flex gap-2 self-start sm:self-end">
+              <button
+                onClick={handleFollowToggle}
+                disabled={isFollowLoading}
+                className={`flex items-center justify-center gap-1.5 px-4 py-2.5 border rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 ${
+                  isFollowing
+                    ? "bg-(--profile-bg) border-(--profile-border) text-(--text-role) hover:border-red-500/25 hover:text-red-400 hover:bg-red-950/10"
+                    : "bg-orange border-orange hover:bg-orange-600 text-ink-black shadow-md shadow-orange/10"
+                }`}
+              >
+                <span>{isFollowing ? "Following" : "Follow"}</span>
+              </button>
+
+              <Link
+                href={`/messages?chatWith=${user._id}`}
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-linear-to-r from-orange/10 to-spicy-paprika/10 hover:from-orange/20 hover:to-spicy-paprika/20 border border-orange/20 hover:border-orange/40 rounded-xl text-xs font-bold text-orange hover:text-orange-600 transition-all duration-200 cursor-pointer active:scale-95"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379L12 21l3.12-3.134c1.153-.086 2.294-.213 3.423-.379 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                </svg>
+                <span>Message</span>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* User Identity Details */}
@@ -166,6 +262,28 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({ user, isLoading,
               &quot;This developer hasn&apos;t brewed a bio yet.&quot;
             </p>
           )}
+
+          {/* Connection Stats counters */}
+          <div className="flex gap-4 text-xs font-semibold text-dust-grey">
+            <Link
+              href={`/followers?username=${user.username}&tab=followers`}
+              className="hover:text-orange transition-colors flex gap-1"
+            >
+              <span className="font-extrabold text-(--foreground)">
+                {user.followers?.length || 0}
+              </span>
+              <span>followers</span>
+            </Link>
+            <Link
+              href={`/followers?username=${user.username}&tab=following`}
+              className="hover:text-orange transition-colors flex gap-1"
+            >
+              <span className="font-extrabold text-(--foreground)">
+                {user.following?.length || 0}
+              </span>
+              <span>following</span>
+            </Link>
+          </div>
 
           {/* Interactive Stats Grid */}
           <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-(--divider-color) pt-6 mt-2">

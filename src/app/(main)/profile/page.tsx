@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ProfileDetails } from "@/components/profile/ProfileDetails";
 import { ProfilePosts } from "@/components/profile/ProfilePosts";
@@ -16,35 +16,46 @@ interface UserProfileData {
   role: "member" | "moderator" | "admin";
   karma: number;
   joinedCommunities?: string[];
+  followers?: string[];
+  following?: string[];
   createdAt: string;
 }
 
-export default function ProfilePage() {
+function ProfilePageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user: isLoggedIn, userData } = useAuth();
   
+  const usernameParam = searchParams.get("username") || "";
+
   // States
   const [user, setUser] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [postCount, setPostCount] = useState(0);
 
-  // Redirection guard for logged-out users
+  // Redirection guard for logged-out users (only if viewing OWN profile)
   useEffect(() => {
-    // If not logged in and not loading, redirect to signin
-    const checkUser = localStorage.getItem("isLoggedIn");
-    if (checkUser === "false" || (!isLoggedIn && checkUser !== "true")) {
-      router.push("/auth/signin");
+    if (!usernameParam) {
+      const checkUser = localStorage.getItem("isLoggedIn");
+      if (checkUser === "false" || (!isLoggedIn && checkUser !== "true")) {
+        router.push("/auth/signin");
+      }
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, usernameParam, router]);
 
-  // Fetch full user profile details from the DB
+  // Fetch user profile details from the DB
   useEffect(() => {
     let active = true;
 
     const fetchUserProfile = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch("/api/profile");
+        // Query by username handle if parameter exists, otherwise retrieve current active session profile
+        const endpoint = usernameParam 
+          ? `/api/profile?username=${encodeURIComponent(usernameParam)}` 
+          : "/api/profile";
+        
+        const res = await fetch(endpoint);
         if (!res.ok) {
           throw new Error("Failed to load user profile");
         }
@@ -66,7 +77,9 @@ export default function ProfilePage() {
     return () => {
       active = false;
     };
-  }, [userData]);
+  }, [usernameParam, userData]);
+
+  const isOwnProfile = !usernameParam || (userData && user && userData.id === user._id) || false;
 
   // Main layout grid
   return (
@@ -76,7 +89,13 @@ export default function ProfilePage() {
           
           {/* Left Column: Profile Card Sidebar */}
           <aside className="lg:col-span-4">
-            <ProfileDetails user={user} isLoading={isLoading} postCount={postCount} />
+            <ProfileDetails 
+              user={user} 
+              isLoading={isLoading} 
+              postCount={postCount} 
+              isOwnProfile={isOwnProfile} 
+              onProfileUpdate={(updatedUser) => setUser(updatedUser)}
+            />
           </aside>
 
           {/* Right Column: User Posts Discussion Feed */}
@@ -100,5 +119,21 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col flex-1 bg-(--background) items-center justify-center py-20 text-dust-grey gap-3">
+        <svg className="animate-spin h-8 w-8 text-spicy-paprika" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <span className="text-xs font-mono tracking-wider animate-pulse">Brewing user profile...</span>
+      </div>
+    }>
+      <ProfilePageContent />
+    </Suspense>
   );
 }

@@ -16,6 +16,15 @@ export const PreferencesTab: React.FC<PreferencesTabProps> = ({
   const [newsletter, setNewsletter] = useState(false);
   const [publicProfile, setPublicProfile] = useState(true);
   const [darkModeSync, setDarkModeSync] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Load preferences from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isDark = document.documentElement.classList.contains("dark");
+      setIsDarkMode(isDark);
+    }
+  }, []);
 
   // Load preferences from localStorage on mount
   useEffect(() => {
@@ -55,11 +64,25 @@ export const PreferencesTab: React.FC<PreferencesTabProps> = ({
           })
         );
       }
-      setSuccessMessage("Preferences saved successfully to browser storage!");
+      setSuccessMessage("Preferences saved successfully!");
       setTimeout(() => setSuccessMessage(""), 4000);
     } catch (err) {
       console.error("Failed to save preferences:", err);
-      setGlobalError("Failed to save preferences to browser storage.");
+      setGlobalError("Failed to save preferences.");
+    }
+  };
+
+  const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setIsDarkMode(checked);
+    if (typeof window !== "undefined") {
+      if (checked) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+      }
     }
   };
 
@@ -149,6 +172,27 @@ export const PreferencesTab: React.FC<PreferencesTabProps> = ({
                 type="checkbox"
                 checked={darkModeSync}
                 onChange={(e) => setDarkModeSync(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-(--profile-bg) rounded-full peer peer-focus:ring-2 peer-focus:ring-orange/30 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-dust-grey peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange"></div>
+            </label>
+          </div>
+
+          {/* Toggle 5: Dark Mode Active Switch */}
+          <div className="flex items-start justify-between gap-4 border-t border-(--divider-color) pt-4">
+            <div className="space-y-1">
+              <span className="text-sm font-bold text-(--foreground) block">
+                Dark Mode Theme
+              </span>
+              <span className="text-xs text-dust-grey block leading-relaxed">
+                Switch between dark mode and light mode themes across the forum.
+              </span>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+              <input
+                type="checkbox"
+                checked={isDarkMode}
+                onChange={handleThemeChange}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-(--profile-bg) rounded-full peer peer-focus:ring-2 peer-focus:ring-orange/30 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-dust-grey peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange"></div>

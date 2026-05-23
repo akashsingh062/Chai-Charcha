@@ -12,6 +12,8 @@ export interface User extends Document {
     role: 'member' | 'moderator' | 'admin';
     karma: number;
     joinedCommunities: any;
+    followers: mongoose.Types.ObjectId[];
+    following: mongoose.Types.ObjectId[];
 }
 
 export const UserSchema = new Schema<User>({
@@ -73,6 +75,14 @@ export const UserSchema = new Schema<User>({
             }
             return Array.isArray(val) ? val : [];
         }
+    },
+    followers: {
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        default: []
+    },
+    following: {
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        default: []
     }
 }, { 
     timestamps: true,

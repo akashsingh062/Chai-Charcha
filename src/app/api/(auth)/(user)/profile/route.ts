@@ -26,7 +26,7 @@ export async function GET(req: Request) {
     // 2. Fetch specific user profile by username handle
     if (usernameParam) {
       const dbUser = await User.findOne({ username: usernameParam.toLowerCase() })
-        .select("name username avatar role karma bio createdAt joinedCommunities");
+        .select("name username avatar role karma bio createdAt joinedCommunities followers following");
       if (!dbUser) {
         return NextResponse.json({ error: "User profile not found" }, { status: 404 });
       }
