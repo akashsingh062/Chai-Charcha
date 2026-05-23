@@ -12,8 +12,11 @@ export interface SearchItem {
 export interface SearchSuggestion {
   id: string;
   title: string;
-  type: "suggestion" | "post" | "recent" | "trending";
+  type: "suggestion" | "post" | "recent" | "trending" | "user";
   score?: number;
   tags?: string[];
   category?: string;
+  avatar?: string;
+  role?: string;
+  karma?: number;
 }

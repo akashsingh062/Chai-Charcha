@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useSearchStore } from "@/store/searchStore";
 import { SearchSuggestionItem } from "./SearchSuggestionItem";
 import { RecentSearches } from "./RecentSearches";
@@ -16,8 +17,10 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   didYouMean,
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   const {
     query,
+    setQuery,
     suggestions,
     loading,
     dropdownOpen,
@@ -108,7 +111,16 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                 suggestion={s}
                 query={query}
                 isActive={activeIndex === index}
-                onClick={() => onSearch(s.title)}
+                onClick={() => {
+                  if (s.type === "user") {
+                    const username = s.title.split(" ")[0].replace("@", "");
+                    setDropdownOpen(false);
+                    setQuery("");
+                    router.push(`/profile?username=${encodeURIComponent(username)}`);
+                  } else {
+                    onSearch(s.title);
+                  }
+                }}
                 onMouseEnter={() => setActiveIndex(index)}
               />
             ))

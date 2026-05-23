@@ -52,6 +52,15 @@ export async function GET(req: Request) {
       "name username avatar role karma"
     );
 
+    // Fetch matching users from DB
+    const matchedUsers = await User.find({
+      $or: [
+        { name: { $regex: cleanQuery, $options: "i" } },
+        { username: { $regex: cleanQuery, $options: "i" } },
+        { bio: { $regex: cleanQuery, $options: "i" } }
+      ]
+    }).limit(3);
+
     // Map DB posts to searchable documents
     const searchItems = posts.map(mapPostToSearchItem);
 
@@ -62,8 +71,8 @@ export async function GET(req: Request) {
     // Rank matching results
     const rankedItems = rankSearchResults(fuseResults, query);
 
-    // Format suggestions
-    const suggestions = rankedItems.map((item) => ({
+    // Format post suggestions
+    const postSuggestions = rankedItems.map((item) => ({
       id: item.id,
       title: item.title,
       type: "suggestion" as const,
@@ -71,6 +80,18 @@ export async function GET(req: Request) {
       tags: item.tags,
       category: item.category,
     }));
+
+    // Format user suggestions
+    const userSuggestions = matchedUsers.map((u) => ({
+      id: u._id.toString(),
+      title: `@${u.username} (${u.name})`,
+      type: "user" as const,
+      avatar: u.avatar,
+      role: u.role,
+      karma: u.karma,
+    }));
+
+    const suggestions = [...userSuggestions, ...postSuggestions];
 
     // Build spelling correction (Did You Mean) system
     let didYouMean: string | null = null;

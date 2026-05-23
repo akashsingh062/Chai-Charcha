@@ -6,9 +6,34 @@ import { User } from "@/lib/models/User";
 import { profileUpdateSchema } from "@/lib/Schemas/profileUpdateSchema";
 import mongoose from "mongoose";
 
-// GET /api/profile - Retrieve active user profile
-export async function GET() {
+// GET /api/profile - Retrieve active user profile, a user by username, or list all profiles
+export async function GET(req: Request) {
   try {
+    await connectDB();
+
+    const { searchParams } = new URL(req.url);
+    const usernameParam = searchParams.get("username");
+    const listAll = searchParams.get("all");
+
+    // 1. List all public developer profiles
+    if (listAll === "true") {
+      const users = await User.find({})
+        .select("name username avatar role karma bio createdAt")
+        .sort({ karma: -1 });
+      return NextResponse.json({ users });
+    }
+
+    // 2. Fetch specific user profile by username handle
+    if (usernameParam) {
+      const dbUser = await User.findOne({ username: usernameParam.toLowerCase() })
+        .select("name username avatar role karma bio createdAt joinedCommunities");
+      if (!dbUser) {
+        return NextResponse.json({ error: "User profile not found" }, { status: 404 });
+      }
+      return NextResponse.json({ user: dbUser });
+    }
+
+    // 3. Default: Retrieve currently authenticated active session user
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -17,9 +42,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    await connectDB();
     const dbUser = await User.findOne({ email: session.user.email });
-
     if (!dbUser) {
       return NextResponse.json({ error: "User not found in database" }, { status: 404 });
     }

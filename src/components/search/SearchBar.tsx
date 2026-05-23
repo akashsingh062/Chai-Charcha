@@ -100,7 +100,15 @@ const SearchBarInner: React.FC = () => {
       }
     } else {
       if (index >= 0 && index < suggestions.length) {
-        handleSearchExecute(suggestions[index].title);
+        const suggestion = suggestions[index];
+        if (suggestion.type === "user") {
+          const username = suggestion.title.split(" ")[0].replace("@", "");
+          setDropdownOpen(false);
+          setQuery("");
+          router.push(`/profile?username=${encodeURIComponent(username)}`);
+        } else {
+          handleSearchExecute(suggestion.title);
+        }
       }
     }
   };
@@ -160,7 +168,7 @@ const SearchBarInner: React.FC = () => {
           }}
           onFocus={() => setDropdownOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search threads, tags, or categories..."
+          placeholder="Search threads, tags, categories, or developer profiles..."
           className="w-full h-full bg-transparent border-none outline-none text-sm text-(--foreground) placeholder-dust-grey/70 pr-2"
           role="combobox"
           aria-expanded={dropdownOpen}
