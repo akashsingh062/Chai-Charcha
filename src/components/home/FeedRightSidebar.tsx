@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
-import Link from "next/link";
 
 interface LeaderboardUser {
   id: string;
@@ -71,13 +70,20 @@ export const FeedRightSidebar: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    loadLeaderboard();
-    loadMeetups();
+    // Avoid synchronous state changes inside effect trigger tick
+    const timer = setTimeout(() => {
+      loadLeaderboard();
+      loadMeetups();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [loadLeaderboard, loadMeetups]);
 
   // Refresh meetups if user logs in or logs out
   useEffect(() => {
-    loadMeetups();
+    const timer = setTimeout(() => {
+      loadMeetups();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [user, loadMeetups]);
 
   const handleRSVP = async (meetupId: string) => {
@@ -102,9 +108,13 @@ export const FeedRightSidebar: React.FC = () => {
           })
         );
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("RSVP error:", err);
-      const errMsg = err.response?.data?.error || "Failed to submit RSVP";
+      let errMsg = "Failed to submit RSVP";
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosErr = err as { response?: { data?: { error?: string } } };
+        errMsg = axiosErr.response?.data?.error || errMsg;
+      }
       alert(errMsg);
     } finally {
       setRsvpLoading((prev) => ({ ...prev, [meetupId]: false }));
@@ -185,7 +195,7 @@ export const FeedRightSidebar: React.FC = () => {
           </p>
         ) : (
           <div className="flex flex-col gap-2">
-            {leaderboard.map((lead, idx) => (
+            {leaderboard.map((lead) => (
               <div
                 key={lead.id}
                 className="flex items-center justify-between p-1.5 rounded-xl hover:bg-(--btn-secondary-hover-bg)/65 transition-all duration-200 border border-transparent hover:border-(--input-border)/25"
@@ -196,6 +206,7 @@ export const FeedRightSidebar: React.FC = () => {
                   </span>
                   
                   {lead.avatar ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={lead.avatar}
                       alt={lead.name}
