@@ -61,7 +61,9 @@ function MessagesPageContent() {
 
   // Scroll to bottom helper
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
 
   // Fetch threads (conversations list)
@@ -120,11 +122,14 @@ function MessagesPageContent() {
 
   // Synchronize URL query parameter with activeUser state
   useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
     if (chatWithParam) {
       if (!activeUser || activeUser._id !== chatWithParam) {
         const found = threads.find(t => t.user._id === chatWithParam);
         if (found) {
-          setActiveUser(prev => prev?._id === found.user._id ? prev : found.user);
+          timer = setTimeout(() => {
+            setActiveUser(prev => prev?._id === found.user._id ? prev : found.user);
+          }, 0);
         } else if (!isLoadingThreads) {
           // Fetch target user details directly from profile API only when threads are loaded
           axiosInstance.get("/api/profile?all=true")
@@ -146,9 +151,14 @@ function MessagesPageContent() {
       }
     } else {
       if (activeUser !== null) {
-        setActiveUser(null);
+        timer = setTimeout(() => {
+          setActiveUser(null);
+        }, 0);
       }
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [chatWithParam, threads, isLoadingThreads, activeUser]);
 
   // Fetch messages when active user changes
@@ -183,7 +193,10 @@ function MessagesPageContent() {
 
   // Set current time on client mount
   useEffect(() => {
-    setCurrentTime(Date.now());
+    const timer = setTimeout(() => {
+      setCurrentTime(Date.now());
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // 3-second polling loop for messages and threads updates
@@ -289,14 +302,14 @@ function MessagesPageContent() {
   });
 
   return (
-    <div className="flex flex-col flex-1 bg-(--background) font-sans text-(--foreground) transition-all duration-300 min-h-0">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col h-[calc(100vh-160px)] min-h-0">
+    <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden bg-(--background) font-sans text-(--foreground) transition-all duration-300 min-h-0">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex-1 flex flex-col min-h-0 h-full overflow-hidden">
         
         {/* Main Interface Layout grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 rounded-3xl border border-(--card-border) bg-(--card-background)/40 backdrop-blur-xs shadow-xl overflow-hidden flex-1 min-h-0">
+        <div className="grid grid-cols-1 md:grid-cols-12 rounded-3xl border border-(--card-border) bg-(--card-background)/40 backdrop-blur-xs shadow-xl overflow-hidden flex-1 min-h-0 h-full">
           
           {/* LEFT SIDEBAR: Conversations List (5 columns) */}
-          <aside className={`md:col-span-4 border-r border-(--divider-color) flex flex-col h-full bg-(--card-background)/20 min-h-0 ${activeUser ? "hidden md:flex" : "flex"}`}>
+          <aside className={`md:col-span-4 border-r border-(--divider-color) flex flex-col h-full bg-(--card-background)/20 min-h-0 overflow-hidden ${activeUser ? "hidden md:flex" : "flex"}`}>
             {/* Sidebar search box */}
             <div className="p-4 border-b border-(--divider-color) space-y-3">
               <div className="flex items-center justify-between">
@@ -399,7 +412,7 @@ function MessagesPageContent() {
           </aside>
 
           {/* RIGHT VIEW: Conversational Bubble log (8 columns) */}
-          <main className={`md:col-span-8 flex flex-col h-full bg-(--card-background)/10 min-h-0 ${!activeUser ? "hidden md:flex" : "flex"}`}>
+          <main className={`md:col-span-8 flex flex-col h-full bg-(--card-background)/10 min-h-0 overflow-hidden ${!activeUser ? "hidden md:flex" : "flex"}`}>
             {activeUser ? (
               <>
                 {/* Active Chat Header */}
@@ -510,7 +523,7 @@ function MessagesPageContent() {
                                   : "bg-(--card-background) border-(--card-border) text-(--foreground) rounded-bl-none"
                               }`}>
                                 <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                                <div className="flex items-center justify-end gap-1 mt-1 text-[9px] font-semibold">
+                                 <div className="flex items-center justify-end gap-1 mt-1 text-[9px] font-semibold">
                                   {msg.isEdited && (
                                     <span className={isMe ? "text-floral-white/50 italic" : "text-dust-grey/60 italic"}>
                                       edited •
@@ -519,6 +532,20 @@ function MessagesPageContent() {
                                   <span className={isMe ? "text-floral-white/70" : "text-dust-grey"}>
                                     {formattedTime}
                                   </span>
+                                  {isMe && (
+                                    msg.isRead ? (
+                                      <svg className="w-3.5 h-3.5 text-emerald-300 inline-block align-middle ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                        <title>Read</title>
+                                        <path d="M2 12L7 17L17 7" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M8 12L12 16L22 6" strokeLinecap="round" strokeLinejoin="round" />
+                                      </svg>
+                                    ) : (
+                                      <svg className="w-3 h-3 text-floral-white/55 inline-block align-middle ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                        <title>Sent (Unread)</title>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                      </svg>
+                                    )
+                                  )}
                                 </div>
                               </div>
                             )}
