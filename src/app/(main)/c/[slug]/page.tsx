@@ -581,6 +581,376 @@ function CommunityPageContent() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      
+      {/* 1. MEMBERS DIRECTORY MODAL OVERLAY */}
+      {isMembersModalOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-md rounded-2xl border border-(--dropdown-border) bg-(--dropdown-bg) p-5 shadow-2xl backdrop-blur-lg flex flex-col max-h-[80vh] relative animate-slide-down">
+            <div className="flex items-center justify-between border-b border-(--divider-color) pb-3.5 mb-4">
+              <h2 className="text-sm sm:text-base font-extrabold text-(--foreground) flex items-center gap-2">
+                <svg className="w-5 h-5 text-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.978 11.978 0 0112 20.25a11.98 11.98 0 01-3-.122v-.109m0-1.018a4.125 4.125 0 00-7.533 2.493 9.337 9.337 0 004.121.952 9.38 9.38 0 002.625-.372m0-3.03c0-1.113.285-2.16.786-3.07M12 18.75a6 6 0 100-12 6 6 0 000 12z" />
+                </svg>
+                <span>Joined Members Directory</span>
+              </h2>
+              <button
+                onClick={() => setIsMembersModalOpen(false)}
+                className="rounded-full p-1 hover:bg-(--btn-icon-hover-bg) text-dust-grey hover:text-(--foreground) cursor-pointer"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {isLoadingMembers ? (
+              <div className="py-12 flex flex-col justify-center items-center text-dust-grey gap-2">
+                <div className="w-6 h-6 border-2 border-orange border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-[10px] font-mono tracking-wider animate-pulse">Brewing members...</span>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                {membersList.length === 0 ? (
+                  <p className="text-xs text-dust-grey italic py-8 text-center">No joined members found.</p>
+                ) : (
+                  membersList.map((m) => (
+                    <div key={m._id} className="flex items-center justify-between bg-(--card-background)/35 p-3 rounded-xl border border-(--card-border)/80">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-8 w-8 rounded-full overflow-hidden border border-orange/20 shadow-xs flex items-center justify-center bg-(--profile-bg) text-2xs font-bold text-floral-white font-mono">
+                          {m.avatar && (m.avatar.startsWith("http") || m.avatar.startsWith("/")) ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={m.avatar} alt={m.name} className="h-full w-full object-cover" />
+                          ) : (
+                            m.avatar || m.name.substring(0, 2).toUpperCase()
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-extrabold text-(--foreground)">{m.name}</span>
+                          <span className="text-3xs font-semibold font-mono text-dust-grey">@{m.username}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {m.isCreator && (
+                          <span className="text-[8px] font-black uppercase tracking-wider text-orange bg-orange/15 px-2 py-0.5 rounded-md border border-orange/25">
+                            Admin
+                          </span>
+                        )}
+                        {m.isModerator && !m.isCreator && (
+                          <span className="text-[8px] font-black uppercase tracking-wider text-vivid-tangerine bg-vivid-tangerine/15 px-2 py-0.5 rounded-md border border-vivid-tangerine/25">
+                            Mod
+                          </span>
+                        )}
+                        <span className="text-3xs font-extrabold text-dust-grey px-2 py-0.5 rounded-full bg-(--nav-border)/40 shrink-0 font-mono">
+                          +{m.karma || 0} rep
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 2. MODERATOR HUB PORTAL OVERLAY */}
+      {isModPortalOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-xl rounded-2xl border border-(--dropdown-border) bg-(--dropdown-bg) p-6 shadow-2xl backdrop-blur-lg flex flex-col max-h-[85vh] relative animate-slide-down">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-(--divider-color) pb-3.5 mb-4">
+              <h2 className="text-base sm:text-lg font-black text-(--foreground) flex items-center gap-2">
+                <svg className="w-5.5 h-5.5 text-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>c/{community.slug} Moderator Hub</span>
+              </h2>
+              <button
+                onClick={() => setIsModPortalOpen(false)}
+                className="rounded-full p-1 hover:bg-(--btn-icon-hover-bg) text-dust-grey hover:text-(--foreground) cursor-pointer"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Navigation Tabs */}
+            <div className="flex border-b border-(--divider-color)/60 pb-2 mb-4 gap-4 text-xs font-black text-dust-grey select-none">
+              <button
+                onClick={() => { setModTab("requests"); fetchPendingRequests(); }}
+                className={`pb-1 cursor-pointer transition-colors ${modTab === "requests" ? "text-orange border-b-2 border-orange" : "hover:text-(--foreground)"}`}
+              >
+                Requests ({pendingRequestsList.length})
+              </button>
+              <button
+                onClick={() => { setModTab("bans"); fetchBannedUsers(); }}
+                className={`pb-1 cursor-pointer transition-colors ${modTab === "bans" ? "text-orange border-b-2 border-orange" : "hover:text-(--foreground)"}`}
+              >
+                Bans
+              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setModTab("moderators")}
+                  className={`pb-1 cursor-pointer transition-colors ${modTab === "moderators" ? "text-orange border-b-2 border-orange" : "hover:text-(--foreground)"}`}
+                >
+                  Mods Management
+                </button>
+              )}
+              <button
+                onClick={() => setModTab("settings")}
+                className={`pb-1 cursor-pointer transition-colors ${modTab === "settings" ? "text-orange border-b-2 border-orange" : "hover:text-(--foreground)"}`}
+              >
+                Settings
+              </button>
+            </div>
+
+            {/* Tab Contents */}
+            <div className="flex-1 overflow-y-auto min-h-[300px] max-h-[50vh]">
+              {/* Tab 1: PENDING REQUESTS */}
+              {modTab === "requests" && (
+                <div className="space-y-3">
+                  {pendingRequestsList.length === 0 ? (
+                    <p className="text-xs text-dust-grey italic py-12 text-center">No pending membership requests.</p>
+                  ) : (
+                    pendingRequestsList.map((req) => (
+                      <div key={req._id} className="flex items-center justify-between p-3 bg-(--card-background)/40 border border-(--card-border) rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full overflow-hidden border border-orange/20 shadow-xs flex items-center justify-center bg-(--profile-bg) text-2xs font-bold text-floral-white">
+                            {req.avatar && (req.avatar.startsWith("http") || req.avatar.startsWith("/")) ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={req.avatar} alt={req.name} className="h-full w-full object-cover" />
+                            ) : (
+                              req.avatar || req.name.substring(0, 2).toUpperCase()
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xs font-extrabold text-(--foreground)">{req.name}</span>
+                            <span className="text-3xs font-semibold font-mono text-dust-grey">@{req.username}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleProcessRequest(req._id, "approve")}
+                            disabled={isModActionLoading}
+                            className="px-3 py-1.5 rounded-lg bg-orange text-ink-black font-extrabold text-[10px] shadow-sm cursor-pointer hover:bg-orange-600 disabled:opacity-50"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleProcessRequest(req._id, "reject")}
+                            disabled={isModActionLoading}
+                            className="px-3 py-1.5 rounded-lg bg-transparent border border-spicy-paprika text-spicy-paprika font-extrabold text-[10px] cursor-pointer hover:bg-spicy-paprika/5 disabled:opacity-50"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* Tab 2: BANNING */}
+              {modTab === "bans" && (
+                <div className="space-y-4">
+                  {/* Ban Form */}
+                  <div className="flex items-end gap-2 border-b border-(--divider-color)/40 pb-4">
+                    <div className="flex-1">
+                      <label htmlFor="ban-username" className="block text-2xs font-extrabold text-dust-grey uppercase mb-1">
+                        Ban User by Username
+                      </label>
+                      <input
+                        type="text"
+                        id="ban-username"
+                        value={banInput}
+                        onChange={(e) => setBanInput(e.target.value)}
+                        placeholder="e.g. janesmith"
+                        className="w-full text-xs rounded-xl border border-(--input-border) bg-(--input-bg) px-3 py-2.5 outline-none focus:border-orange text-(--foreground)"
+                        disabled={isModActionLoading}
+                      />
+                    </div>
+                    <button
+                      onClick={() => handleBanAction("ban")}
+                      disabled={isModActionLoading || !banInput.trim()}
+                      className="px-4 py-2.5 rounded-xl bg-spicy-paprika text-floral-white font-extrabold text-xs cursor-pointer shadow-md hover:bg-spicy-paprika-600 disabled:opacity-55 shrink-0"
+                    >
+                      Ban User
+                    </button>
+                  </div>
+
+                  {/* Banned Users List */}
+                  <div className="space-y-3">
+                    <h4 className="text-2xs font-extrabold uppercase text-dust-grey tracking-wider">Currently Banned ({bannedUsersList.length})</h4>
+                    {bannedUsersList.length === 0 ? (
+                      <p className="text-xs text-dust-grey italic py-4 text-center">No banned users inside this community.</p>
+                    ) : (
+                      bannedUsersList.map((user) => (
+                        <div key={user._id} className="flex items-center justify-between p-3 bg-(--card-background)/40 border border-(--card-border) rounded-xl">
+                          <div className="flex items-center gap-2">
+                            <div className="h-7 w-7 rounded-full overflow-hidden border border-orange/20 shadow-xs flex items-center justify-center bg-(--profile-bg) text-2xs font-bold text-floral-white">
+                              {user.avatar && (user.avatar.startsWith("http") || user.avatar.startsWith("/")) ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
+                              ) : (
+                                user.avatar || user.name.substring(0, 2).toUpperCase()
+                              )}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs font-extrabold text-(--foreground)">{user.name}</span>
+                              <span className="text-3xs font-semibold font-mono text-dust-grey">@{user.username}</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleBanAction("unban", user.username)}
+                            disabled={isModActionLoading}
+                            className="px-3 py-1.5 rounded-lg bg-transparent border border-orange text-orange font-extrabold text-[10px] cursor-pointer hover:bg-orange/5 disabled:opacity-50"
+                          >
+                            Unban
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 3: MODERATOR APPOINTMENT */}
+              {modTab === "moderators" && isAdmin && (
+                <div className="space-y-4">
+                  {/* Promote Form */}
+                  <div className="flex items-end gap-2 border-b border-(--divider-color)/40 pb-4">
+                    <div className="flex-1">
+                      <label htmlFor="mod-username" className="block text-2xs font-extrabold text-dust-grey uppercase mb-1">
+                        Appoint Moderator by Username
+                      </label>
+                      <input
+                        type="text"
+                        id="mod-username"
+                        value={modInput}
+                        onChange={(e) => setModInput(e.target.value)}
+                        placeholder="e.g. johndoe"
+                        className="w-full text-xs rounded-xl border border-(--input-border) bg-(--input-bg) px-3 py-2.5 outline-none focus:border-orange text-(--foreground)"
+                        disabled={isModActionLoading}
+                      />
+                    </div>
+                    <button
+                      onClick={() => handleModAction("promote")}
+                      disabled={isModActionLoading || !modInput.trim()}
+                      className="px-4 py-2.5 rounded-xl bg-orange text-ink-black font-extrabold text-xs cursor-pointer shadow-md hover:bg-orange-600 disabled:opacity-55 shrink-0"
+                    >
+                      Promote User
+                    </button>
+                  </div>
+
+                  {/* List of Current Mods */}
+                  <div className="space-y-3">
+                    <h4 className="text-2xs font-extrabold uppercase text-dust-grey tracking-wider">Moderators</h4>
+                    {/* Creator is always head admin */}
+                    <div className="flex items-center justify-between p-3 bg-orange/5 border border-orange/20 rounded-xl">
+                      <div className="flex items-center gap-2">
+                        <div className="h-7 w-7 rounded-full overflow-hidden border border-orange/20 shadow-xs flex items-center justify-center bg-(--profile-bg) text-2xs font-bold text-floral-white">
+                          {community.creator?.avatar && (community.creator.avatar.startsWith("http") || community.creator.avatar.startsWith("/")) ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={community.creator.avatar} alt={community.creator.name} className="h-full w-full object-cover" />
+                          ) : (
+                            community.creator?.name?.substring(0, 2).toUpperCase() || "CR"
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-extrabold text-(--foreground)">{community.creator?.name}</span>
+                          <span className="text-3xs font-semibold font-mono text-dust-grey">@{community.creator?.username}</span>
+                        </div>
+                      </div>
+                      <span className="text-[8px] font-black uppercase text-orange bg-orange/15 px-2 py-0.5 rounded border border-orange/25">
+                        Head Admin
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 4: SETTINGS / RULES / DELETION */}
+              {modTab === "settings" && (
+                <div className="space-y-4">
+                  {/* Update Rules Text */}
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="settings-rules" className="block text-2xs font-extrabold text-dust-grey uppercase">
+                      Edit Community Rules (One per line)
+                    </label>
+                    <textarea
+                      id="settings-rules"
+                      value={rulesInput}
+                      onChange={(e) => setRulesInput(e.target.value)}
+                      className="w-full text-xs rounded-xl border border-(--input-border) bg-(--input-bg) px-3 py-2 outline-none focus:border-orange resize-none text-(--foreground)"
+                      rows={5}
+                      placeholder="Be respectful to all members..."
+                      disabled={isModActionLoading}
+                    />
+                  </div>
+
+                  <button
+                    onClick={async () => {
+                      try {
+                        setIsModActionLoading(true);
+                        const ruleArr = rulesInput.split("\n").map(r => r.trim()).filter(Boolean);
+                        const res = await axiosInstance.put(`/api/communities/${slug}`, { rules: ruleArr });
+                        if (res.data?.success) {
+                          toast.success("Community rules updated successfully!");
+                          loadCommunityInfo();
+                        }
+                      } catch (err: any) {
+                        toast.error(err.response?.data?.error || "Failed to save rules.");
+                      } finally {
+                        setIsModActionLoading(false);
+                      }
+                    }}
+                    disabled={isModActionLoading}
+                    className="px-4 py-2 rounded-xl bg-orange text-ink-black font-extrabold text-xs cursor-pointer shadow-md hover:bg-orange-600 disabled:opacity-50"
+                  >
+                    Save Settings
+                  </button>
+
+                  {/* DELETE COMMUNITY (CREATOR ONLY) */}
+                  {isAdmin && (
+                    <div className="border-t border-(--divider-color)/60 pt-4 mt-4 space-y-2">
+                      <h4 className="text-2xs font-extrabold text-spicy-paprika uppercase tracking-wider">Danger Zone</h4>
+                      <p className="text-[10px] text-dust-grey leading-relaxed">
+                        Permanently delete this community and all its threads/comments. This action is irreversible.
+                      </p>
+                      <button
+                        onClick={async () => {
+                          const conf = confirm(`Are you absolutely sure you want to delete c/${slug}?\nThis will permanently erase all threads, comments, and members.`);
+                          if (!conf) return;
+                          try {
+                            setIsModActionLoading(true);
+                            const res = await axiosInstance.delete(`/api/communities/${slug}`);
+                            if (res.data?.success) {
+                              toast.success("Community successfully deleted!");
+                              setIsModPortalOpen(false);
+                              router.push("/");
+                            }
+                          } catch (err: any) {
+                            toast.error(err.response?.data?.error || "Failed to delete community.");
+                          } finally {
+                            setIsModActionLoading(false);
+                          }
+                        }}
+                        disabled={isModActionLoading}
+                        className="px-4 py-2 rounded-xl bg-spicy-paprika text-floral-white font-extrabold text-xs cursor-pointer hover:bg-spicy-paprika-600 disabled:opacity-50"
+                      >
+                        Delete Community
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* LEFT COLUMN: NAVIGATION SIDEBAR */}
@@ -597,6 +967,15 @@ function CommunityPageContent() {
         {/* CENTER COLUMN: MAIN FEED WITH BANNER HEADER */}
         <main className="lg:col-span-6 flex flex-col min-w-0">
           
+          {isBanned && (
+            <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-4 text-xs font-bold text-red-500 mb-6 flex items-center gap-2 shadow-md">
+              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>You are banned from participating in this community. You cannot create new posts or comment.</span>
+            </div>
+          )}
+
           {/* Glassmorphic Community Banner Panel */}
           <div className="relative overflow-hidden rounded-3xl border border-(--card-border) bg-(--card-background) p-6 sm:p-8 shadow-2xl transition-all duration-300 mb-6">
             {/* Ambient Background Glows */}
@@ -605,9 +984,19 @@ function CommunityPageContent() {
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="space-y-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-orange bg-orange/10 border border-orange/20 mb-1">
-                  c/{community.slug}
-                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-orange bg-orange/10 border border-orange/20 mb-1">
+                    c/{community.slug}
+                  </span>
+                  {community.isPrivate && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider text-amber-500 bg-amber-500/10 border border-amber-500/25 mb-1">
+                      <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                      Restricted
+                    </span>
+                  )}
+                </div>
                 <h1 className="text-3xl font-black tracking-tight text-(--foreground)">
                   {community.name}
                 </h1>
@@ -616,19 +1005,42 @@ function CommunityPageContent() {
                 </p>
               </div>
 
-              {isLoggedIn && (
-                <button
-                  onClick={handleJoinLeave}
-                  disabled={isJoinActionLoading}
-                  className={`rounded-2xl px-5 py-2.5 text-xs font-bold shadow-md cursor-pointer transition-all duration-200 active:scale-95 shrink-0 select-none ${
-                    isJoined
-                      ? "bg-transparent border border-spicy-paprika text-spicy-paprika hover:bg-spicy-paprika/5"
-                      : "bg-spicy-paprika text-floral-white hover:bg-spicy-paprika-600"
-                  }`}
-                >
-                  {isJoined ? "Leave" : "Join"}
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                {isLoggedIn && !isBanned && (
+                  <button
+                    onClick={handleJoinLeave}
+                    disabled={isJoinActionLoading}
+                    className={`rounded-2xl px-5 py-2.5 text-xs font-extrabold shadow-md cursor-pointer transition-all duration-200 active:scale-95 shrink-0 select-none ${
+                      isJoined
+                        ? "bg-transparent border border-spicy-paprika text-spicy-paprika hover:bg-spicy-paprika/5"
+                        : isPending
+                        ? "bg-amber-500/10 border border-amber-500 text-amber-500 hover:bg-amber-500/20"
+                        : "bg-spicy-paprika text-floral-white hover:bg-spicy-paprika-600"
+                    }`}
+                  >
+                    {isJoined ? "Leave" : isPending ? "Request Pending" : "Join"}
+                  </button>
+                )}
+
+                {isLoggedIn && isBanned && (
+                  <span className="rounded-2xl px-4 py-2 text-xs font-extrabold bg-red-500/15 border border-red-500/25 text-red-500 shrink-0 select-none">
+                    Banned
+                  </span>
+                )}
+
+                {isLoggedIn && isModerator && (
+                  <button
+                    onClick={() => { setIsModPortalOpen(true); fetchPendingRequests(); }}
+                    className="p-2.5 rounded-2xl border border-(--card-border) bg-(--card-background) text-dust-grey hover:text-orange hover:border-orange/20 transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 flex items-center justify-center"
+                    title="Moderator Hub Settings"
+                  >
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -651,6 +1063,8 @@ function CommunityPageContent() {
             onRefresh={loadCommunityPosts}
             isLoading={isLoadingPosts}
             hasMore={visibleCount < filteredThreads.length}
+            isCommunityMod={isModerator}
+            isBanned={isBanned}
           />
         </main>
 
@@ -688,6 +1102,58 @@ function CommunityPageContent() {
               </div>
             </div>
           </div>
+
+          {/* COMMUNITY RULES SIDEBAR WIDGET */}
+          <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-5 shadow-sm transition-all duration-300 hover:border-orange/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-orange/5 rounded-full blur-xl pointer-events-none" />
+            
+            <h3 className="text-xs font-black uppercase tracking-widest bg-linear-to-r from-spicy-paprika to-vivid-tangerine bg-clip-text text-transparent mb-4 flex items-center gap-1.5">
+              <svg className="w-4 h-4 text-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Community Rules</span>
+            </h3>
+
+            <div className="space-y-3 text-xs">
+              {(community.rules && community.rules.length > 0 ? community.rules : [
+                "Be respectful to all members.",
+                "No hate speech or harassment.",
+                "No spam or self-promotion.",
+                "Keep discussions relevant to the community topic."
+              ]).map((rule: string, i: number) => (
+                <div key={i} className="flex gap-2 text-(--text-secondary) leading-relaxed border-b border-(--divider-color)/20 pb-2 last:border-b-0 last:pb-0">
+                  <span className="font-mono text-orange font-bold shrink-0">{i + 1}.</span>
+                  <span>{rule}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* COMMUNITY MEMBERS ROSTER BUTTON (visible only if joined or moderator) */}
+          {(isJoined || isModerator) && (
+            <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-5 shadow-sm transition-all duration-300 hover:border-orange/10 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-orange/5 rounded-full blur-xl pointer-events-none" />
+              
+              <h3 className="text-xs font-black uppercase tracking-widest bg-linear-to-r from-spicy-paprika to-vivid-tangerine bg-clip-text text-transparent mb-3">
+                Community Members
+              </h3>
+              
+              <p className="text-[11px] text-dust-grey leading-relaxed mb-4">
+                Explore the roster directory of joined community members. Visible strictly to joined members.
+              </p>
+
+              <button
+                onClick={() => { setIsMembersModalOpen(true); fetchMembersList(); }}
+                className="w-full text-center rounded-xl bg-orange hover:bg-orange-600 py-2.5 text-xs font-bold text-ink-black shadow-md cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.978 11.978 0 0112 20.25a11.98 11.98 0 01-3-.122v-.109m0-1.018a4.125 4.125 0 00-7.533 2.493 9.337 9.337 0 004.121.952 9.38 9.38 0 002.625-.372m0-3.03c0-1.113.285-2.16.786-3.07M12 18.75a6 6 0 100-12 6 6 0 000 12z" />
+                </svg>
+                <span>View Roster Directory</span>
+              </button>
+            </div>
+          )}
+
         </aside>
 
       </div>

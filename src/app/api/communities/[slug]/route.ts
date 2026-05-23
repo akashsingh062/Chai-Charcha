@@ -42,9 +42,9 @@ export async function GET(
         : community.creator.toString();
 
       isAdmin = creatorIdStr === userId;
-      isModerator = isAdmin || (community.moderators && community.moderators.some((id: any) => id.toString() === userId));
-      isBanned = community.bannedUsers && community.bannedUsers.some((id: any) => id.toString() === userId);
-      isPending = community.pendingRequests && community.pendingRequests.some((id: any) => id.toString() === userId);
+      isModerator = !!(isAdmin || (community.moderators && community.moderators.some((id: any) => id.toString() === userId)));
+      isBanned = !!(community.bannedUsers && community.bannedUsers.some((id: any) => id.toString() === userId));
+      isPending = !!(community.pendingRequests && community.pendingRequests.some((id: any) => id.toString() === userId));
 
       const currentUser = await User.findById(userId);
       if (currentUser && currentUser.joinedCommunities) {

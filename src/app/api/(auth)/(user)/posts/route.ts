@@ -7,6 +7,7 @@ import { Comment } from "@/lib/models/Comment";
 import { postSchema } from "@/lib/Schemas/postSchema";
 import { formatPostForFrontend, DBPost, DBComment, calculateTrendingScore } from "@/lib/apiHelpers";
 import { Community } from "@/lib/models/Community";
+import { User } from "@/lib/models/User";
 import mongoose from "mongoose";
 
 // GET /api/posts - Get all posts populated with author profiles and comment trees

@@ -22,6 +22,9 @@ interface DiscussionFeedProps {
   onDeletePost?: (id: string) => void;
   hasMore?: boolean;
   isCommunityMod?: boolean;
+  isBanned?: boolean;
+  feedTab?: "all" | "home";
+  setFeedTab?: (val: "all" | "home") => void;
 }
 
 export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
@@ -43,6 +46,9 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
   onDeletePost,
   hasMore = false,
   isCommunityMod = false,
+  isBanned = false,
+  feedTab,
+  setFeedTab,
 }) => {
   return (
     <main className="lg:col-span-6 flex flex-col gap-6">
@@ -59,13 +65,44 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
             )}
           </div>
           <button
-            onClick={onStartCharcha}
-            className="flex-1 rounded-full border border-(--input-border) bg-(--input-bg) py-2 px-4 text-left text-sm text-dust-grey hover:bg-(--btn-icon-hover-bg) hover:border-orange/50 transition-all cursor-pointer"
+            onClick={isBanned ? undefined : onStartCharcha}
+            className={`flex-1 rounded-full border py-2 px-4 text-left text-sm transition-all ${
+              isBanned 
+                ? "text-red-500/50 border-red-500/20 bg-red-500/5 cursor-not-allowed" 
+                : "text-dust-grey border-(--input-border) bg-(--input-bg) hover:bg-(--btn-icon-hover-bg) hover:border-orange/50 cursor-pointer"
+            }`}
+            disabled={isBanned}
           >
-            Start a charcha... What&apos;s on your mind?
+            {isBanned ? "You are banned from starting a charcha in this community" : "Start a charcha... What's on your mind?"}
           </button>
         </div>
       </div>
+
+      {/* Segmented Feed Tab Selector */}
+      {feedTab && setFeedTab && (
+        <div className="flex bg-(--card-background) border border-(--card-border) p-1 rounded-2xl shadow-xs self-start text-xs font-bold text-dust-grey select-none gap-1">
+          <button
+            onClick={() => setFeedTab("all")}
+            className={`rounded-xl px-4 py-2 transition-all cursor-pointer select-none ${
+              feedTab === "all"
+                ? "bg-orange text-ink-black shadow-sm font-extrabold"
+                : "hover:text-(--foreground)"
+            }`}
+          >
+            All Discussions
+          </button>
+          <button
+            onClick={() => setFeedTab("home")}
+            className={`rounded-xl px-4 py-2 transition-all cursor-pointer select-none ${
+              feedTab === "home"
+                ? "bg-orange text-ink-black shadow-sm font-extrabold"
+                : "hover:text-(--foreground)"
+            }`}
+          >
+            My Feed (Home)
+          </button>
+        </div>
+      )}
 
       {/* Feed Controls Header */}
       <div className="flex items-center justify-between border-b border-(--divider-color) pb-3">

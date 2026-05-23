@@ -23,13 +23,17 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [sortBy, setSortBy] = useState<"trending" | "recent">("trending");
+  const [feedTab, setFeedTab] = useState<"all" | "home">("all");
   const [isLoading, setIsLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(10);
 
   const loadPosts = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await axiosInstance.get(`/api/posts?sort=${sortBy}`);
+      const url = feedTab === "home" 
+        ? `/api/posts?feed=home&sort=${sortBy}` 
+        : `/api/posts?sort=${sortBy}`;
+      const res = await axiosInstance.get(url);
       if (res.data?.posts) {
         setThreads(res.data.posts);
       }
@@ -38,7 +42,7 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  }, [sortBy]);
+  }, [sortBy, feedTab]);
 
   useEffect(() => {
     if (!user) return;
@@ -365,6 +369,8 @@ export default function Home() {
               onRefresh={loadPosts}
               isLoading={isLoading}
               hasMore={visibleCount < filteredThreads.length}
+              feedTab={feedTab}
+              setFeedTab={setFeedTab}
             />
 
             {/* RIGHT COLUMN: SIDEBAR WIDGETS (3 Cols on large) */}
