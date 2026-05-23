@@ -22,6 +22,8 @@ interface MessageItem {
   isRead: boolean;
   isEdited?: boolean;
   createdAt: string;
+  isSending?: boolean;
+  isFailed?: boolean;
 }
 
 interface ChatThread {
@@ -226,22 +228,54 @@ function MessagesPageContent() {
     e.preventDefault();
     if (!activeUser || !typedMessage.trim() || isSending) return;
 
+    const content = typedMessage.trim();
+    setTypedMessage("");
+
+    // Create optimistic temporary message
+    const tempId = `temp-${Date.now()}`;
+    const tempMessage: MessageItem = {
+      _id: tempId,
+      sender: {
+        _id: userData?.id || "",
+        name: userData?.name || "",
+        username: "",
+        avatar: userData?.avatar,
+      },
+      recipient: {
+        _id: activeUser._id,
+        name: activeUser.name,
+        username: activeUser.username,
+        avatar: activeUser.avatar,
+      },
+      content: content,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+      isSending: true,
+    };
+
+    setMessages((prev) => [...prev, tempMessage]);
+
     try {
       setIsSending(true);
       const res = await axiosInstance.post("/api/messages", {
         recipientId: activeUser._id,
-        content: typedMessage.trim()
+        content: content
       });
 
       if (res.data?.success && res.data?.message) {
-        setMessages((prev) => [...prev, res.data.message]);
-        setTypedMessage("");
+        setMessages((prev) =>
+          prev.map((m) => (m._id === tempId ? res.data.message : m))
+        );
         
         // Update threads locally
         fetchThreads();
       }
     } catch (err) {
       console.error("Error sending message:", err);
+      // Mark temporary message as failed (single tick failed)
+      setMessages((prev) =>
+        prev.map((m) => (m._id === tempId ? { ...m, isSending: false, isFailed: true } : m))
+      );
     } finally {
       setIsSending(false);
     }
@@ -542,16 +576,22 @@ function MessagesPageContent() {
                                     {formattedTime}
                                   </span>
                                   {isMe && (
-                                    msg.isRead ? (
-                                      <svg className="w-3.5 h-3.5 text-emerald-300 inline-block align-middle ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    msg.isSending || msg.isFailed ? (
+                                      <svg className="w-3 h-3 text-floral-white/40 inline-block align-middle ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                        <title>Not Sent</title>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                      </svg>
+                                    ) : msg.isRead ? (
+                                      <svg className="w-3.5 h-3.5 text-sky-400 inline-block align-middle ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                         <title>Read</title>
                                         <path d="M2 12L7 17L17 7" strokeLinecap="round" strokeLinejoin="round" />
                                         <path d="M8 12L12 16L22 6" strokeLinecap="round" strokeLinejoin="round" />
                                       </svg>
                                     ) : (
-                                      <svg className="w-3 h-3 text-floral-white/55 inline-block align-middle ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                      <svg className="w-3.5 h-3.5 text-floral-white/55 inline-block align-middle ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                         <title>Sent (Unread)</title>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        <path d="M2 12L7 17L17 7" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M8 12L12 16L22 6" strokeLinecap="round" strokeLinejoin="round" />
                                       </svg>
                                     )
                                   )}
