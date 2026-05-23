@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axios";
+import { ConfirmModal } from "@/components/shared/ConfirmModal";
 
 interface UserInfo {
   _id: string;
@@ -33,6 +34,8 @@ function MessagesPageContent() {
   const { user: isLoggedIn, userData } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+  const [isDeleteMessageConfirmOpen, setIsDeleteMessageConfirmOpen] = useState(false);
   
   const chatWithParam = searchParams.get("chatWith") || "";
 
@@ -277,17 +280,23 @@ function MessagesPageContent() {
   };
 
   // Delete direct message
-  const handleDeleteMessage = async (messageId: string) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this message?");
-    if (!confirmDelete) return;
+  const handleDeleteMessage = (messageId: string) => {
+    setMessageToDelete(messageId);
+    setIsDeleteMessageConfirmOpen(true);
+  };
 
+  const executeDeleteMessage = async () => {
+    if (!messageToDelete) return;
     try {
-      const res = await axiosInstance.delete(`/api/messages/${messageId}`);
+      const res = await axiosInstance.delete(`/api/messages/${messageToDelete}`);
       if (res.data?.success) {
-        setMessages((prev) => prev.filter((m) => m._id !== messageId));
+        setMessages((prev) => prev.filter((m) => m._id !== messageToDelete));
       }
     } catch (err) {
       console.error("Error deleting message:", err);
+    } finally {
+      setMessageToDelete(null);
+      setIsDeleteMessageConfirmOpen(false);
     }
   };
 
@@ -625,6 +634,17 @@ function MessagesPageContent() {
 
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={isDeleteMessageConfirmOpen}
+        title="Delete Message"
+        message="Are you sure you want to delete this message?"
+        onConfirm={executeDeleteMessage}
+        onCancel={() => {
+          setIsDeleteMessageConfirmOpen(false);
+          setMessageToDelete(null);
+        }}
+      />
     </div>
   );
 }

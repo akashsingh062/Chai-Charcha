@@ -6,6 +6,7 @@ import { CommentSection } from "../post/CommentSection";
 import axiosInstance from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/store/useToastStore";
+import { ConfirmModal } from "../shared/ConfirmModal";
 
 interface ThreadCardProps {
   thread: Thread;
@@ -43,14 +44,16 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   const [editTagsString, setEditTagsString] = useState(thread.tags.join(", "));
   const [isSaving, setIsSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  // Sync edits if thread changes
-  useEffect(() => {
+  const startEditing = () => {
     setEditTitle(thread.title);
     setEditContent(thread.content || thread.excerpt);
     setEditCategory(thread.category);
     setEditTagsString(thread.tags.join(", "));
-  }, [thread]);
+    setEditError(null);
+    setIsEditing(true);
+  };
 
   useEffect(() => {
     if (!isExpanded) return;
@@ -121,21 +124,21 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
       } else {
         throw new Error("Failed to receive updated post details");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to save post:", err);
-      setEditError(err.response?.data?.error || err.message || "Failed to update charcha");
+      const error = err as { response?: { data?: { error?: string } }; message?: string };
+      setEditError(error.response?.data?.error || error.message || "Failed to update charcha");
     } finally {
       setIsSaving(false);
     }
   };
 
   // In-Place Deletion Handler
-  const handleDelete = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this technical charcha? This will also permanently delete all its replies."
-    );
-    if (!confirmed) return;
+  const handleDelete = () => {
+    setIsDeleteModalOpen(true);
+  };
 
+  const executeDelete = async () => {
     try {
       const res = await axiosInstance.delete(`/api/posts/${thread.id}`);
       if (res.status === 200 || res.data?.message) {
@@ -144,9 +147,10 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
           onDeletePost(thread.id);
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to delete post:", err);
-      toast.error(err.response?.data?.error || "Failed to delete this post. Please try again.");
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error.response?.data?.error || "Failed to delete this post. Please try again.");
     }
   };
 
@@ -298,7 +302,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
           {canModify && (
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setIsEditing(true)}
+                onClick={startEditing}
                 className="p-1 rounded-full text-dust-grey hover:text-vivid-tangerine hover:bg-vivid-tangerine/10 transition-all cursor-pointer"
                 title="Edit Post"
               >
@@ -481,6 +485,14 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
           />
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title="Delete Charcha"
+        message="Are you sure you want to delete this charcha? This will also permanently delete all its replies."
+        onConfirm={executeDelete}
+        onCancel={() => setIsDeleteModalOpen(false)}
+      />
     </article>
   );
 };

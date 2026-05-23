@@ -7,6 +7,7 @@ import { AccountDetailsTab } from "./AccountDetailsTab";
 import { PreferencesTab } from "./PreferencesTab";
 import { DangerZoneTab } from "./DangerZoneTab";
 import { DbUser } from "@/types/user";
+import { ConfirmModal } from "../shared/ConfirmModal";
 
 export const SettingsForm = () => {
   const { handelSignOut } = useAuth();
@@ -21,6 +22,8 @@ export const SettingsForm = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [globalError, setGlobalError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isResetKarmaConfirmOpen, setIsResetKarmaConfirmOpen] = useState(false);
+  const [isDeleteAccountConfirmOpen, setIsDeleteAccountConfirmOpen] = useState(false);
 
   // Fetch initial profile data
   useEffect(() => {
@@ -56,12 +59,11 @@ export const SettingsForm = () => {
   }, []);
 
   // Live Danger Zone Actions
-  const handleResetKarma = async () => {
-    const confirmReset = window.confirm(
-      "Are you absolutely sure you want to reset your reputation karma? This cannot be undone."
-    );
-    if (!confirmReset) return;
+  const handleResetKarmaClick = () => {
+    setIsResetKarmaConfirmOpen(true);
+  };
 
+  const executeResetKarma = async () => {
     setIsLoading(true);
     setGlobalError("");
     setSuccessMessage("");
@@ -87,16 +89,16 @@ export const SettingsForm = () => {
       const message = err instanceof Error ? err.message : "Failed to reset karma";
       setGlobalError(message);
     } finally {
+      setIsResetKarmaConfirmOpen(false);
       setIsLoading(false);
     }
   };
 
-  const handleDeleteAccount = async () => {
-    const confirmDelete = window.confirm(
-      "CRITICAL WARNING: Are you absolutely sure you want to permanently delete your Chai Charcha account? This action is completely irreversible, all your sessions will be wiped, and you will be logged out instantly."
-    );
-    if (!confirmDelete) return;
+  const handleDeleteAccountClick = () => {
+    setIsDeleteAccountConfirmOpen(true);
+  };
 
+  const executeDeleteAccount = async () => {
     setIsLoading(true);
     setGlobalError("");
     setSuccessMessage("");
@@ -116,6 +118,8 @@ export const SettingsForm = () => {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to delete account";
       setGlobalError(message);
+    } finally {
+      setIsDeleteAccountConfirmOpen(false);
       setIsLoading(false);
     }
   };
@@ -257,15 +261,31 @@ export const SettingsForm = () => {
           {/* TAB 4: DANGER ZONE ACTIONS */}
           {activeTab === "danger" && (
             <DangerZoneTab
-              onKarmaReset={handleResetKarma}
+              onKarmaReset={handleResetKarmaClick}
               onSignOut={handelSignOut}
-              onDeleteAccount={handleDeleteAccount}
+              onDeleteAccount={handleDeleteAccountClick}
             />
           )}
 
         </div>
 
       </div>
+
+      <ConfirmModal
+        isOpen={isResetKarmaConfirmOpen}
+        title="Reset Karma"
+        message="Are you absolutely sure you want to reset your reputation karma? This cannot be undone."
+        onConfirm={executeResetKarma}
+        onCancel={() => setIsResetKarmaConfirmOpen(false)}
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteAccountConfirmOpen}
+        title="Delete Account"
+        message="CRITICAL WARNING: Are you absolutely sure you want to permanently delete your Chai Charcha account? This action is completely irreversible, all your sessions will be wiped, and you will be logged out instantly."
+        onConfirm={executeDeleteAccount}
+        onCancel={() => setIsDeleteAccountConfirmOpen(false)}
+      />
     </div>
   );
 };
