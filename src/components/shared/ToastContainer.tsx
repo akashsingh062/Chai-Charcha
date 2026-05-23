@@ -48,7 +48,7 @@ export const ToastContainer = () => {
           >
             <div className="flex items-center gap-2.5 min-w-0">
               {icon}
-              <span className="text-xs font-bold font-sans tracking-tight break-words">{t.message}</span>
+              <span className="text-xs font-bold font-sans tracking-tight wrap-break-word">{t.message}</span>
             </div>
             <button
               onClick={() => removeToast(t.id)}

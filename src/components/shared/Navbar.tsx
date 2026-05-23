@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -11,43 +11,33 @@ const Navbar = () => {
   const { user, userData, handelSignOut, setIsCreatePostOpen } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [mounted, setMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Check is system theme is dark or light
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains("dark");
-    const systemTheme = isDark ? "dark" : "light";
-    
-    // Update theme and mounted state asynchronously in the next tick to avoid cascading renders
-    const timer = setTimeout(() => {
-      setMounted(true);
-      setTheme(systemTheme);
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Toggle theme and store in local storage
-  const toggleTheme = () => {
-    const isDark = document.documentElement.classList.contains("dark");
-    const newTheme = isDark ? "light" : "dark";
-    
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
     }
-    
-    localStorage.setItem("theme", newTheme);
-    setTheme(newTheme);
-  };
+    if (profileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileMenuOpen]);
 
   // Poll notifications count
   useEffect(() => {
     if (!user) {
-      setUnreadCount(0);
+      if (unreadCount !== 0) {
+        const timer = setTimeout(() => {
+          setUnreadCount(0);
+        }, 0);
+        return () => clearTimeout(timer);
+      }
       return;
     }
 
@@ -55,7 +45,7 @@ const Navbar = () => {
       try {
         const res = await axiosInstance.get("/api/notifications");
         if (res.data?.notifications) {
-          const count = res.data.notifications.filter((n: any) => !n.isRead).length;
+          const count = res.data.notifications.filter((n: { isRead: boolean }) => !n.isRead).length;
           setUnreadCount(count);
         }
       } catch (err) {
@@ -67,7 +57,7 @@ const Navbar = () => {
 
     const interval = setInterval(fetchUnreadCount, 6000); // Poll every 6 seconds
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, unreadCount]);
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-(--nav-bg) border-b border-(--nav-border) text-(--foreground) shadow-lg backdrop-blur-md transition-all duration-300">
@@ -147,7 +137,7 @@ const Navbar = () => {
                 )}
 
                 {/* User Profile Dropdown */}
-                <div className="relative">
+                <div className="relative" ref={dropdownRef}>
                   <button 
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                     className="flex items-center gap-2 rounded-full border border-(--profile-border) bg-(--profile-bg) p-1.5 pr-3 transition-all duration-200 hover:border-(--profile-hover-border) hover:bg-(--profile-hover-bg) cursor-pointer"

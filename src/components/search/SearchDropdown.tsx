@@ -4,7 +4,7 @@ import { useSearchStore } from "@/store/searchStore";
 import { SearchSuggestionItem } from "./SearchSuggestionItem";
 import { RecentSearches } from "./RecentSearches";
 import { TrendingSearches } from "./TrendingSearches";
-import { TRENDING_SEARCHES } from "@/lib/search/dataset";
+
 import { useOutsideClick } from "@/hooks/useOutsideClick";
 
 interface SearchDropdownProps {
@@ -40,7 +40,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
 
   // Calculate items count and mapping for navigation
   const recentCount = recentSearches.length;
-  const trendingCount = TRENDING_SEARCHES.length;
+
   const suggestionsCount = suggestions.length;
 
 
