@@ -16,6 +16,9 @@ interface DiscussionFeedProps {
   onEditSubmit: (threadId: string, commentId: string, text: string) => void;
   onDeleteComment: (threadId: string, commentId: string) => void;
   onCommentVote: (threadId: string, commentId: string) => void;
+  onRefresh?: () => void;
+  isLoading?: boolean;
+  onUpdateThread?: (thread: Thread) => void;
 }
 
 export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
@@ -31,6 +34,9 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
   onEditSubmit,
   onDeleteComment,
   onCommentVote,
+  onRefresh,
+  isLoading = false,
+  onUpdateThread,
 }) => {
   return (
     <main className="lg:col-span-6 flex flex-col gap-6">
@@ -61,23 +67,42 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
           <span className="text-lg font-bold text-(--foreground)">Discussion Feed</span>
           <span className="text-xs text-dust-grey">({filteredThreads.length} topics)</span>
         </div>
-        <div className="flex rounded-full border border-(--card-border) bg-(--card-background) p-0.5 shadow-sm text-xs font-semibold">
-          <button
-            onClick={() => setSortBy("trending")}
-            className={`rounded-full px-3 py-1 transition-all cursor-pointer ${
-              sortBy === "trending" ? "bg-spicy-paprika text-floral-white" : "text-dust-grey hover:text-(--foreground)"
-            }`}
-          >
-            Trending
-          </button>
-          <button
-            onClick={() => setSortBy("recent")}
-            className={`rounded-full px-3 py-1 transition-all cursor-pointer ${
-              sortBy === "recent" ? "bg-spicy-paprika text-floral-white" : "text-dust-grey hover:text-(--foreground)"
-            }`}
-          >
-            Recent
-          </button>
+        <div className="flex items-center gap-3">
+          {/* Refresh Button */}
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              className={`p-1.5 rounded-full border border-(--card-border) bg-(--card-background) text-dust-grey hover:text-orange hover:border-orange/30 transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 flex items-center justify-center ${
+                isLoading ? "animate-spin text-orange border-orange/30" : ""
+              }`}
+              title="Refresh Feed"
+              aria-label="Refresh Feed"
+              disabled={isLoading}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+            </button>
+          )}
+
+          <div className="flex rounded-full border border-(--card-border) bg-(--card-background) p-0.5 shadow-sm text-xs font-semibold">
+            <button
+              onClick={() => setSortBy("trending")}
+              className={`rounded-full px-3 py-1 transition-all cursor-pointer ${
+                sortBy === "trending" ? "bg-spicy-paprika text-floral-white" : "text-dust-grey hover:text-(--foreground)"
+              }`}
+            >
+              Trending
+            </button>
+            <button
+              onClick={() => setSortBy("recent")}
+              className={`rounded-full px-3 py-1 transition-all cursor-pointer ${
+                sortBy === "recent" ? "bg-spicy-paprika text-floral-white" : "text-dust-grey hover:text-(--foreground)"
+              }`}
+            >
+              Recent
+            </button>
+          </div>
         </div>
       </div>
 
@@ -107,6 +132,7 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
               onEditSubmit={onEditSubmit}
               onDeleteComment={onDeleteComment}
               onCommentVote={onCommentVote}
+              onUpdateThread={onUpdateThread}
             />
           ))
         )}

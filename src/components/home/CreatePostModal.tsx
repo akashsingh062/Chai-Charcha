@@ -81,6 +81,10 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
               className="block w-full rounded-xl border border-(--input-border) bg-(--input-bg) px-4 py-2.5 text-sm text-(--foreground) outline-none focus:border-(--input-focus-border) focus:bg-(--input-focus-bg) cursor-pointer"
             >
               <option value="Tech & Architecture">Tech & Architecture</option>
+              <option value="System Design">System Design</option>
+              <option value="DevOps & Cloud">DevOps & Cloud</option>
+              <option value="AI & Machine Learning">AI & Machine Learning</option>
+              <option value="Open Source">Open Source</option>
               <option value="Career Prep">Career Prep</option>
               <option value="General Charcha">General Charcha</option>
               <option value="Showcase">Showcase</option>

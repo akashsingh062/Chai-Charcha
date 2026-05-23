@@ -1,23 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface FeedSidebarProps {
   activeCategory: string;
   setActiveCategory: (cat: string) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  selectedTag: string;
+  setSelectedTag: (tag: string) => void;
   categories: string[];
   categoryCounts: Record<string, number>;
+  tagCounts: Record<string, number>;
 }
 
 export const FeedSidebar: React.FC<FeedSidebarProps> = ({
   activeCategory,
   setActiveCategory,
-  searchQuery,
-  setSearchQuery,
+  selectedTag,
+  setSelectedTag,
   categories,
   categoryCounts,
+  tagCounts,
 }) => {
-  const getCategoryIcon = (cat: string, className = "w-4 h-4 shrink-0") => {
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [tagSearch, setTagSearch] = useState("");
+
+  const getCategoryIcon = (cat: string, className = "w-4 h-4 shrink-0 transition-transform duration-300 group-hover:scale-110") => {
     if (cat === "All") {
       return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -27,11 +32,18 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
         </svg>
       );
     }
-    if (cat === "Tech & Architecture") {
+    if (cat === "Tech & Architecture" || cat === "System Design" || cat === "DevOps & Cloud") {
       return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      );
+    }
+    if (cat === "AI & Machine Learning" || cat === "Open Source") {
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
       );
     }
@@ -63,51 +75,198 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
     );
   };
 
+  const getCategoryColor = (cat: string) => {
+    switch (cat) {
+      case "All": return "text-orange";
+      case "Tech & Architecture": return "text-stormy-teal";
+      case "System Design": return "text-stormy-teal";
+      case "DevOps & Cloud": return "text-stormy-teal";
+      case "AI & Machine Learning": return "text-stormy-teal";
+      case "Open Source": return "text-stormy-teal";
+      case "Career Prep": return "text-spicy-paprika";
+      case "General Charcha": return "text-orange";
+      case "Showcase": return "text-vivid-tangerine";
+      default: return "text-spicy-paprika";
+    }
+  };
+
+  // Dynamic tags extraction & sorting by count descending
+  const trendingTags = Object.keys(tagCounts)
+    .sort((a, b) => tagCounts[b] - tagCounts[a])
+    .slice(0, 10);
+
+  const defaultTags = ["nextjs", "react19", "systemdesign", "career", "remote-jobs", "css", "node"];
+  const displayTags = trendingTags.length > 0 ? trendingTags : defaultTags;
+  
+  const filteredTags = displayTags.filter(tag => 
+    tag.toLowerCase().includes(tagSearch.toLowerCase())
+  );
+
   return (
     <aside className="lg:col-span-3 flex flex-col gap-6">
-      {/* Navigation Filters */}
-      <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300">
-        <h2 className="px-2 text-xs font-bold uppercase tracking-wider text-dust-grey/80 mb-3">Categories</h2>
-        <nav className="flex flex-col gap-1">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-all cursor-pointer ${
-                activeCategory === cat
-                  ? "bg-spicy-paprika/10 text-spicy-paprika border-l-3 border-spicy-paprika pl-2"
-                  : "text-(--text-secondary) hover:bg-(--btn-secondary-hover-bg)"
-              }`}
-            >
-              <span className="flex items-center gap-2">
-                {getCategoryIcon(cat)} <span>{cat === "All" ? "All Discussions" : cat}</span>
+      
+      {/* Category filter redesigned as a custom dropdown selector */}
+      <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300 hover:border-orange/15 relative">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-orange/5 rounded-full blur-xl pointer-events-none" />
+        
+        <div className="flex items-center justify-between px-2 mb-3">
+          <h2 className="text-xs font-black uppercase tracking-widest bg-linear-to-r from-orange to-spicy-paprika bg-clip-text text-transparent">Category Filter</h2>
+          <span className="h-1.5 w-1.5 rounded-full bg-orange animate-pulse" />
+        </div>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+            className={`w-full flex items-center justify-between rounded-xl border border-(--input-border)/50 bg-(--input-bg)/30 hover:bg-(--input-bg)/50 px-4 py-2.5 text-sm font-semibold transition-all cursor-pointer ${
+              activeCategory !== "All" ? `${getCategoryColor(activeCategory)} border-${getCategoryColor(activeCategory)}/30` : "text-(--foreground)"
+            }`}
+          >
+            <span className="flex items-center gap-2.5">
+              {getCategoryIcon(activeCategory, `w-4 h-4 shrink-0 ${activeCategory !== "All" ? getCategoryColor(activeCategory) : "text-dust-grey/80"}`)}
+              <span>{activeCategory === "All" ? "All Discussions" : activeCategory}</span>
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="rounded-full bg-white/10 dark:bg-black/20 border border-current/10 px-2 py-0.5 text-2xs font-bold text-dust-grey">
+                {categoryCounts[activeCategory] || 0}
               </span>
-              <span className="rounded-full bg-(--profile-bg) border border-(--profile-border) px-2 py-0.5 text-2xs text-(--text-role)">
-                {categoryCounts[cat] || 0}
-              </span>
-            </button>
-          ))}
-        </nav>
+              <svg 
+                className={`w-4 h-4 text-dust-grey transition-transform duration-300 ${isCategoryOpen ? "rotate-180" : ""}`} 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor" 
+                strokeWidth="2.5"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </span>
+          </button>
+
+          {isCategoryOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setIsCategoryOpen(false)} />
+              
+              <div className="absolute left-0 right-0 mt-2 z-50 rounded-xl border border-(--dropdown-border) bg-(--dropdown-bg) p-1.5 shadow-2xl backdrop-blur-xl animate-fade-in max-h-64 overflow-y-auto">
+                {categories.map((cat) => {
+                  const isActive = activeCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => {
+                        setActiveCategory(cat);
+                        setIsCategoryOpen(false);
+                      }}
+                      className={`group flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold transition-all cursor-pointer hover:bg-(--btn-secondary-hover-bg) ${
+                        isActive ? `${getCategoryColor(cat)} font-bold bg-white/5` : "text-(--text-secondary)"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        {getCategoryIcon(cat, `w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
+                          isActive ? getCategoryColor(cat) : "text-dust-grey/80"
+                        }`)}
+                        <span>{cat === "All" ? "All Discussions" : cat}</span>
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <span className={`rounded-full px-2 py-0.5 text-2xs font-bold ${
+                          isActive ? `${getCategoryColor(cat)} bg-white/10 dark:bg-black/20` : "bg-(--profile-bg) text-(--text-role)"
+                        }`}>
+                          {categoryCounts[cat] || 0}
+                        </span>
+                        {isActive && (
+                          <svg className={`w-4 h-4 ${getCategoryColor(cat)}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          </svg>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Hot Tags Widget */}
-      <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300">
-        <h2 className="px-2 text-xs font-bold uppercase tracking-wider text-dust-grey/80 mb-3">Trending Tags</h2>
-        <div className="flex flex-wrap gap-2">
-          {["nextjs", "react19", "systemdesign", "career", "remote-jobs", "css", "node"].map((tag) => (
-            <button
-              key={tag}
-              onClick={() => setSearchQuery(tag)}
-              className="rounded-full border border-(--card-border) bg-(--background) hover:border-spicy-paprika/40 hover:text-spicy-paprika px-3 py-1.5 text-xs font-medium text-(--text-secondary) transition-all cursor-pointer"
-            >
-              #{tag}
-            </button>
-          ))}
+      {/* Redesigned Hashtag Section */}
+      <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300 hover:border-orange/10 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-spicy-paprika/5 rounded-full blur-xl pointer-events-none" />
+        
+        <div className="flex items-center justify-between px-2 mb-3">
+          <h2 className="text-xs font-black uppercase tracking-widest bg-linear-to-r from-spicy-paprika to-vivid-tangerine bg-clip-text text-transparent">Trending Tags</h2>
+          <svg className="w-3.5 h-3.5 text-spicy-paprika animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
         </div>
-        {searchQuery && (
+
+        {/* Dynamic Tag Search Input */}
+        <div className="relative mb-3.5">
+          <input
+            type="text"
+            value={tagSearch}
+            onChange={(e) => setTagSearch(e.target.value)}
+            placeholder="Search tags..."
+            className="w-full bg-(--input-bg)/20 hover:bg-(--input-bg)/40 focus:bg-(--input-bg)/40 border border-(--input-border)/40 focus:border-spicy-paprika/30 text-xs px-3 py-1.5 pl-8 rounded-xl outline-none transition-all placeholder-dust-grey/60 text-(--foreground)"
+          />
+          <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-dust-grey/60">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          {tagSearch && (
+            <button
+              onClick={() => setTagSearch("")}
+              className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-dust-grey hover:text-spicy-paprika cursor-pointer"
+            >
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {filteredTags.length === 0 ? (
+            <span className="text-[10px] text-dust-grey italic px-2">No tags match search.</span>
+          ) : (
+            filteredTags.map((tag) => {
+              const isActive = selectedTag.toLowerCase() === tag.toLowerCase();
+              const count = tagCounts[tag.toLowerCase()] || 0;
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setSelectedTag(isActive ? "" : tag)}
+                  className={`rounded-full border text-xs font-semibold px-3 py-1.5 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1.5 ${
+                    isActive
+                      ? "bg-spicy-paprika text-floral-white border-spicy-paprika shadow-sm hover:bg-spicy-paprika/90"
+                      : "border-(--input-border)/50 bg-(--input-bg)/20 text-(--text-secondary) hover:bg-spicy-paprika/10 hover:border-spicy-paprika/30 hover:text-spicy-paprika"
+                  }`}
+                >
+                  <span>#{tag}</span>
+                  {count > 0 && (
+                    <span className={`text-[9px] px-1.5 py-0.2 rounded-full ${
+                      isActive ? "bg-white/20 text-floral-white" : "bg-(--profile-bg) text-(--text-role)"
+                    }`}>
+                      {count}
+                    </span>
+                  )}
+                  {isActive && (
+                    <svg className="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                </button>
+              );
+            })
+          )}
+        </div>
+        
+        {selectedTag && (
           <button
-            onClick={() => setSearchQuery("")}
-            className="w-full mt-4 rounded-xl border border-spicy-paprika/20 bg-spicy-paprika/5 py-1.5 text-xs font-bold text-spicy-paprika hover:bg-spicy-paprika/10 cursor-pointer"
+            onClick={() => setSelectedTag("")}
+            className="w-full mt-4 rounded-xl border border-spicy-paprika/20 bg-spicy-paprika/5 py-1.5 text-xs font-bold text-spicy-paprika hover:bg-spicy-paprika/10 cursor-pointer transition-all duration-200 active:scale-95"
           >
             Clear Tag Filter
           </button>

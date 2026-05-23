@@ -5,7 +5,7 @@ import connectDB from "@/lib/connectDB";
 import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { postSchema } from "@/lib/Schemas/postSchema";
-import { formatPostForFrontend, DBPost, DBComment } from "@/lib/apiHelpers";
+import { formatPostForFrontend, DBPost, DBComment, calculateTrendingScore } from "@/lib/apiHelpers";
 import mongoose from "mongoose";
 
 // GET /api/posts/[id] - Get a single post populated with author and comment tree
@@ -22,14 +22,15 @@ export async function GET(
     });
     const userId = session?.user?.id || null;
 
-    const dbPost = await Post.findById(id).populate(
+    const dbPostDoc = await Post.findById(id).populate(
       "author",
       "name username avatar role karma"
-    ) as unknown as DBPost;
+    );
 
-    if (!dbPost) {
+    if (!dbPostDoc) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
+    const dbPost = dbPostDoc as unknown as DBPost;
 
     // Fetch all comments for this post
     const dbComments = await Comment.find({ postId: id })

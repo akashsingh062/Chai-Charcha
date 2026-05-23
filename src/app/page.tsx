@@ -20,13 +20,14 @@ export default function Home() {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedTag, setSelectedTag] = useState<string>("");
   const [sortBy, setSortBy] = useState<"trending" | "recent">("trending");
   const [isLoading, setIsLoading] = useState(false);
 
   const loadPosts = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await axiosInstance.get("/api/posts");
+      const res = await axiosInstance.get(`/api/posts?sort=${sortBy}`);
       if (res.data?.posts) {
         setThreads(res.data.posts);
       }
@@ -35,7 +36,7 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [sortBy]);
 
   useEffect(() => {
     if (!user) return;
@@ -219,8 +220,14 @@ export default function Home() {
     }
   };
 
+  const handleUpdateThread = useCallback((updatedThread: Thread) => {
+    setThreads((prev) =>
+      prev.map((t) => (t.id === updatedThread.id ? updatedThread : t))
+    );
+  }, []);
+
   // Dynamic categories calculation
-  const defaultCategories = ["All", "Tech & Architecture", "Career Prep", "General Charcha", "Showcase"];
+  const defaultCategories = ["All", "Tech & Architecture", "System Design", "DevOps & Cloud", "AI & Machine Learning", "Open Source", "Career Prep", "General Charcha", "Showcase"];
   const extraCategories = Array.from(new Set(threads.map((t) => t.category).filter(Boolean)));
   const categoriesList = Array.from(new Set([...defaultCategories, ...extraCategories]));
 
@@ -230,6 +237,19 @@ export default function Home() {
     }
     return acc;
   }, { "All": threads.length } as Record<string, number>);
+
+  // Dynamic tag counts calculation
+  const tagCounts = threads.reduce((acc, t) => {
+    if (t.tags) {
+      t.tags.forEach((tag) => {
+        const cleanTag = tag.trim().toLowerCase();
+        if (cleanTag) {
+          acc[cleanTag] = (acc[cleanTag] || 0) + 1;
+        }
+      });
+    }
+    return acc;
+  }, {} as Record<string, number>);
 
   categoriesList.forEach((cat) => {
     if (categoryCounts[cat] === undefined) {
@@ -242,10 +262,13 @@ export default function Home() {
     .filter((t) => {
       const matchesCategory = activeCategory === "All" || t.category === activeCategory;
       const matchesSearch =
+        !searchQuery.trim() ||
         t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesCategory && matchesSearch;
+        t.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesTag =
+        !selectedTag ||
+        t.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase());
+      return matchesCategory && matchesSearch && matchesTag;
     })
     .sort((a, b) => {
       if (sortBy === "trending") {
@@ -280,10 +303,11 @@ export default function Home() {
             <FeedSidebar
               activeCategory={activeCategory}
               setActiveCategory={setActiveCategory}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
+              selectedTag={selectedTag}
+              setSelectedTag={setSelectedTag}
               categories={categoriesList}
               categoryCounts={categoryCounts}
+              tagCounts={tagCounts}
             />
 
             {/* CENTER COLUMN: MAIN FEED (6 Cols on large) */}
@@ -292,7 +316,7 @@ export default function Home() {
               sortBy={sortBy}
               setSortBy={setSortBy}
               onVote={handleVote}
-              onTagClick={(tag) => setSearchQuery(tag)}
+              onTagClick={(tag) => setSelectedTag(tag)}
               onStartCharcha={() => setIsCreatePostOpen(true)}
               userData={userData}
               onAddComment={handleAddComment}
@@ -300,6 +324,9 @@ export default function Home() {
               onEditSubmit={handleEditSubmit}
               onDeleteComment={handleDeleteComment}
               onCommentVote={handleCommentVote}
+              onUpdateThread={handleUpdateThread}
+              onRefresh={loadPosts}
+              isLoading={isLoading}
             />
 
             {/* RIGHT COLUMN: SIDEBAR WIDGETS (3 Cols on large) */}

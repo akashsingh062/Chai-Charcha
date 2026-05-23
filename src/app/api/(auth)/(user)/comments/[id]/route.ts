@@ -6,7 +6,7 @@ import connectDB from "@/lib/connectDB";
 import { Comment } from "@/lib/models/Comment";
 import { Post } from "@/lib/models/Post";
 import { z } from "zod";
-import { formatTimeAgo } from "@/lib/apiHelpers";
+import { formatTimeAgo, updatePostTrendingScore } from "@/lib/apiHelpers";
 
 const updateCommentSchema = z.object({
   content: z.string({
@@ -160,6 +160,7 @@ export async function DELETE(
     await Post.findByIdAndUpdate(comment.postId, {
       $inc: { commentCount: -allIdsToDelete.length },
     });
+    await updatePostTrendingScore(comment.postId);
 
     return NextResponse.json({
       message: "Comment and all replies recursively deleted successfully",

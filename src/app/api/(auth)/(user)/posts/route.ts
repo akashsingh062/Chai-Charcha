@@ -5,22 +5,42 @@ import connectDB from "@/lib/connectDB";
 import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { postSchema } from "@/lib/Schemas/postSchema";
-import { formatPostForFrontend, DBPost, DBComment } from "@/lib/apiHelpers";
+import { formatPostForFrontend, DBPost, DBComment, calculateTrendingScore } from "@/lib/apiHelpers";
 
 // GET /api/posts - Get all posts populated with author profiles and comment trees
-export async function GET() {
+export async function GET(req: Request) {
   try {
     await connectDB();
+
+    const { searchParams } = new URL(req.url);
+    const sort = searchParams.get("sort") || "trending";
 
     const session = await auth.api.getSession({
       headers: await headers(),
     });
     const userId = session?.user?.id || null;
 
+    // Recalculate trending scores of active posts (created in the last 48 hours) to ensure correct time decay
+    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+    const activePosts = await Post.find({ createdAt: { $gte: fortyEightHoursAgo } });
+    if (activePosts.length > 0) {
+      await Promise.all(
+        activePosts.map(async (post) => {
+          post.trendingScore = calculateTrendingScore(post);
+          await post.save();
+        })
+      );
+    }
+
+    let sortCriteria: Record<string, any> = { trendingScore: -1, createdAt: -1 };
+    if (sort === "recent") {
+      sortCriteria = { createdAt: -1 };
+    }
+
     // Fetch posts populated with author
     const dbPosts = await Post.find({})
       .populate("author", "name username avatar role karma")
-      .sort({ createdAt: -1 }) as unknown as DBPost[];
+      .sort(sortCriteria) as unknown as DBPost[];
 
     const postIds = dbPosts.map((p) => p._id);
 

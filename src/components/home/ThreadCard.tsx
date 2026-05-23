@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Thread } from "@/app/(main)/post/postData";
 import { CommentSection } from "../post/CommentSection";
+import axiosInstance from "@/lib/axios";
 
 interface ThreadCardProps {
   thread: Thread;
@@ -11,6 +12,7 @@ interface ThreadCardProps {
   onEditSubmit: (threadId: string, commentId: string, text: string) => void;
   onDeleteComment: (threadId: string, commentId: string) => void;
   onCommentVote: (threadId: string, commentId: string) => void;
+  onUpdateThread?: (thread: Thread) => void;
 }
 
 export const ThreadCard: React.FC<ThreadCardProps> = ({
@@ -22,8 +24,26 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   onEditSubmit,
   onDeleteComment,
   onCommentVote,
+  onUpdateThread,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await axiosInstance.get(`/api/posts/${thread.id}`);
+        if (res.data?.post && onUpdateThread) {
+          onUpdateThread(res.data.post);
+        }
+      } catch (err) {
+        console.error("Error polling thread comments:", err);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isExpanded, thread.id, onUpdateThread]);
   return (
     <article className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-orange/20 transition-all duration-300">
       {/* Author card & Category tag */}
@@ -130,9 +150,8 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
           </button>
         </div>
 
-        {/* Visual Statistics (Views and Comments) */}
+        {/* Visual Statistics (Comments) */}
         <div className="flex items-center gap-4 text-[10px] sm:text-xs">
-          <span className="hidden sm:inline">{thread.views} views</span>
           
           <button 
             onClick={() => setIsExpanded(prev => !prev)}

@@ -6,6 +6,7 @@ import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { voteSchema } from "@/lib/Schemas/voteSchema";
 import mongoose from "mongoose";
+import { calculateTrendingScore } from "@/lib/apiHelpers";
 
 // POST /api/votes - Handle upvoting and downvoting for posts and comments
 export async function POST(req: Request) {
@@ -62,6 +63,7 @@ export async function POST(req: Request) {
         }
       }
 
+      post.trendingScore = calculateTrendingScore(post);
       await post.save();
 
       const userVoted = post.upvotes.some((id) => id.equals(userIdObj))

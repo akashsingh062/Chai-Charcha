@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Comment, Thread } from "../app/(main)/post/postData";
+import { Post } from "./models/Post";
 
 
 export interface DBComment {
@@ -41,6 +42,7 @@ export interface DBPost {
   category?: string;
   createdAt: Date;
   updatedAt: Date;
+  trendingScore?: number;
 }
 
 export function formatTimeAgo(date: Date): string {
@@ -112,10 +114,48 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
     tags: post.tags || [],
     upvotes: (post.upvotes?.length || 0) - (post.downvotes?.length || 0), // Net score
     commentsCount: post.commentCount || 0,
-    views: 120, // Static mock for view metrics
     timeAgo: formatTimeAgo(post.createdAt),
     createdAt: post.createdAt ? post.createdAt.toISOString() : undefined,
     userVoted,
     comments: buildCommentTree(commentsList),
   };
+}
+
+export function calculateTrendingScore(post: {
+  upvotes: mongoose.Types.ObjectId[] | any[];
+  downvotes: mongoose.Types.ObjectId[] | any[];
+  commentCount: number;
+  createdAt: Date;
+}): number {
+  const upvotesCount = post.upvotes?.length || 0;
+  const downvotesCount = post.downvotes?.length || 0;
+  const commentCount = post.commentCount || 0;
+
+  // Calculate hours since creation
+  const createdTime = new Date(post.createdAt).getTime();
+  const hoursSincePost = (Date.now() - createdTime) / (1000 * 60 * 60);
+
+  const netVotes = upvotesCount - downvotesCount;
+  const engagement = netVotes + commentCount;
+
+  // Gravity score decay formula
+  // Score = Engagement / (Hours_Since_Post + 2)^1.5
+  const G = 1.5;
+  const score = engagement / Math.pow(hoursSincePost + 2, G);
+  return score;
+}
+
+export async function updatePostTrendingScore(postId: string | mongoose.Types.ObjectId): Promise<number> {
+  try {
+    const post = await Post.findById(postId);
+    if (!post) return 0;
+
+    const trendingScore = calculateTrendingScore(post);
+    post.trendingScore = trendingScore;
+    await post.save();
+    return trendingScore;
+  } catch (error) {
+    console.error(`Error updating trending score for post ${postId}:`, error);
+    return 0;
+  }
 }

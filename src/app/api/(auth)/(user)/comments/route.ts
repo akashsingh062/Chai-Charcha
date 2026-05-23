@@ -5,7 +5,7 @@ import connectDB from "@/lib/connectDB";
 import { Comment } from "@/lib/models/Comment";
 import { Post } from "@/lib/models/Post";
 import { commentSchema } from "@/lib/Schemas/commentSchema";
-import { formatTimeAgo } from "@/lib/apiHelpers";
+import { formatTimeAgo, updatePostTrendingScore } from "@/lib/apiHelpers";
 
 // POST /api/comments - Create a comment or reply
 export async function POST(req: Request) {
@@ -69,6 +69,7 @@ export async function POST(req: Request) {
     await Post.findByIdAndUpdate(postId, {
       $inc: { commentCount: 1 },
     });
+    await updatePostTrendingScore(postId);
 
     const populatedComment = await Comment.findById(newComment._id).populate(
       "author",

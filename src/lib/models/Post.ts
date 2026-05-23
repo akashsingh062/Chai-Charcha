@@ -9,8 +9,11 @@ export interface Post extends Document {
     upvotes: mongoose.Types.ObjectId[];
     downvotes: mongoose.Types.ObjectId[];
     commentCount: number;
+    trendingScore?: number;
     community?: mongoose.Types.ObjectId | null;
     category?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export const PostSchema = new Schema<Post>({
@@ -55,7 +58,14 @@ export const PostSchema = new Schema<Post>({
     category: {
         type: String,
         default: 'Tech & Architecture'
+    },
+    trendingScore: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
+
+PostSchema.index({ createdAt: -1 });
+PostSchema.index({ trendingScore: -1 });
 
 export const Post = mongoose.models.Post as Model<Post> || mongoose.model<Post>("Post", PostSchema);

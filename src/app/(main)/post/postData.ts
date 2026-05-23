@@ -28,7 +28,8 @@ export interface Thread {
   tags: string[];
   upvotes: number;
   commentsCount: number;
-  views: number;
+  views?: number;
+  trendingScore?: number;
   timeAgo: string;
   createdAt?: string;
   userVoted?: "up" | "down" | null;

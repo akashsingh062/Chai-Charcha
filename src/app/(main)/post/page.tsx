@@ -63,6 +63,30 @@ const MyPostPage = () => {
     };
   }, [fetchMyPosts]);
 
+  useEffect(() => {
+    const activeIds = Object.keys(expandedThreads).filter((id) => expandedThreads[id]);
+    if (activeIds.length === 0) return;
+
+    const interval = setInterval(async () => {
+      try {
+        await Promise.all(
+          activeIds.map(async (id) => {
+            const res = await axiosInstance.get(`/api/posts/${id}`);
+            if (res.data?.post) {
+              setPosts((prevPosts) =>
+                prevPosts.map((p) => (p.id === id ? res.data.post : p))
+              );
+            }
+          })
+        );
+      } catch (err) {
+        console.error("Error polling expanded posts comments:", err);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [expandedThreads]);
+
   const handleToggleComments = (threadId: string) => {
     setExpandedThreads((prev) => ({
       ...prev,
@@ -267,7 +291,6 @@ const MyPostPage = () => {
   }
 
   const totalUpvotes = posts.reduce((acc, curr) => acc + curr.upvotes, 0);
-  const totalViews = posts.reduce((acc, curr) => acc + curr.views, 0);
 
   return (
     <div className="min-h-screen bg-(--nav-bg) text-(--foreground) pb-16">
@@ -310,7 +333,7 @@ const MyPostPage = () => {
             Your ignited technical discussions, developer debates, and shared system design guides.
           </p>
 
-          <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto mt-8">
+          <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto mt-8">
             <div className="rounded-xl border border-(--input-border) bg-(--input-bg)/50 backdrop-blur-md p-3 text-center transition-all duration-300 hover:border-orange/20">
               <span className="block text-xl sm:text-2xl font-black font-mono text-orange">{posts.length}</span>
               <span className="text-[10px] uppercase font-mono tracking-widest text-(--text-role) mt-1">Discussions</span>
@@ -318,10 +341,6 @@ const MyPostPage = () => {
             <div className="rounded-xl border border-(--input-border) bg-(--input-bg)/50 backdrop-blur-md p-3 text-center transition-all duration-300 hover:border-spicy-paprika/20">
               <span className="block text-xl sm:text-2xl font-black font-mono text-spicy-paprika">{totalUpvotes}</span>
               <span className="text-[10px] uppercase font-mono tracking-widest text-(--text-role) mt-1">Upvotes</span>
-            </div>
-            <div className="rounded-xl border border-(--input-border) bg-(--input-bg)/50 backdrop-blur-md p-3 text-center transition-all duration-300 hover:border-stormy-teal/20">
-              <span className="block text-xl sm:text-2xl font-black font-mono text-stormy-teal">{totalViews}</span>
-              <span className="text-[10px] uppercase font-mono tracking-widest text-(--text-role) mt-1">Total Views</span>
             </div>
           </div>
         </div>
@@ -446,14 +465,7 @@ const MyPostPage = () => {
                       </div>
 
                       <div className="flex items-center gap-4 text-[10px] sm:text-xs">
-                        <span className="flex items-center gap-1">
-                          <svg className="w-4 h-4 text-dust-grey" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          {thread.views} views
-                        </span>
-                        
+                         
                         <button 
                           onClick={() => handleToggleComments(thread.id)}
                           className={`flex items-center gap-1.5 transition-all duration-300 font-bold px-3 py-1.5 rounded-full border border-orange/20 cursor-pointer ${
