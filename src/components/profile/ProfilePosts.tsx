@@ -188,7 +188,31 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
               </div>
             </div>
             
-            <span className="rounded-full text-[10px] font-bold border px-2 py-0.5 bg-stormy-teal/10 text-stormy-teal border-stormy-teal/25">
+            <span className={`rounded-full text-[10px] font-bold border px-2 py-0.5 ${
+              (() => {
+                const cat = (post.category || "Tech & Architecture").toLowerCase().trim();
+                if (
+                  cat === "tech & architecture" || 
+                  cat === "tech" || 
+                  cat === "system design" || 
+                  cat === "devops & cloud" || 
+                  cat === "ai & machine learning" || 
+                  cat === "open source"
+                ) {
+                  return "bg-stormy-teal/10 text-stormy-teal border-stormy-teal/25";
+                }
+                if (cat === "career prep" || cat === "career") {
+                  return "bg-spicy-paprika/10 text-spicy-paprika border-spicy-paprika/25";
+                }
+                if (cat === "general charcha" || cat === "general") {
+                  return "bg-orange/10 text-orange border-orange/25";
+                }
+                if (cat === "showcase") {
+                  return "bg-vivid-tangerine/10 text-vivid-tangerine border-vivid-tangerine/25";
+                }
+                return "bg-brandy/10 text-brandy-700 border-brandy-700/25";
+              })()
+            }`}>
               {post.category || "Tech & Architecture"}
             </span>
           </div>

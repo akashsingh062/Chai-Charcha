@@ -66,7 +66,14 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
         <span className={`rounded-full text-[10px] font-bold border px-2 py-0.5 ${
           (() => {
             const cat = thread.category.toLowerCase().trim();
-            if (cat === "tech & architecture" || cat === "tech") {
+            if (
+              cat === "tech & architecture" || 
+              cat === "tech" || 
+              cat === "system design" || 
+              cat === "devops & cloud" || 
+              cat === "ai & machine learning" || 
+              cat === "open source"
+            ) {
               return "bg-stormy-teal/10 text-stormy-teal border-stormy-teal/25";
             }
             if (cat === "career prep" || cat === "career") {

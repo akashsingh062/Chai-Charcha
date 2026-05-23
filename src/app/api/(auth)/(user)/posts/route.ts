@@ -96,13 +96,18 @@ export async function POST(req: Request) {
 
     await connectDB();
 
+    let category = validatedData.data.category;
+    if (!category || category === "undefined" || category === "null") {
+      category = "Tech & Architecture";
+    }
+
     const newPost = new Post({
       author: session.user.id,
       title: validatedData.data.title,
       content: validatedData.data.content,
       media: validatedData.data.media || [],
       tags: validatedData.data.tags || [],
-      category: validatedData.data.category || "Tech & Architecture",
+      category: category,
       community: validatedData.data.community || null,
       upvotes: [],
       downvotes: [],

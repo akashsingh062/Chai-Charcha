@@ -19,6 +19,7 @@ interface DiscussionFeedProps {
   onRefresh?: () => void;
   isLoading?: boolean;
   onUpdateThread?: (thread: Thread) => void;
+  hasMore?: boolean;
 }
 
 export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
@@ -37,6 +38,7 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
   onRefresh,
   isLoading = false,
   onUpdateThread,
+  hasMore = false,
 }) => {
   return (
     <main className="lg:col-span-6 flex flex-col gap-6">
@@ -65,7 +67,6 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
       <div className="flex items-center justify-between border-b border-(--divider-color) pb-3">
         <div className="flex items-center gap-1.5">
           <span className="text-lg font-bold text-(--foreground)">Discussion Feed</span>
-          <span className="text-xs text-dust-grey">({filteredThreads.length} topics)</span>
         </div>
         <div className="flex items-center gap-3">
           {/* Refresh Button */}
@@ -137,6 +138,13 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
           ))
         )}
       </div>
+
+      {hasMore && (
+        <div className="py-6 flex justify-center items-center gap-2 border-t border-(--divider-color)/10 mt-2 animate-fade-in">
+          <div className="w-5 h-5 border-2 border-orange border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs text-dust-grey font-semibold">Brewing more charchas...</span>
+        </div>
+      )}
 
     </main>
   );

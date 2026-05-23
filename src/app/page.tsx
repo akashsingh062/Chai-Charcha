@@ -23,6 +23,7 @@ export default function Home() {
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [sortBy, setSortBy] = useState<"trending" | "recent">("trending");
   const [isLoading, setIsLoading] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(10);
 
   const loadPosts = useCallback(async () => {
     try {
@@ -52,6 +53,24 @@ export default function Home() {
       window.removeEventListener("new-post-created", handleNewPost);
     };
   }, [loadPosts]);
+
+  useEffect(() => {
+    setVisibleCount(10);
+  }, [activeCategory, searchQuery, selectedTag, sortBy]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+      const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+
+      if (clientHeight + scrollTop >= scrollHeight - 150) {
+        setVisibleCount((prev) => prev + 10);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Handle Dynamic Upvote/Downvote actions
   const handleVote = async (id: string, type: "up" | "down") => {
@@ -312,7 +331,7 @@ export default function Home() {
 
             {/* CENTER COLUMN: MAIN FEED (6 Cols on large) */}
             <DiscussionFeed
-              filteredThreads={filteredThreads}
+              filteredThreads={filteredThreads.slice(0, visibleCount)}
               sortBy={sortBy}
               setSortBy={setSortBy}
               onVote={handleVote}
@@ -327,6 +346,7 @@ export default function Home() {
               onUpdateThread={handleUpdateThread}
               onRefresh={loadPosts}
               isLoading={isLoading}
+              hasMore={visibleCount < filteredThreads.length}
             />
 
             {/* RIGHT COLUMN: SIDEBAR WIDGETS (3 Cols on large) */}

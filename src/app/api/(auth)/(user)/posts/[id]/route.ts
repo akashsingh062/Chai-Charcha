@@ -86,6 +86,13 @@ export async function PUT(
     }
 
     // Update fields
+    let category = validatedData.data.category;
+    if (category === "undefined" || category === "null") {
+      category = "Tech & Architecture";
+    }
+    if (category) {
+      post.category = category;
+    }
     post.title = validatedData.data.title;
     post.content = validatedData.data.content;
     post.media = validatedData.data.media || [];
