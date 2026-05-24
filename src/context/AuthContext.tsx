@@ -13,6 +13,7 @@ export interface UserProfile {
   role: string;
   avatar: string;
   reputation: number;
+  username: string;
 }
 
 // Extended Better-Auth User Interface
@@ -74,6 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             role: dbUser.role || "member",
             avatar: dbUser.avatar || dbUser.image || 'https://avatar.iran.liara.run/public/boy?username=' + (dbUser.username || dbUser.name),
             reputation: typeof dbUser.reputation === 'number' ? dbUser.reputation : 342,
+            username: dbUser.username || "",
           });
         }
       } else if (mounted && sessionData === null) {

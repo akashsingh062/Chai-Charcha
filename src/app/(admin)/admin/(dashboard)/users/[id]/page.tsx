@@ -238,9 +238,16 @@ export default function UserDetailPage() {
           <div className="rounded-2xl border border-stormy-teal/15 bg-card-background/40 p-6 shadow-lg backdrop-blur-xs text-center space-y-4">
             <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-stormy-teal/20 bg-stormy-teal/10 mx-auto">
               {user.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                <img 
+                  src={user.avatar} 
+                  alt={user.name} 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://avatar.iran.liara.run/public/boy?username=${user.username || user.name}`;
+                  }}
+                />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-xl font-black uppercase">
+                <div className="w-full h-full flex items-center justify-center text-xl font-black uppercase text-floral-white">
                   {user.name.substring(0, 2)}
                 </div>
               )}

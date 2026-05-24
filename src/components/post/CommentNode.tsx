@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Comment } from "../../app/(main)/post/postData";
 import { useAuth } from "@/context/AuthContext";
 import { ReportModal } from "../shared/ReportModal";
+import Link from "next/link";
 
 export interface CommentNodeProps {
   comment: Comment;
@@ -74,16 +75,30 @@ export const CommentNode = ({
     <div className="flex flex-col gap-1 mt-2">
       <div className="flex items-start gap-3 group relative">
         <div className="flex flex-col items-center self-stretch relative z-10">
-          <div 
-            className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-black text-floral-white overflow-hidden shadow-md border-2 border-(--input-border)/60 group-hover:border-orange/50 transition-all duration-300 ${getAvatarGradient(comment.author.name)}`}
-          >
-            {comment.author.avatar && (comment.author.avatar.startsWith("http") || comment.author.avatar.startsWith("/")) ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={comment.author.avatar} alt={comment.author.name} className="h-full w-full object-cover" />
-            ) : (
-              comment.author.avatar
-            )}
-          </div>
+          {comment.author.username ? (
+            <Link 
+              href={`/profile?username=${comment.author.username}`}
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-black text-floral-white overflow-hidden shadow-md border-2 border-(--input-border)/60 hover:border-orange/50 transition-all duration-300 ${getAvatarGradient(comment.author.name)}`}
+            >
+              {comment.author.avatar && (comment.author.avatar.startsWith("http") || comment.author.avatar.startsWith("/")) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={comment.author.avatar} alt={comment.author.name} className="h-full w-full object-cover" />
+              ) : (
+                comment.author.avatar
+              )}
+            </Link>
+          ) : (
+            <div 
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-black text-floral-white overflow-hidden shadow-md border-2 border-(--input-border)/60 group-hover:border-orange/50 transition-all duration-300 ${getAvatarGradient(comment.author.name)}`}
+            >
+              {comment.author.avatar && (comment.author.avatar.startsWith("http") || comment.author.avatar.startsWith("/")) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={comment.author.avatar} alt={comment.author.name} className="h-full w-full object-cover" />
+              ) : (
+                comment.author.avatar
+              )}
+            </div>
+          )}
           {comment.replies && comment.replies.length > 0 && showReplies && (
             <div className="w-0.5 flex-1 bg-linear-to-b from-orange/20 to-transparent my-1 border-dashed border-l border-orange/10 group-hover:from-orange/30 transition-all duration-300" />
           )}
@@ -95,9 +110,18 @@ export const CommentNode = ({
           <div className="flex items-center justify-between">
             <div className="flex items-col sm:flex-row sm:items-center gap-1 sm:gap-2">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-extrabold text-(--foreground) hover:text-orange transition-colors duration-200">
-                  {comment.author.name}
-                </span>
+                {comment.author.username ? (
+                  <Link 
+                    href={`/profile?username=${comment.author.username}`}
+                    className="text-xs font-extrabold text-(--foreground) hover:text-orange hover:underline transition-colors duration-200"
+                  >
+                    {comment.author.name}
+                  </Link>
+                ) : (
+                  <span className="text-xs font-extrabold text-(--foreground)">
+                    {comment.author.name}
+                  </span>
+                )}
                 {comment.author.name === "Akash Singh" && (
                   <span className="text-[7.5px] bg-linear-to-r from-orange/20 to-spicy-paprika/20 text-orange border border-orange/30 px-1.5 py-0.5 rounded-sm font-black uppercase tracking-wider">
                     You

@@ -54,44 +54,52 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
       const targetIdStr = report.targetId?.toString();
       if (targetIdStr) {
         if (report.targetType === "Post") {
-          const post = await Post.findById(targetIdStr);
-          if (post) {
-            // Warn user if warning message is provided
-            if (warningMessage && warningMessage.trim()) {
-              await Notification.create({
-                recipient: post.author,
-                sender: new mongoose.Types.ObjectId(adminUser.id),
-                type: "warning",
-                link: "/",
-                message: warningMessage,
-              });
+          if (action === "delete_content") {
+            const post = await Post.findById(targetIdStr);
+            if (post) {
+              // Warn user if warning message is provided
+              if (warningMessage && warningMessage.trim()) {
+                await Notification.create({
+                  recipient: post.author,
+                  sender: new mongoose.Types.ObjectId(adminUser.id),
+                  type: "warning",
+                  link: "/",
+                  message: warningMessage,
+                });
+              }
+              // Delete all comments of the post
+              await Comment.deleteMany({ postId: targetIdStr });
+              // Hard delete post
+              await Post.findByIdAndDelete(targetIdStr);
+              details.contentDeleted = true;
             }
-            // Delete all comments of the post
-            await Comment.deleteMany({ postId: targetIdStr });
-            // Hard delete post
-            await Post.findByIdAndDelete(targetIdStr);
-            details.contentDeleted = true;
+          } else {
+            details.contentDeleted = false;
           }
         } else if (report.targetType === "Comment") {
-          const comment = await Comment.findById(targetIdStr);
-          if (comment) {
-            // Warn user if warning message is provided
-            if (warningMessage && warningMessage.trim()) {
-              await Notification.create({
-                recipient: comment.author,
-                sender: new mongoose.Types.ObjectId(adminUser.id),
-                type: "warning",
-                link: "/",
-                message: warningMessage,
+          if (action === "delete_content") {
+            const comment = await Comment.findById(targetIdStr);
+            if (comment) {
+              // Warn user if warning message is provided
+              if (warningMessage && warningMessage.trim()) {
+                await Notification.create({
+                  recipient: comment.author,
+                  sender: new mongoose.Types.ObjectId(adminUser.id),
+                  type: "warning",
+                  link: "/",
+                  message: warningMessage,
+                });
+              }
+              // Decrement post commentCount
+              await Post.findByIdAndUpdate(comment.postId, {
+                $inc: { commentCount: -1 },
               });
+              // Delete direct comment
+              await Comment.findByIdAndDelete(targetIdStr);
+              details.contentDeleted = true;
             }
-            // Decrement post commentCount
-            await Post.findByIdAndUpdate(comment.postId, {
-              $inc: { commentCount: -1 },
-            });
-            // Delete direct comment
-            await Comment.findByIdAndDelete(targetIdStr);
-            details.contentDeleted = true;
+          } else {
+            details.contentDeleted = false;
           }
         } else if (report.targetType === "User") {
           const userObj = await User.findById(targetIdStr);

@@ -57,16 +57,20 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       // Reset state
       setReason("");
       setPredefinedReason("Spam or advertising");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.response?.data?.error || "Failed to submit report. Please try again.");
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      toast.error(errorMsg || "Failed to submit report. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+    <div className="fixed inset-0 z-200 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
       <div className="w-full max-w-md rounded-2xl border border-(--dropdown-border) bg-(--dropdown-bg) p-6 shadow-2xl backdrop-blur-md pointer-events-auto">
         
         {/* Header */}

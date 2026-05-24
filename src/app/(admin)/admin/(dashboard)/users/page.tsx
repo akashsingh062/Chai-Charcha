@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
@@ -7,7 +8,6 @@ import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import Link from "next/link";
-import Image from "next/image";
 import { toast } from "@/store/useToastStore";
 
 interface UserItem {
@@ -83,6 +83,7 @@ function UserManagementPageContent() {
   // Synchronize URL search params
   useEffect(() => {
     const s = searchParams?.get("search") || "";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSearch(s);
     setDebouncedSearch(s);
     setPage(1);
@@ -119,7 +120,7 @@ function UserManagementPageContent() {
             prev.map((u) => (u.id === user.id ? { ...u, isBanned: res.data.isBanned } : u))
           );
         }
-      } catch (err: unknown) {
+      } catch {
         toast.error("Failed to unban user");
       }
     } else {
@@ -141,7 +142,7 @@ function UserManagementPageContent() {
       }
       setBanModalOpen(false);
       setSelectedUser(null);
-    } catch (err: unknown) {
+    } catch {
       toast.error("Failed to ban user");
     }
   };
@@ -156,7 +157,7 @@ function UserManagementPageContent() {
             prev.map((u) => (u.id === user.id ? { ...u, isMuted: res.data.isMuted } : u))
           );
         }
-      } catch (err: unknown) {
+      } catch {
         toast.error("Failed to unmute user");
       }
     } else {
@@ -178,7 +179,7 @@ function UserManagementPageContent() {
       }
       setMuteModalOpen(false);
       setSelectedUser(null);
-    } catch (err: unknown) {
+    } catch {
       toast.error("Failed to mute user");
     }
   };
@@ -207,17 +208,32 @@ function UserManagementPageContent() {
       sortable: true,
       render: (row: UserItem) => (
         <div className="flex items-center gap-3">
-          <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-stormy-teal/20 bg-stormy-teal/10 shrink-0">
+          <Link 
+            href={`/admin/users/${row.id}`} 
+            className="relative w-8 h-8 rounded-lg overflow-hidden border border-stormy-teal/20 bg-stormy-teal/10 hover:border-orange/40 shrink-0 block transition-all"
+          >
             {row.avatar ? (
-              <img src={row.avatar} alt={row.name} className="w-full h-full object-cover" />
+              <img 
+                src={row.avatar} 
+                alt={row.name} 
+                className="w-full h-full object-cover" 
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://avatar.iran.liara.run/public/boy?username=${row.username || row.name}`;
+                }}
+              />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-3xs font-black uppercase">
+              <div className="w-full h-full flex items-center justify-center text-3xs font-black uppercase text-floral-white">
                 {row.name.substring(0, 2)}
               </div>
             )}
-          </div>
+          </Link>
           <div className="min-w-0">
-            <span className="font-bold text-floral-white block truncate">{row.name}</span>
+            <Link 
+              href={`/admin/users/${row.id}`} 
+              className="font-bold text-floral-white block truncate hover:text-orange hover:underline transition-all"
+            >
+              {row.name}
+            </Link>
             <span className="text-3xs text-dust-grey/60 block truncate">@{row.username}</span>
           </div>
         </div>

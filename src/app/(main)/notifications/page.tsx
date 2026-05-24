@@ -47,7 +47,7 @@ export default function NotificationsPage() {
       if (res.data?.notifications) {
         setNotifications(res.data.notifications);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching notifications:", err);
       setError("Failed to load notifications");
     } finally {

@@ -1,9 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import Image from "next/image";
 import axiosInstance from "@/lib/axios";
 
 interface AdminTopbarProps {
@@ -26,6 +26,11 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({ onToggleSidebar }) => 
       }
     }
     fetchReportsCount();
+
+    window.addEventListener("reportsUpdated", fetchReportsCount);
+    return () => {
+      window.removeEventListener("reportsUpdated", fetchReportsCount);
+    };
   }, []);
 
   return (

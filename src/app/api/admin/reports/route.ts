@@ -3,7 +3,7 @@ import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Report } from "@/lib/models/Report";
 import { User } from "@/lib/models/User";
-import { Community } from "@/lib/models/Community";
+import { AuditLog } from "@/lib/models/AuditLog";
 
 interface PopulateTarget {
   _id?: { toString: () => string };
@@ -14,6 +14,7 @@ interface PopulateTarget {
   username?: string;
   description?: string;
   creator?: string;
+  avatar?: string;
 }
 
 // GET /api/admin/reports — List reports with pagination and status/type filtering
@@ -86,7 +87,7 @@ export async function GET(req: Request) {
             contentPreview = `User Account: ${target.name} (@${target.username})`;
             authorName = target.name || "Unknown";
             authorUsername = target.username || "";
-            authorAvatar = (target as any).avatar || "";
+            authorAvatar = target.avatar || "";
           } else if (r.targetType === "Community") {
             contentPreview = `Community: c/${target.name} - ${target.description}`;
             // Find community creator
@@ -128,6 +129,42 @@ export async function GET(req: Request) {
         totalPages: Math.ceil(total / limit),
       },
     });
+  } catch (error) {
+    return adminErrorResponse(error);
+  }
+}
+
+// PUT /api/admin/reports — Bulk resolve or ignore reports
+export async function PUT(req: Request) {
+  try {
+    const { user: adminUser } = await requireAdmin();
+    await connectDB();
+
+    const body = await req.json();
+    const { action } = body;
+
+    if (action === "ignore_all_pending") {
+      const res = await Report.updateMany(
+        { status: "pending" },
+        { $set: { status: "rejected" } }
+      );
+
+      await AuditLog.create({
+        admin: adminUser.id,
+        action: "bulk_ignore_reports",
+        targetType: "Report",
+        details: {
+          ignoredCount: res.modifiedCount,
+        },
+      });
+
+      return NextResponse.json({
+        message: "All pending reports ignored successfully",
+        ignoredCount: res.modifiedCount,
+      });
+    }
+
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
     return adminErrorResponse(error);
   }

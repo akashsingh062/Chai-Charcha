@@ -46,6 +46,8 @@ export default function ModerationQueuePage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedReportIdForDelete, setSelectedReportIdForDelete] = useState<string | null>(null);
 
+  const [ignoreAllModalOpen, setIgnoreAllModalOpen] = useState(false);
+
   const fetchReports = useCallback(async () => {
     try {
       setLoading(true);
@@ -79,16 +81,24 @@ export default function ModerationQueuePage() {
 
   const handleConfirmAction = async (payload: { action: string; warningMessage: string; durationHours?: number }) => {
     if (!selectedReport) return;
+    const targetId = selectedReport.id;
     try {
       const nextStatus = payload.action === "reject" ? "rejected" : "resolved";
-      await axiosInstance.put(`/api/admin/reports/${selectedReport.id}`, {
+      // Update local state immediately for instant feedback
+      setReports((prev) => prev.filter((r) => r.id !== targetId));
+      setTotalReports((prev) => Math.max(0, prev - 1));
+
+      await axiosInstance.put(`/api/admin/reports/${targetId}`, {
         status: nextStatus,
         action: payload.action,
         warningMessage: payload.warningMessage,
         durationHours: payload.durationHours,
       });
+      window.dispatchEvent(new Event("reportsUpdated"));
       fetchReports();
     } catch (err: unknown) {
+      // Re-fetch to restore state on error
+      fetchReports();
       const errorMsg =
         err && typeof err === "object" && "response" in err
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
@@ -104,18 +114,50 @@ export default function ModerationQueuePage() {
 
   const handleConfirmIgnore = async () => {
     if (!selectedReportForIgnore) return;
+    const targetId = selectedReportForIgnore.id;
     try {
-      await axiosInstance.put(`/api/admin/reports/${selectedReportForIgnore.id}`, {
+      // Update local state and close modal immediately
+      setReports((prev) => prev.filter((r) => r.id !== targetId));
+      setTotalReports((prev) => Math.max(0, prev - 1));
+      setIgnoreModalOpen(false);
+      setSelectedReportForIgnore(null);
+
+      await axiosInstance.put(`/api/admin/reports/${targetId}`, {
         status: "rejected",
         action: "keep_content",
       });
+      window.dispatchEvent(new Event("reportsUpdated"));
       fetchReports();
     } catch (err: unknown) {
+      // Re-fetch to restore state on error
+      fetchReports();
       const errorMsg =
         err && typeof err === "object" && "response" in err
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
           : "";
       toast.error(errorMsg || "Failed to ignore report");
+    }
+  };
+
+  const handleConfirmIgnoreAll = async () => {
+    try {
+      const pendingCount = reports.filter((r) => r.status === "pending").length;
+      setReports((prev) => prev.filter((r) => r.status !== "pending"));
+      setTotalReports((prev) => Math.max(0, prev - pendingCount));
+      setIgnoreAllModalOpen(false);
+
+      await axiosInstance.put("/api/admin/reports", {
+        action: "ignore_all_pending",
+      });
+      window.dispatchEvent(new Event("reportsUpdated"));
+      fetchReports();
+    } catch (err: unknown) {
+      fetchReports();
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      toast.error(errorMsg || "Failed to ignore all pending reports");
     }
   };
 
@@ -126,13 +168,20 @@ export default function ModerationQueuePage() {
 
   const handleConfirmDeleteRecord = async () => {
     if (!selectedReportIdForDelete) return;
+    const targetId = selectedReportIdForDelete;
     try {
-      const res = await axiosInstance.delete(`/api/admin/reports/${selectedReportIdForDelete}`);
-      if (res.status === 200) {
-        setReports((prev) => prev.filter((r) => r.id !== selectedReportIdForDelete));
-        setTotalReports((prev) => prev - 1);
-      }
+      // Update local state and close modal immediately
+      setReports((prev) => prev.filter((r) => r.id !== targetId));
+      setTotalReports((prev) => Math.max(0, prev - 1));
+      setDeleteModalOpen(false);
+      setSelectedReportIdForDelete(null);
+
+      await axiosInstance.delete(`/api/admin/reports/${targetId}`);
+      window.dispatchEvent(new Event("reportsUpdated"));
+      fetchReports();
     } catch (err: unknown) {
+      // Re-fetch to restore state on error
+      fetchReports();
       const errorMsg =
         err && typeof err === "object" && "response" in err
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
@@ -245,13 +294,26 @@ export default function ModerationQueuePage() {
   return (
     <div className="space-y-6">
       {/* Title */}
-      <div>
-        <h1 className="text-2xl font-black text-floral-white tracking-tight uppercase">
-          Moderation Queue
-        </h1>
-        <p className="text-xs text-dust-grey font-bold uppercase tracking-wider mt-1">
-          Review community reports and enforce guidelines ({totalReports} total)
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-floral-white tracking-tight uppercase">
+            Moderation Queue
+          </h1>
+          <p className="text-xs text-dust-grey font-bold uppercase tracking-wider mt-1">
+            Review community reports and enforce guidelines ({totalReports} total)
+          </p>
+        </div>
+        {status === "pending" && reports.some((r) => r.status === "pending") && (
+          <button
+            onClick={() => setIgnoreAllModalOpen(true)}
+            className="sm:self-center px-4 py-2.5 rounded-xl bg-white/5 border border-orange/20 text-orange hover:bg-orange/15 hover:text-floral-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            Ignore All Pending
+          </button>
+        )}
       </div>
 
       {/* Filters bar */}
@@ -307,6 +369,7 @@ export default function ModerationQueuePage() {
 
       {/* Moderation Action Modal */}
       <ModerationActionModal
+        key={selectedReport?.id || "none"}
         isOpen={actionModalOpen}
         report={selectedReport}
         onClose={() => {
@@ -343,6 +406,17 @@ export default function ModerationQueuePage() {
         }}
         isDanger={true}
       />
+
+      {/* Confirm Ignore All Modal */}
+      <ConfirmModal
+        isOpen={ignoreAllModalOpen}
+        title="Ignore All Pending Reports"
+        message="Are you sure you want to ignore all pending reports currently in review? This will reject all of them and clear the queue."
+        confirmText="Ignore All Pending"
+        onConfirm={handleConfirmIgnoreAll}
+        onCancel={() => setIgnoreAllModalOpen(false)}
+        isDanger={true}
+      />
     </div>
   );
 }
@@ -360,28 +434,20 @@ const ModerationActionModal: React.FC<ModerationActionModalProps> = ({
   onClose,
   onConfirm,
 }) => {
-  const [action, setAction] = useState<string>("");
-  const [warningMessage, setWarningMessage] = useState("");
+  const [action, setAction] = useState<string>(() => {
+    if (!report) return "";
+    return report.targetType === "Post" || report.targetType === "Comment"
+      ? "delete_content"
+      : "warn";
+  });
+  const [warningMessage, setWarningMessage] = useState(() => {
+    if (!report) return "";
+    return report.targetType === "Post" || report.targetType === "Comment"
+      ? `Your ${report.targetType.toLowerCase()} was removed for violating community guidelines. Reason: ${report.reason}`
+      : `You are receiving a warning regarding community guidelines. Reason: ${report.reason}`;
+  });
   const [durationHours, setDurationHours] = useState<number>(24);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Set default action and warning message when report changes
-  useEffect(() => {
-    if (report) {
-      if (report.targetType === "Post" || report.targetType === "Comment") {
-        setAction("delete_content");
-        setWarningMessage(
-          `Your ${report.targetType.toLowerCase()} was removed for violating community guidelines. Reason: ${report.reason}`
-        );
-      } else {
-        setAction("warn");
-        setWarningMessage(
-          `You are receiving a warning regarding community guidelines. Reason: ${report.reason}`
-        );
-      }
-      setDurationHours(24);
-    }
-  }, [report]);
 
   // Update default warning message when action changes
   const handleActionChange = (newAction: string) => {
