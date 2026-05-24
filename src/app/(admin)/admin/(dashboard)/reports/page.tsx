@@ -5,6 +5,8 @@ import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
 import Link from "next/link";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import { toast } from "@/store/useToastStore";
 
 interface ReportItem {
   id: string;
@@ -37,6 +39,12 @@ export default function ModerationQueuePage() {
   // Modal actions
   const [actionModalOpen, setActionModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<ReportItem | null>(null);
+
+  const [ignoreModalOpen, setIgnoreModalOpen] = useState(false);
+  const [selectedReportForIgnore, setSelectedReportForIgnore] = useState<ReportItem | null>(null);
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedReportIdForDelete, setSelectedReportIdForDelete] = useState<string | null>(null);
 
   const fetchReports = useCallback(async () => {
     try {
@@ -85,14 +93,19 @@ export default function ModerationQueuePage() {
         err && typeof err === "object" && "response" in err
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
           : "";
-      alert(errorMsg || "Failed to submit moderation decision");
+      toast.error(errorMsg || "Failed to submit moderation decision");
     }
   };
 
-  const handleIgnoreClick = async (report: ReportItem) => {
-    if (!confirm("Are you sure you want to ignore this report? It will be marked as rejected.")) return;
+  const handleIgnoreClick = (report: ReportItem) => {
+    setSelectedReportForIgnore(report);
+    setIgnoreModalOpen(true);
+  };
+
+  const handleConfirmIgnore = async () => {
+    if (!selectedReportForIgnore) return;
     try {
-      await axiosInstance.put(`/api/admin/reports/${report.id}`, {
+      await axiosInstance.put(`/api/admin/reports/${selectedReportForIgnore.id}`, {
         status: "rejected",
         action: "keep_content",
       });
@@ -102,16 +115,21 @@ export default function ModerationQueuePage() {
         err && typeof err === "object" && "response" in err
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
           : "";
-      alert(errorMsg || "Failed to ignore report");
+      toast.error(errorMsg || "Failed to ignore report");
     }
   };
 
-  const handleDeleteRecord = async (reportId: string) => {
-    if (!confirm("Are you sure you want to delete this report record?")) return;
+  const handleDeleteRecord = (reportId: string) => {
+    setSelectedReportIdForDelete(reportId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteRecord = async () => {
+    if (!selectedReportIdForDelete) return;
     try {
-      const res = await axiosInstance.delete(`/api/admin/reports/${reportId}`);
+      const res = await axiosInstance.delete(`/api/admin/reports/${selectedReportIdForDelete}`);
       if (res.status === 200) {
-        setReports((prev) => prev.filter((r) => r.id !== reportId));
+        setReports((prev) => prev.filter((r) => r.id !== selectedReportIdForDelete));
         setTotalReports((prev) => prev - 1);
       }
     } catch (err: unknown) {
@@ -119,7 +137,7 @@ export default function ModerationQueuePage() {
         err && typeof err === "object" && "response" in err
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
           : "";
-      alert(errorMsg || "Failed to delete report record");
+      toast.error(errorMsg || "Failed to delete report record");
     }
   };
 
@@ -296,6 +314,34 @@ export default function ModerationQueuePage() {
           setSelectedReport(null);
         }}
         onConfirm={handleConfirmAction}
+      />
+
+      {/* Confirm Ignore Modal */}
+      <ConfirmModal
+        isOpen={ignoreModalOpen}
+        title="Ignore Report"
+        message="Are you sure you want to ignore this report? It will be marked as rejected."
+        confirmText="Ignore Report"
+        onConfirm={handleConfirmIgnore}
+        onCancel={() => {
+          setIgnoreModalOpen(false);
+          setSelectedReportForIgnore(null);
+        }}
+        isDanger={false}
+      />
+
+      {/* Confirm Delete Record Modal */}
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        title="Delete Report Record"
+        message="Are you sure you want to delete this report record? This action will permanently remove it from the moderation queue history."
+        confirmText="Delete Record"
+        onConfirm={handleConfirmDeleteRecord}
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setSelectedReportIdForDelete(null);
+        }}
+        isDanger={true}
       />
     </div>
   );

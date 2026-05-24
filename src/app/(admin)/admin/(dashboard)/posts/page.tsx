@@ -6,6 +6,7 @@ import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import Link from "next/link";
+import { toast } from "@/store/useToastStore";
 interface PostItem {
   id: string;
   title: string;
@@ -110,7 +111,7 @@ export default function PostManagementPage() {
         err && typeof err === "object" && "response" in err
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
           : "";
-      alert(errorMsg || "Failed to toggle deletion status");
+      toast.error(errorMsg || "Failed to toggle deletion status");
     }
   };
 
@@ -127,7 +128,7 @@ export default function PostManagementPage() {
         err && typeof err === "object" && "response" in err
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
           : "";
-      alert(errorMsg || "Failed to hard delete post");
+      toast.error(errorMsg || "Failed to hard delete post");
     }
   };
 

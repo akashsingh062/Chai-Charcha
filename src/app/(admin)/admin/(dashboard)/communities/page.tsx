@@ -7,6 +7,7 @@ import { AdminBadge } from "@/components/admin/AdminBadge";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import Link from "next/link";
 import Image from "next/image";
+import { toast } from "@/store/useToastStore";
 
 interface CommunityItem {
   id: string;
@@ -93,7 +94,7 @@ export default function CommunityManagementPage() {
           );
         }
       } catch (err: unknown) {
-        alert("Failed to unban community");
+        toast.error("Failed to unban community");
       }
     } else {
       setSelectedCommunity(community);
@@ -115,7 +116,7 @@ export default function CommunityManagementPage() {
       setBanModalOpen(false);
       setSelectedCommunity(null);
     } catch (err: unknown) {
-      alert("Failed to ban community");
+      toast.error("Failed to ban community");
     }
   };
 
@@ -142,7 +143,7 @@ export default function CommunityManagementPage() {
         err && typeof err === "object" && "response" in err
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
           : "";
-      alert(errorMsg || "Failed to delete community");
+      toast.error(errorMsg || "Failed to delete community");
     }
   };
 

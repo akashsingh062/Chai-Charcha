@@ -5,6 +5,7 @@ import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import Link from "next/link";
+import { toast } from "@/store/useToastStore";
 
 interface CommentItem {
   id: string;
@@ -102,7 +103,7 @@ export default function CommentManagementPage() {
       }
     } catch (err) {
       const errorMsg = (err as { response?: { data?: { error?: string } } }).response?.data?.error;
-      alert(errorMsg || "Failed to delete comment");
+      toast.error(errorMsg || "Failed to delete comment");
     }
   };
 

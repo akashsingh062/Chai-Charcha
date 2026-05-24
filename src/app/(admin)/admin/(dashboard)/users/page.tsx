@@ -8,6 +8,7 @@ import { AdminBadge } from "@/components/admin/AdminBadge";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import Link from "next/link";
 import Image from "next/image";
+import { toast } from "@/store/useToastStore";
 
 interface UserItem {
   id: string;
@@ -119,7 +120,7 @@ function UserManagementPageContent() {
           );
         }
       } catch (err: unknown) {
-        alert("Failed to unban user");
+        toast.error("Failed to unban user");
       }
     } else {
       setSelectedUser(user);
@@ -141,7 +142,7 @@ function UserManagementPageContent() {
       setBanModalOpen(false);
       setSelectedUser(null);
     } catch (err: unknown) {
-      alert("Failed to ban user");
+      toast.error("Failed to ban user");
     }
   };
 
@@ -156,7 +157,7 @@ function UserManagementPageContent() {
           );
         }
       } catch (err: unknown) {
-        alert("Failed to unmute user");
+        toast.error("Failed to unmute user");
       }
     } else {
       setSelectedUser(user);
@@ -178,7 +179,7 @@ function UserManagementPageContent() {
       setMuteModalOpen(false);
       setSelectedUser(null);
     } catch (err: unknown) {
-      alert("Failed to mute user");
+      toast.error("Failed to mute user");
     }
   };
 
@@ -195,7 +196,7 @@ function UserManagementPageContent() {
         err && typeof err === "object" && "response" in err
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
           : "";
-      alert(errorMsg || "Failed to delete user");
+      toast.error(errorMsg || "Failed to delete user");
     }
   };
 
