@@ -88,6 +88,7 @@ export default function PostManagementPage() {
   }, [page, debouncedSearch, category, showDeleted, sort, order]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPosts();
   }, [fetchPosts]);
 
@@ -258,7 +259,7 @@ export default function PostManagementPage() {
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-white tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Post Management</h1>
+        <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Post Management</h1>
         <p className="text-xs text-white/30 mt-1">
           Reviewing <span className="font-bold text-white/60">{totalPosts.toLocaleString()}</span> user post submissions
         </p>
