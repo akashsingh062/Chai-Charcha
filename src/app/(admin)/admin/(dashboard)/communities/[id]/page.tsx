@@ -30,10 +30,10 @@ interface CommunityDetail {
 
 function StatCard({ label, value, color, icon }: { label: string; value: string | number; color?: string; icon?: React.ReactNode }) {
   return (
-    <div className="group relative flex flex-col justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.04] transition-all duration-300 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <div className="group relative flex flex-col justify-between p-4 rounded-2xl bg-white/2 border border-white/6 hover:border-white/12 hover:bg-white/4 transition-all duration-300 overflow-hidden">
+      <div className="absolute inset-0 bg-linear-to-br from-white/2 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       <div className="flex items-center justify-between gap-3 mb-2">
-        <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.1em]">{label}</span>
+        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{label}</span>
         {icon && <div className="text-white/20 group-hover:text-white/40 transition-colors duration-300">{icon}</div>}
       </div>
       <span className={`text-xl font-black tabular-nums leading-none tracking-tight ${color || "text-white"}`}>
@@ -45,9 +45,9 @@ function StatCard({ label, value, color, icon }: { label: string; value: string 
 
 function InfoRow({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 border-b border-white/[0.05] last:border-0 hover:bg-white/[0.01] px-1 rounded-lg transition-colors">
+    <div className="flex items-center justify-between gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/1 px-1 rounded-lg transition-colors">
       <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider">{label}</span>
-      <span className={`text-xs font-semibold text-white/80 ${mono ? "font-mono text-[11px] text-white/50 bg-white/[0.04] px-2 py-0.5 rounded" : ""}`}>
+      <span className={`text-xs font-semibold text-white/80 ${mono ? "font-mono text-[11px] text-white/50 bg-white/4 px-2 py-0.5 rounded" : ""}`}>
         {value}
       </span>
     </div>
@@ -148,12 +148,12 @@ export default function CommunityDetailPage() {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-6 bg-white/[0.04] rounded-xl w-1/4" />
-        <div className="h-44 bg-white/[0.04] rounded-3xl" />
-        <div className="h-10 bg-white/[0.04] rounded-xl w-72" />
+        <div className="h-6 bg-white/4 rounded-xl w-1/4" />
+        <div className="h-44 bg-white/4 rounded-3xl" />
+        <div className="h-10 bg-white/4 rounded-xl w-72" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="h-72 bg-white/[0.04] rounded-3xl" />
-          <div className="lg:col-span-2 h-72 bg-white/[0.04] rounded-3xl" />
+          <div className="h-72 bg-white/4 rounded-3xl" />
+          <div className="lg:col-span-2 h-72 bg-white/4 rounded-3xl" />
         </div>
       </div>
     );
@@ -168,7 +168,7 @@ export default function CommunityDetailPage() {
           </svg>
           <p className="text-red-400 text-sm font-semibold">{error}</p>
         </div>
-        <Link href="/admin/communities" className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs font-bold text-white hover:bg-white/[0.08] transition-all">
+        <Link href="/admin/communities" className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/4 border border-white/8 text-xs font-bold text-white hover:bg-white/8 transition-all">
           ← Back to Communities
         </Link>
       </div>
@@ -208,7 +208,7 @@ export default function CommunityDetailPage() {
             Back to Communities
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">{community.name}</h1>
+            <h1 className="text-2xl font-black tracking-tight bg-linear-to-r from-white to-white/70 bg-clip-text text-transparent">{community.name}</h1>
             <div className="flex items-center gap-2">
               {community.isBanned ? <AdminBadge type="banned" /> : <AdminBadge type={community.isPrivate ? "rejected" : "active"} />}
             </div>
@@ -218,17 +218,17 @@ export default function CommunityDetailPage() {
       </div>
 
       {/* Hero Header Card */}
-      <div className="relative rounded-3xl border border-white/[0.06] bg-[#111318] overflow-hidden shadow-2xl">
-        <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-r from-stormy-teal/20 via-[#14b8a6]/10 to-indigo-500/20 pointer-events-none blur-xl opacity-80" />
+      <div className="relative rounded-3xl border border-white/6 bg-[#111318] overflow-hidden shadow-2xl">
+        <div className="absolute top-0 inset-x-0 h-28 bg-linear-to-r from-stormy-teal/20 via-[#14b8a6]/10 to-indigo-500/20 pointer-events-none blur-xl opacity-80" />
         
         {/* Banner */}
         <div className="relative h-28 bg-[#161a22] overflow-hidden">
           {community.banner ? (
             <img src={community.banner} alt="banner" className="w-full h-full object-cover opacity-40 hover:opacity-50 transition-opacity duration-500" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-[#14b8a6]/10 to-[#60a5fa]/10" />
+            <div className="w-full h-full bg-linear-to-r from-[#14b8a6]/10 to-[#60a5fa]/10" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#111318] via-transparent to-black/20" />
+          <div className="absolute inset-0 bg-linear-to-t from-[#111318] via-transparent to-black/20" />
         </div>
 
         {/* User Card Content */}
@@ -236,12 +236,12 @@ export default function CommunityDetailPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 -mt-10 mb-6">
             <div className="flex items-end gap-4 flex-wrap md:flex-nowrap">
               <div className="relative group shrink-0">
-                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-[#14b8a6] to-stormy-teal opacity-30 blur group-hover:opacity-75 transition duration-500" />
+                <div className="absolute -inset-1 rounded-2xl bg-linear-to-tr from-[#14b8a6] to-stormy-teal opacity-30 blur group-hover:opacity-75 transition duration-500" />
                 <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-[#111318] bg-[#161a22] shadow-2xl flex items-center justify-center">
                   {community.avatar ? (
                     <img src={community.avatar} alt={community.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl font-black text-white uppercase bg-gradient-to-br from-[#14b8a6] to-[#0d9488]">
+                    <div className="w-full h-full flex items-center justify-center text-2xl font-black text-white uppercase bg-linear-to-br from-[#14b8a6] to-[#0d9488]">
                       {community.name.substring(0, 2)}
                     </div>
                   )}
@@ -281,7 +281,7 @@ export default function CommunityDetailPage() {
       </div>
 
       {/* Tabs Menu */}
-      <div className="flex items-center gap-1.5 p-1.5 bg-[#111318] border border-white/[0.06] rounded-2xl w-fit shadow-lg">
+      <div className="flex items-center gap-1.5 p-1.5 bg-[#111318] border border-white/6 rounded-2xl w-fit shadow-lg">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -293,7 +293,7 @@ export default function CommunityDetailPage() {
                   ? tab.id === "danger"
                     ? "bg-red-500/20 text-red-400 border border-red-500/30 shadow-md shadow-red-500/5"
                     : "bg-[#14b8a6] text-white shadow-lg shadow-[#14b8a6]/20"
-                  : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]"
+                  : "text-white/40 hover:text-white/70 hover:bg-white/3"
                 }
               `}
             >
@@ -306,7 +306,7 @@ export default function CommunityDetailPage() {
 
       {/* Notifications */}
       {success && (
-        <div className="flex items-center gap-3 p-4 bg-green-500/[0.04] border border-green-500/20 rounded-2xl text-green-400 text-xs font-bold animate-slide-in-right">
+        <div className="flex items-center gap-3 p-4 bg-green-500/4 border border-green-500/20 rounded-2xl text-green-400 text-xs font-bold animate-slide-in-right">
           <div className="w-5 h-5 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0 border border-green-500/20">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
@@ -316,7 +316,7 @@ export default function CommunityDetailPage() {
         </div>
       )}
       {error && (
-        <div className="flex items-center gap-3 p-4 bg-red-500/[0.04] border border-red-500/20 rounded-2xl text-red-400 text-xs font-bold animate-slide-in-right">
+        <div className="flex items-center gap-3 p-4 bg-red-500/4 border border-red-500/20 rounded-2xl text-red-400 text-xs font-bold animate-slide-in-right">
           <div className="w-5 h-5 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0 border border-red-500/20">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -331,11 +331,11 @@ export default function CommunityDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="space-y-6">
             {/* Info Card */}
-            <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl space-y-2 relative overflow-hidden">
+            <div className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl space-y-2 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-28 h-28 bg-[#14b8a6]/5 rounded-full blur-2xl pointer-events-none" />
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-1.5 h-3 bg-stormy-teal rounded-full" />
-                <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-[0.15em]">Community Details</h3>
+                <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">Community Details</h3>
               </div>
               <InfoRow label="Community ID" value={community.id} mono />
               <InfoRow label="Direct Slug" value={`c/${community.slug}`} />
@@ -352,18 +352,18 @@ export default function CommunityDetailPage() {
             </div>
 
             {/* Moderators List */}
-            <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl relative overflow-hidden">
+            <div className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-[#14b8a6]/5 rounded-full blur-2xl pointer-events-none" />
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-1.5 h-3 bg-stormy-teal rounded-full" />
-                <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-[0.15em]">
+                <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">
                   Moderators ({community.moderators?.length || 0})
                 </h3>
               </div>
               <div className="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
                 {community.moderators?.map((mod) => (
-                  <div key={mod.id} className="flex items-center gap-3 p-2 rounded-xl bg-white/[0.01] border border-white/[0.04] hover:bg-white/[0.03] hover:border-white/[0.07] transition-all">
-                    <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/[0.08] bg-white/[0.04] shrink-0">
+                  <div key={mod.id} className="flex items-center gap-3 p-2 rounded-xl bg-white/1 border border-white/4 hover:bg-white/3 hover:border-white/7 transition-all">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/8 bg-white/4 shrink-0">
                       {mod.avatar ? (
                         <img src={mod.avatar} alt={mod.name} className="w-full h-full object-cover" />
                       ) : (
@@ -389,28 +389,28 @@ export default function CommunityDetailPage() {
 
           <div className="lg:col-span-2 space-y-6">
             {/* Description Card */}
-            <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl relative overflow-hidden">
+            <div className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl relative overflow-hidden">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-1.5 h-3 bg-indigo-500 rounded-full" />
-                <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-[0.15em]">About Channel</h3>
+                <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">About Channel</h3>
               </div>
-              <p className="text-xs text-white/60 leading-relaxed bg-white/[0.01] p-4 border border-white/[0.04] rounded-2xl whitespace-pre-wrap">
+              <p className="text-xs text-white/60 leading-relaxed bg-white/1 p-4 border border-white/4 rounded-2xl whitespace-pre-wrap">
                 {community.description || "No description provided for this community."}
               </p>
             </div>
 
             {/* Rules Cards */}
-            <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl relative overflow-hidden">
+            <div className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl relative overflow-hidden">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-1.5 h-3 bg-indigo-500 rounded-full" />
-                <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-[0.15em]">
+                <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">
                   Rules List ({rules.length})
                 </h3>
               </div>
               {rules.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {rules.map((rule, idx) => (
-                    <div key={idx} className="flex items-start gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.08] transition-all">
+                    <div key={idx} className="flex items-start gap-3 p-4 rounded-2xl bg-white/2 border border-white/5 hover:border-white/8 transition-all">
                       <span className="shrink-0 w-6 h-6 rounded-lg bg-[#14b8a6]/10 text-stormy-teal text-xs font-extrabold flex items-center justify-center border border-[#14b8a6]/15">
                         {idx + 1}
                       </span>
@@ -425,17 +425,17 @@ export default function CommunityDetailPage() {
 
             {/* Join Requests */}
             {community.isPrivate && (
-              <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl relative overflow-hidden">
+              <div className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl relative overflow-hidden">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-1.5 h-3 bg-indigo-500 rounded-full" />
-                  <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-[0.15em]">
+                  <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">
                     Pending Join Requests ({community.pendingRequests?.length || 0})
                   </h3>
                 </div>
                 {community.pendingRequests?.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {community.pendingRequests.map((req) => (
-                      <div key={req.id} className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-[#14b8a6]/30 transition-all">
+                      <div key={req.id} className="flex items-center justify-between p-3 rounded-2xl bg-white/2 border border-white/5 hover:border-[#14b8a6]/30 transition-all">
                         <span className="text-xs font-bold text-white/80">{req.name}</span>
                         <Link href={`/admin/users?search=${req.username}`} className="text-[10px] font-bold text-stormy-teal hover:text-[#2dd4bf] transition-colors uppercase tracking-wider">
                           @{req.username} →
@@ -454,11 +454,11 @@ export default function CommunityDetailPage() {
 
       {/* ── EDIT TAB ─────────────────────────────────────── */}
       {activeTab === "edit" && (
-        <form onSubmit={handleUpdate} className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl space-y-6 relative overflow-hidden">
+        <form onSubmit={handleUpdate} className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl space-y-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-[#14b8a6]/5 rounded-full blur-3xl pointer-events-none" />
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-3 bg-[#14b8a6] rounded-full" />
-            <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-[0.15em]">Edit Channel Settings</h3>
+            <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">Edit Channel Settings</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -469,7 +469,7 @@ export default function CommunityDetailPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter community name..."
-                className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#14b8a6]/40 focus:bg-white/[0.04] rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#14b8a6]/40 focus:bg-white/4 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
               />
             </div>
             <div className="space-y-1.5">
@@ -479,7 +479,7 @@ export default function CommunityDetailPage() {
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="Enter slug (e.g. general)..."
-                className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#14b8a6]/40 focus:bg-white/[0.04] rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#14b8a6]/40 focus:bg-white/4 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
               />
             </div>
           </div>
@@ -491,19 +491,19 @@ export default function CommunityDetailPage() {
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="Describe this channel..."
-              className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#14b8a6]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200 resize-none"
+              className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#14b8a6]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200 resize-none"
             />
           </div>
 
           {/* Visibility toggle option */}
-          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.08] transition-all">
+          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-white/2 border border-white/5 hover:border-white/8 transition-all">
             <div className="space-y-0.5">
               <span className="text-xs font-bold text-white">Private Community Channel</span>
               <p className="text-[10px] text-white/30">Require manual approval for new users to view and post content</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" checked={isPrivate} onChange={(e) => setIsPrivate(e.target.checked)} className="sr-only peer" />
-              <div className="w-10 h-6 bg-white/[0.08] peer-focus:ring-2 peer-focus:ring-[#14b8a6]/20 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#14b8a6]" />
+              <div className="w-10 h-6 bg-white/8 peer-focus:ring-2 peer-focus:ring-[#14b8a6]/20 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#14b8a6]" />
             </label>
           </div>
 
@@ -516,7 +516,7 @@ export default function CommunityDetailPage() {
                 value={avatar}
                 onChange={(e) => setAvatar(e.target.value)}
                 placeholder="https://..."
-                className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#14b8a6]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#14b8a6]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
               />
             </div>
             <div className="space-y-1.5">
@@ -526,7 +526,7 @@ export default function CommunityDetailPage() {
                 value={banner}
                 onChange={(e) => setBanner(e.target.value)}
                 placeholder="https://..."
-                className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#14b8a6]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#14b8a6]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
               />
             </div>
           </div>
@@ -536,7 +536,7 @@ export default function CommunityDetailPage() {
             <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">Community Rules Editor</label>
             <div className="space-y-2 mb-3">
               {rules.map((rule, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-white/[0.01] border border-white/[0.04] hover:bg-white/[0.03] transition-all">
+                <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-white/1 border border-white/4 hover:bg-white/3 transition-all">
                   <span className="shrink-0 w-6 h-6 rounded-lg bg-[#14b8a6]/10 text-stormy-teal text-[10px] font-black flex items-center justify-center border border-[#14b8a6]/15">{idx + 1}</span>
                   <span className="flex-1 text-xs text-white/70 font-semibold">{rule}</span>
                   <button
@@ -559,7 +559,7 @@ export default function CommunityDetailPage() {
                 onChange={(e) => setNewRule(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddRule(); } }}
                 placeholder="Enter community rule content..."
-                className="flex-1 px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#14b8a6]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                className="flex-1 px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#14b8a6]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
               />
               <button
                 type="button"
@@ -571,7 +571,7 @@ export default function CommunityDetailPage() {
             </div>
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-white/[0.06]">
+          <div className="flex justify-end pt-4 border-t border-white/6">
             <button
               type="submit"
               disabled={saving}
@@ -600,7 +600,7 @@ export default function CommunityDetailPage() {
 
       {/* ── DANGER TAB ───────────────────────────────────── */}
       {activeTab === "danger" && (
-        <div className="rounded-3xl border border-red-500/20 bg-red-500/[0.02] p-6 shadow-xl relative overflow-hidden">
+        <div className="rounded-3xl border border-red-500/20 bg-red-500/2 p-6 shadow-xl relative overflow-hidden">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
             <div className="space-y-1">
               <h4 className="text-sm font-bold text-red-400">Permanently Remove Community</h4>

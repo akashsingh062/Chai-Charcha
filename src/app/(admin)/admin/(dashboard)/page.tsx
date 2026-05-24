@@ -123,15 +123,15 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-20 bg-white/[0.04] rounded-2xl w-full" />
+        <div className="h-20 bg-white/4 rounded-2xl w-full" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-28 bg-white/[0.04] rounded-2xl" />
+            <div key={i} className="h-28 bg-white/4 rounded-2xl" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div className="lg:col-span-2 h-80 bg-white/[0.04] rounded-2xl" />
-          <div className="h-80 bg-white/[0.04] rounded-2xl" />
+          <div className="lg:col-span-2 h-80 bg-white/4 rounded-2xl" />
+          <div className="h-80 bg-white/4 rounded-2xl" />
         </div>
       </div>
     );
@@ -148,14 +148,14 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Hero Greeting */}
-      <div className="relative rounded-2xl border border-white/[0.07] bg-[#111318] p-6 overflow-hidden">
+      <div className="relative rounded-2xl border border-white/7 bg-[#111318] p-6 overflow-hidden">
         {/* Background glow */}
         <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#f97316]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-[#14b8a6]/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative flex items-center justify-between flex-wrap gap-4">
           <div>
-            <p className="text-[11px] font-semibold text-white/30 uppercase tracking-[0.12em] mb-1">
+            <p className="text-[11px] font-semibold text-white/30 uppercase tracking-widest mb-1">
               {getGreeting()}
             </p>
             <h1 className="text-2xl font-black text-white tracking-tight">
@@ -233,8 +233,8 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-5">
-        <h2 className="text-[10px] font-bold text-white/30 uppercase tracking-[0.12em] mb-4">
+      <div className="rounded-2xl border border-white/7 bg-[#111318] p-5">
+        <h2 className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-4">
           Quick Actions
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -255,16 +255,16 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Trending Posts */}
         <div className="lg:col-span-2 space-y-5">
-          <div className="rounded-2xl border border-white/[0.07] bg-[#111318] overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+          <div className="rounded-2xl border border-white/7 bg-[#111318] overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/6">
               <h3 className="text-xs font-bold text-white">Trending Posts</h3>
               <Link href="/admin/posts" className="text-[10px] font-semibold text-[#f97316] hover:text-[#fb923c] transition-colors">
                 View all →
               </Link>
             </div>
-            <div className="divide-y divide-white/[0.05]">
+            <div className="divide-y divide-white/5">
               {stats.topPosts.map((post, idx) => (
-                <div key={post.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-white/[0.02] transition-colors">
+                <div key={post.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-white/2 transition-colors">
                   <span className="text-[11px] font-black text-white/20 w-5 shrink-0 text-center">{idx + 1}</span>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-white/90 truncate leading-tight">
@@ -293,18 +293,18 @@ export default function AdminDashboard() {
           </div>
 
           {/* Audit Log */}
-          <div className="rounded-2xl border border-white/[0.07] bg-[#111318] overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+          <div className="rounded-2xl border border-white/7 bg-[#111318] overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/6">
               <h3 className="text-xs font-bold text-white">Recent Admin Activity</h3>
               <Link href="/admin/audit-log" className="text-[10px] font-semibold text-[#f97316] hover:text-[#fb923c] transition-colors">
                 View all →
               </Link>
             </div>
-            <div className="divide-y divide-white/[0.05]">
+            <div className="divide-y divide-white/5">
               {recentLogs.map((log) => (
-                <div key={log.id} className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-white/[0.02] transition-colors">
+                <div key={log.id} className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-white/2 transition-colors">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-6 h-6 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center shrink-0">
+                    <div className="w-6 h-6 rounded-lg bg-white/4 border border-white/6 flex items-center justify-center shrink-0">
                       <span className={`text-[9px] font-black ${getActionColor(log.action)}`}>
                         {log.action.charAt(0).toUpperCase()}
                       </span>
@@ -333,15 +333,15 @@ export default function AdminDashboard() {
         {/* Right Column */}
         <div className="space-y-5">
           {/* Top Contributors */}
-          <div className="rounded-2xl border border-white/[0.07] bg-[#111318] overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/[0.06]">
+          <div className="rounded-2xl border border-white/7 bg-[#111318] overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/6">
               <h3 className="text-xs font-bold text-white">Top Contributors</h3>
             </div>
             <div className="p-4 space-y-2">
               {stats.topUsers.map((user, idx) => (
-                <div key={user.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.04] transition-colors">
+                <div key={user.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/4 transition-colors">
                   <span className="text-[11px] font-black text-white/20 w-4 shrink-0 text-center">{idx + 1}</span>
-                  <div className="relative w-8 h-8 rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.04] shrink-0">
+                  <div className="relative w-8 h-8 rounded-xl overflow-hidden border border-white/8 bg-white/4 shrink-0">
                     {user.avatar ? (
                       <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                     ) : (
@@ -371,8 +371,8 @@ export default function AdminDashboard() {
           </div>
 
           {/* Activity Summary */}
-          <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-5 space-y-3">
-            <h3 className="text-[10px] font-bold text-white/30 uppercase tracking-[0.12em]">Activity Summary</h3>
+          <div className="rounded-2xl border border-white/7 bg-[#111318] p-5 space-y-3">
+            <h3 className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Activity Summary</h3>
             <div className="space-y-2.5">
               {[
                 { label: "New Users (24h)", value: stats.users.new24h, color: "text-blue-400" },

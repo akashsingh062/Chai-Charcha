@@ -33,16 +33,16 @@ export const StatsCard: React.FC<StatsCardProps> = ({
 
   return (
     <div
-      className={`group relative rounded-2xl border border-white/[0.07] bg-[#111318] p-5 shadow-lg transition-all duration-300 overflow-hidden
-        hover:shadow-xl hover:border-white/[0.12] ${accent.glow} ${accent.border}
+      className={`group relative rounded-2xl border border-white/7 bg-[#111318] p-5 shadow-lg transition-all duration-300 overflow-hidden
+        hover:shadow-xl hover:border-white/12 ${accent.glow} ${accent.border}
       `}
     >
       {/* Subtle top gradient line */}
-      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent`} />
+      <div className={`absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/10 to-transparent`} />
 
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-2 min-w-0">
-          <span className="text-[10px] font-bold tracking-[0.12em] text-white/40 uppercase block">
+          <span className="text-[10px] font-bold tracking-widest text-white/40 uppercase block">
             {title}
           </span>
           <div className="text-3xl font-black text-white tracking-tight tabular-nums">
@@ -76,7 +76,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
         </div>
 
         {icon && (
-          <div className={`w-11 h-11 rounded-xl ${accent.iconBg} ${accent.iconColor} flex items-center justify-center shrink-0 border border-white/[0.05] transition-transform group-hover:scale-110`}>
+          <div className={`w-11 h-11 rounded-xl ${accent.iconBg} ${accent.iconColor} flex items-center justify-center shrink-0 border border-white/5 transition-transform group-hover:scale-110`}>
             {icon}
           </div>
         )}

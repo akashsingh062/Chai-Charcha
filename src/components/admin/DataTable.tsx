@@ -70,15 +70,15 @@ export function DataTable<T extends { id: string | number }>({
   };
 
   return (
-    <div className="w-full rounded-2xl border border-white/[0.07] bg-[#111318] shadow-xl overflow-hidden">
+    <div className="w-full rounded-2xl border border-white/7 bg-[#111318] shadow-xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-white/[0.07] bg-white/[0.02]">
+            <tr className="border-b border-white/7 bg-white/2">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-5 py-3.5 text-[10px] font-bold tracking-[0.1em] text-white/40 uppercase select-none
+                  className={`px-5 py-3.5 text-[10px] font-bold tracking-widest text-white/40 uppercase select-none
                     ${col.sortable ? "cursor-pointer hover:text-white/70 transition-colors" : ""}
                   `}
                   onClick={() => col.sortable && onSort?.(col.key)}
@@ -106,14 +106,14 @@ export function DataTable<T extends { id: string | number }>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.05]">
+          <tbody className="divide-y divide-white/5">
             {isLoading ? (
               Array.from({ length: 6 }).map((_, rIdx) => (
                 <tr key={rIdx} className="animate-pulse">
                   {columns.map((col) => (
                     <td key={col.key} className="px-5 py-4">
                       <div
-                        className="h-3.5 bg-white/[0.06] rounded-full"
+                        className="h-3.5 bg-white/6 rounded-full"
                         style={{ width: `${50 + Math.random() * 40}%` }}
                       />
                     </td>
@@ -124,7 +124,7 @@ export function DataTable<T extends { id: string | number }>({
               <tr>
                 <td colSpan={columns.length} className="px-5 py-16 text-center">
                   <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-white/[0.04] flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-2xl bg-white/4 flex items-center justify-center">
                       <svg className="w-6 h-6 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                       </svg>
@@ -137,7 +137,7 @@ export function DataTable<T extends { id: string | number }>({
               data.map((row) => (
                 <tr
                   key={row.id}
-                  className="group relative hover:bg-white/[0.025] transition-colors"
+                  className="group relative hover:bg-white/2.5 transition-colors"
                 >
                   {/* Left accent line on hover */}
                   <td className="relative px-5 py-4 text-xs font-medium text-white/80">
@@ -160,7 +160,7 @@ export function DataTable<T extends { id: string | number }>({
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="px-5 py-3.5 border-t border-white/[0.07] bg-white/[0.01] flex items-center justify-between gap-4 flex-wrap">
+        <div className="px-5 py-3.5 border-t border-white/7 bg-white/1 flex items-center justify-between gap-4 flex-wrap">
           <span className="text-[10px] font-medium text-white/30">
             {pagination.total} items · Page {pagination.page} of {pagination.totalPages}
           </span>
@@ -170,7 +170,7 @@ export function DataTable<T extends { id: string | number }>({
             <button
               onClick={() => onPageChange?.(pagination.page - 1)}
               disabled={pagination.page <= 1 || isLoading}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all cursor-pointer"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/6 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -191,7 +191,7 @@ export function DataTable<T extends { id: string | number }>({
                   className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold transition-all cursor-pointer
                     ${pagination.page === p
                       ? "bg-[#f97316] text-white shadow-lg shadow-[#f97316]/20"
-                      : "text-white/40 hover:text-white hover:bg-white/[0.06]"
+                      : "text-white/40 hover:text-white hover:bg-white/6"
                     }
                   `}
                 >
@@ -204,7 +204,7 @@ export function DataTable<T extends { id: string | number }>({
             <button
               onClick={() => onPageChange?.(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages || isLoading}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all cursor-pointer"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/6 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

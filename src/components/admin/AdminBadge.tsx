@@ -18,7 +18,7 @@ interface AdminBadgeProps {
 export const AdminBadge: React.FC<AdminBadgeProps> = ({ type }) => {
   const normalized = type.toLowerCase();
 
-  let styles = "bg-white/[0.06] text-white/40 border-white/[0.08]";
+  let styles = "bg-white/6 text-white/40 border-white/8";
 
   switch (normalized) {
     case "admin":
@@ -28,7 +28,7 @@ export const AdminBadge: React.FC<AdminBadgeProps> = ({ type }) => {
       styles = "bg-[#14b8a6]/10 text-[#14b8a6] border-[#14b8a6]/20";
       break;
     case "member":
-      styles = "bg-white/[0.05] text-white/50 border-white/[0.08]";
+      styles = "bg-white/5 text-white/50 border-white/8";
       break;
     case "pending":
       styles = "bg-orange-500/10 text-orange-400 border-orange-500/20";
@@ -47,7 +47,7 @@ export const AdminBadge: React.FC<AdminBadgeProps> = ({ type }) => {
   }
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-[0.08em] border ${styles}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${styles}`}>
       {type}
     </span>
   );

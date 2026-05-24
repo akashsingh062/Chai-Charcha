@@ -36,10 +36,10 @@ interface UserDetail {
 
 function StatCard({ label, value, color, icon }: { label: string; value: string | number; color?: string; icon?: React.ReactNode }) {
   return (
-    <div className="group relative flex flex-col justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.04] transition-all duration-300 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <div className="group relative flex flex-col justify-between p-4 rounded-2xl bg-white/2 border border-white/6 hover:border-white/12 hover:bg-white/4 transition-all duration-300 overflow-hidden">
+      <div className="absolute inset-0 bg-linear-to-br from-white/2 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       <div className="flex items-center justify-between gap-3 mb-2">
-        <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.1em]">{label}</span>
+        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{label}</span>
         {icon && <div className="text-white/20 group-hover:text-white/40 transition-colors duration-300">{icon}</div>}
       </div>
       <span className={`text-xl font-black tabular-nums leading-none tracking-tight ${color || "text-white"}`}>
@@ -51,9 +51,9 @@ function StatCard({ label, value, color, icon }: { label: string; value: string 
 
 function InfoRow({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 border-b border-white/[0.05] last:border-0 hover:bg-white/[0.01] px-1 rounded-lg transition-colors">
+    <div className="flex items-center justify-between gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/1 px-1 rounded-lg transition-colors">
       <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider">{label}</span>
-      <span className={`text-xs font-semibold text-white/80 ${mono ? "font-mono text-[11px] text-white/50 bg-white/[0.04] px-2 py-0.5 rounded" : ""}`}>
+      <span className={`text-xs font-semibold text-white/80 ${mono ? "font-mono text-[11px] text-white/50 bg-white/4 px-2 py-0.5 rounded" : ""}`}>
         {value}
       </span>
     </div>
@@ -188,12 +188,12 @@ export default function UserDetailPage() {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-6 bg-white/[0.04] rounded-xl w-1/4" />
-        <div className="h-44 bg-white/[0.04] rounded-3xl" />
-        <div className="h-10 bg-white/[0.04] rounded-xl w-72" />
+        <div className="h-6 bg-white/4 rounded-xl w-1/4" />
+        <div className="h-44 bg-white/4 rounded-3xl" />
+        <div className="h-10 bg-white/4 rounded-xl w-72" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="h-72 bg-white/[0.04] rounded-3xl" />
-          <div className="lg:col-span-2 h-72 bg-white/[0.04] rounded-3xl" />
+          <div className="h-72 bg-white/4 rounded-3xl" />
+          <div className="lg:col-span-2 h-72 bg-white/4 rounded-3xl" />
         </div>
       </div>
     );
@@ -208,7 +208,7 @@ export default function UserDetailPage() {
           </svg>
           <p className="text-red-400 text-sm font-semibold">{error}</p>
         </div>
-        <Link href="/admin/users" className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs font-bold text-white hover:bg-white/[0.08] transition-all">
+        <Link href="/admin/users" className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/4 border border-white/8 text-xs font-bold text-white hover:bg-white/8 transition-all">
           ← Back to Users
         </Link>
       </div>
@@ -247,7 +247,7 @@ export default function UserDetailPage() {
             Back to Users
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">{user.name}</h1>
+            <h1 className="text-2xl font-black tracking-tight bg-linear-to-r from-white to-white/70 bg-clip-text text-transparent">{user.name}</h1>
             <div className="flex items-center gap-2">
               <AdminBadge type={user.isBanned ? "banned" : user.role} />
               {user.isMuted && (
@@ -262,17 +262,17 @@ export default function UserDetailPage() {
       </div>
 
       {/* Hero Header Card */}
-      <div className="relative rounded-3xl border border-white/[0.06] bg-[#111318] overflow-hidden shadow-2xl">
-        <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-r from-orange-500/20 via-stormy-teal/10 to-indigo-500/20 pointer-events-none blur-xl opacity-80" />
+      <div className="relative rounded-3xl border border-white/6 bg-[#111318] overflow-hidden shadow-2xl">
+        <div className="absolute top-0 inset-x-0 h-28 bg-linear-to-r from-orange-500/20 via-stormy-teal/10 to-indigo-500/20 pointer-events-none blur-xl opacity-80" />
         
         {/* Banner */}
         <div className="relative h-28 bg-[#161a22] overflow-hidden">
           {user.banner ? (
             <img src={user.banner} alt="banner" className="w-full h-full object-cover opacity-40 hover:opacity-50 transition-opacity duration-500" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-[#f97316]/10 to-[#14b8a6]/10" />
+            <div className="w-full h-full bg-linear-to-r from-[#f97316]/10 to-[#14b8a6]/10" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#111318] via-transparent to-black/20" />
+          <div className="absolute inset-0 bg-linear-to-t from-[#111318] via-transparent to-black/20" />
         </div>
 
         {/* User Card Content */}
@@ -280,14 +280,14 @@ export default function UserDetailPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 -mt-10 mb-6">
             <div className="flex items-end gap-4 flex-wrap md:flex-nowrap">
               <div className="relative group shrink-0">
-                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-[#f97316] to-[#14b8a6] opacity-30 blur group-hover:opacity-75 transition duration-500" />
+                <div className="absolute -inset-1 rounded-2xl bg-linear-to-tr from-[#f97316] to-[#14b8a6] opacity-30 blur group-hover:opacity-75 transition duration-500" />
                 <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-[#111318] bg-[#161a22] shadow-2xl">
                   {user.avatar ? (
                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover"
                       onError={(e) => { (e.target as HTMLImageElement).src = `https://avatar.iran.liara.run/public/boy?username=${user.username}`; }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl font-black text-white uppercase bg-gradient-to-br from-[#f97316] to-[#ea6a05]">
+                    <div className="w-full h-full flex items-center justify-center text-2xl font-black text-white uppercase bg-linear-to-br from-[#f97316] to-[#ea6a05]">
                       {user.name.substring(0, 2)}
                     </div>
                   )}
@@ -337,7 +337,7 @@ export default function UserDetailPage() {
       </div>
 
       {/* Tabs Menu */}
-      <div className="flex items-center gap-1.5 p-1.5 bg-[#111318] border border-white/[0.06] rounded-2xl w-fit shadow-lg">
+      <div className="flex items-center gap-1.5 p-1.5 bg-[#111318] border border-white/6 rounded-2xl w-fit shadow-lg">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -349,7 +349,7 @@ export default function UserDetailPage() {
                   ? tab.id === "danger"
                     ? "bg-red-500/20 text-red-400 border border-red-500/30 shadow-md shadow-red-500/5"
                     : "bg-[#f97316] text-white shadow-lg shadow-[#f97316]/20"
-                  : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]"
+                  : "text-white/40 hover:text-white/70 hover:bg-white/3"
                 }
               `}
             >
@@ -362,7 +362,7 @@ export default function UserDetailPage() {
 
       {/* Notifications */}
       {success && (
-        <div className="flex items-center gap-3 p-4 bg-green-500/[0.04] border border-green-500/20 rounded-2xl text-green-400 text-xs font-bold animate-slide-in-right">
+        <div className="flex items-center gap-3 p-4 bg-green-500/4 border border-green-500/20 rounded-2xl text-green-400 text-xs font-bold animate-slide-in-right">
           <div className="w-5 h-5 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0 border border-green-500/20">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
@@ -372,7 +372,7 @@ export default function UserDetailPage() {
         </div>
       )}
       {error && (
-        <div className="flex items-center gap-3 p-4 bg-red-500/[0.04] border border-red-500/20 rounded-2xl text-red-400 text-xs font-bold animate-slide-in-right">
+        <div className="flex items-center gap-3 p-4 bg-red-500/4 border border-red-500/20 rounded-2xl text-red-400 text-xs font-bold animate-slide-in-right">
           <div className="w-5 h-5 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0 border border-red-500/20">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -385,11 +385,11 @@ export default function UserDetailPage() {
       {/* ── OVERVIEW TAB ─────────────────────────────────── */}
       {activeTab === "overview" && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl space-y-2 relative overflow-hidden">
+          <div className="lg:col-span-2 rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl space-y-2 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-36 h-36 bg-stormy-teal/5 rounded-full blur-3xl pointer-events-none" />
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1.5 h-3 bg-stormy-teal rounded-full" />
-              <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-[0.15em]">Account Information</h3>
+              <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">Account Information</h3>
             </div>
             <InfoRow label="User ID" value={user.id} mono />
             <InfoRow label="Display Name" value={user.name} />
@@ -401,14 +401,14 @@ export default function UserDetailPage() {
 
           <div className="space-y-6">
             {/* Status Panel */}
-            <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl relative overflow-hidden">
+            <div className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full blur-2xl pointer-events-none" />
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-1.5 h-3 bg-[#f97316] rounded-full" />
-                <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-[0.15em]">System Status</h3>
+                <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">System Status</h3>
               </div>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.08] transition-all">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5 hover:border-white/8 transition-all">
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">Ban Status</span>
                     {user.isBanned ? (
@@ -436,7 +436,7 @@ export default function UserDetailPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.08] transition-all">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5 hover:border-white/8 transition-all">
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">Comment Access</span>
                     {user.isMuted ? (
@@ -475,12 +475,12 @@ export default function UserDetailPage() {
 
             {/* Bio Card */}
             {user.bio && (
-              <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl relative overflow-hidden">
+              <div className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl relative overflow-hidden">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1.5 h-3 bg-indigo-500 rounded-full" />
-                  <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-[0.15em]">Biography</h3>
+                  <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">Biography</h3>
                 </div>
-                <p className="text-xs text-white/60 leading-relaxed italic bg-white/[0.01] p-3 border border-white/[0.04] rounded-2xl">
+                <p className="text-xs text-white/60 leading-relaxed italic bg-white/1 p-3 border border-white/4 rounded-2xl">
                   &ldquo;{user.bio}&rdquo;
                 </p>
               </div>
@@ -491,11 +491,11 @@ export default function UserDetailPage() {
 
       {/* ── EDIT TAB ─────────────────────────────────────── */}
       {activeTab === "edit" && (
-        <form onSubmit={handleUpdate} className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl space-y-6 relative overflow-hidden">
+        <form onSubmit={handleUpdate} className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl space-y-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-[#f97316]/5 rounded-full blur-3xl pointer-events-none" />
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-3 bg-[#f97316] rounded-full" />
-            <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-[0.15em]">Edit User Profile Settings</h3>
+            <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">Edit User Profile Settings</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -512,7 +512,7 @@ export default function UserDetailPage() {
                   value={field.value}
                   placeholder={field.placeholder}
                   onChange={(e) => (field.setter as (v: string) => void)(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#f97316]/40 focus:bg-white/[0.04] rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                  className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 focus:bg-white/4 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
                 />
               </div>
             ))}
@@ -524,7 +524,7 @@ export default function UserDetailPage() {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+              className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
             >
               <option value="member">Member (Standard User)</option>
               <option value="moderator">Moderator (Community Admin)</option>
@@ -540,7 +540,7 @@ export default function UserDetailPage() {
               onChange={(e) => setBio(e.target.value)}
               rows={3}
               placeholder="Tell us about this user..."
-              className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200 resize-none"
+              className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200 resize-none"
             />
           </div>
 
@@ -553,7 +553,7 @@ export default function UserDetailPage() {
                 value={avatar}
                 onChange={(e) => setAvatar(e.target.value)}
                 placeholder="https://..."
-                className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
               />
             </div>
             <div className="space-y-1.5">
@@ -563,12 +563,12 @@ export default function UserDetailPage() {
                 value={banner}
                 onChange={(e) => setBanner(e.target.value)}
                 placeholder="https://..."
-                className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
               />
             </div>
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-white/[0.06]">
+          <div className="flex justify-end pt-4 border-t border-white/6">
             <button
               type="submit"
               disabled={saving}
@@ -599,7 +599,7 @@ export default function UserDetailPage() {
       {activeTab === "danger" && (
         <div className="space-y-6">
           {isSelf && (
-            <div className="flex items-center gap-3 p-4 bg-orange-500/[0.04] border border-orange-500/20 rounded-2xl text-orange-400 text-xs font-bold">
+            <div className="flex items-center gap-3 p-4 bg-orange-500/4 border border-orange-500/20 rounded-2xl text-orange-400 text-xs font-bold">
               <svg className="w-5 h-5 text-orange-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
@@ -608,7 +608,7 @@ export default function UserDetailPage() {
           )}
 
           {/* Ban User */}
-          <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl relative overflow-hidden">
+          <div className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
               <div className="space-y-1">
@@ -630,7 +630,7 @@ export default function UserDetailPage() {
                   <select
                     value={banDuration}
                     onChange={(e) => setBanDuration(e.target.value)}
-                    className="px-3.5 py-2 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                    className="px-3.5 py-2 bg-white/2 border border-white/8 hover:border-white/15 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
                   >
                     <option value="0">Permanent</option>
                     <option value="1">1 Hour</option>
@@ -656,7 +656,7 @@ export default function UserDetailPage() {
           </div>
 
           {/* Mute User */}
-          <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-6 shadow-xl relative overflow-hidden">
+          <div className="rounded-3xl border border-white/6 bg-[#111318] p-6 shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
               <div className="space-y-1">
@@ -678,7 +678,7 @@ export default function UserDetailPage() {
                   <select
                     value={muteDuration}
                     onChange={(e) => setMuteDuration(e.target.value)}
-                    className="px-3.5 py-2 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                    className="px-3.5 py-2 bg-white/2 border border-white/8 hover:border-white/15 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
                   >
                     <option value="0">Permanent</option>
                     <option value="1">1 Hour</option>
@@ -704,7 +704,7 @@ export default function UserDetailPage() {
           </div>
 
           {/* Hard Delete User */}
-          <div className="rounded-3xl border border-red-500/20 bg-red-500/[0.02] p-6 shadow-xl relative overflow-hidden">
+          <div className="rounded-3xl border border-red-500/20 bg-red-500/2 p-6 shadow-xl relative overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
               <div className="space-y-1">
                 <h4 className="text-sm font-bold text-red-400">Permanently Erase Profile</h4>

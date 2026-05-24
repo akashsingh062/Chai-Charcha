@@ -171,7 +171,7 @@ export default function ModerationQueuePage() {
         {status === "pending" && reports.some((r) => r.status === "pending") && (
           <button
             onClick={() => setIgnoreAllModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white/50 hover:text-orange-400 hover:border-orange-500/30 hover:bg-orange-500/[0.06] text-xs font-semibold transition-all cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/4 border border-white/8 text-white/50 hover:text-orange-400 hover:border-orange-500/30 hover:bg-orange-500/6 text-xs font-semibold transition-all cursor-pointer"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -182,9 +182,9 @@ export default function ModerationQueuePage() {
       </div>
 
       {/* Filters */}
-      <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-4 space-y-3">
+      <div className="rounded-2xl border border-white/7 bg-[#111318] p-4 space-y-3">
         {/* Status tabs */}
-        <div className="flex items-center gap-1 p-1 bg-white/[0.03] rounded-xl w-fit">
+        <div className="flex items-center gap-1 p-1 bg-white/3 rounded-xl w-fit">
           {statusTabs.map((tab) => (
             <button
               key={tab.value}
@@ -212,7 +212,7 @@ export default function ModerationQueuePage() {
               className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer
                 ${targetType === f.value
                   ? "bg-[#14b8a6]/10 border border-[#14b8a6]/30 text-[#14b8a6]"
-                  : "bg-white/[0.03] border border-white/[0.06] text-white/35 hover:text-white/60"
+                  : "bg-white/3 border border-white/6 text-white/35 hover:text-white/60"
                 }
               `}
             >
@@ -226,12 +226,12 @@ export default function ModerationQueuePage() {
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-24 bg-white/[0.04] rounded-2xl animate-pulse" />
+            <div key={i} className="h-24 bg-white/4 rounded-2xl animate-pulse" />
           ))}
         </div>
       ) : reports.length === 0 ? (
-        <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-12 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-white/[0.04] flex items-center justify-center mx-auto mb-3">
+        <div className="rounded-2xl border border-white/7 bg-[#111318] p-12 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-white/4 flex items-center justify-center mx-auto mb-3">
             <svg className="w-6 h-6 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -247,12 +247,12 @@ export default function ModerationQueuePage() {
             return (
               <div
                 key={report.id}
-                className={`rounded-2xl border border-white/[0.07] border-l-2 ${colors.border} ${colors.bg} p-4 flex items-start justify-between gap-4 hover:border-white/[0.12] transition-all group`}
+                className={`rounded-2xl border border-white/7 border-l-2 ${colors.border} ${colors.bg} p-4 flex items-start justify-between gap-4 hover:border-white/12 transition-all group`}
               >
                 {/* Content */}
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`text-[9px] font-black uppercase tracking-[0.12em] px-2 py-0.5 rounded-md border ${colors.accent} ${colors.text} border-current/20`}>
+                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border ${colors.accent} ${colors.text} border-current/20`}>
                       {report.targetType}
                     </span>
                     <AdminBadge type={report.status} />
@@ -300,7 +300,7 @@ export default function ModerationQueuePage() {
                       </button>
                       <button
                         onClick={() => { setSelectedReportForIgnore(report); setIgnoreModalOpen(true); }}
-                        className="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white/40 hover:text-white/70 text-[11px] font-semibold transition-all cursor-pointer"
+                        className="px-3 py-1.5 rounded-lg bg-white/4 border border-white/8 text-white/40 hover:text-white/70 text-[11px] font-semibold transition-all cursor-pointer"
                       >
                         Ignore
                       </button>
@@ -308,7 +308,7 @@ export default function ModerationQueuePage() {
                   ) : (
                     <button
                       onClick={() => { setSelectedReportIdForDelete(report.id); setDeleteModalOpen(true); }}
-                      className="px-3 py-1.5 rounded-lg bg-red-500/[0.06] border border-red-500/20 text-red-400 hover:bg-red-500/[0.12] text-[11px] font-semibold transition-all cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-red-500/6 border border-red-500/20 text-red-400 hover:bg-red-500/12 text-[11px] font-semibold transition-all cursor-pointer"
                     >
                       Clear
                     </button>
@@ -328,7 +328,7 @@ export default function ModerationQueuePage() {
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] disabled:opacity-25 disabled:cursor-not-allowed transition-all cursor-pointer"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/6 disabled:opacity-25 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -342,7 +342,7 @@ export default function ModerationQueuePage() {
                   key={pg}
                   onClick={() => setPage(pg)}
                   className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all cursor-pointer
-                    ${page === pg ? "bg-[#f97316] text-white" : "text-white/40 hover:text-white hover:bg-white/[0.06]"}
+                    ${page === pg ? "bg-[#f97316] text-white" : "text-white/40 hover:text-white hover:bg-white/6"}
                   `}
                 >
                   {pg}
@@ -352,7 +352,7 @@ export default function ModerationQueuePage() {
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] disabled:opacity-25 disabled:cursor-not-allowed transition-all cursor-pointer"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/6 disabled:opacity-25 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -484,8 +484,8 @@ const ModerationActionModal: React.FC<ModerationActionModalProps> = ({ isOpen, r
     : "bg-[#f97316] hover:bg-[#ea6a05] shadow-[#f97316]/20";
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="relative w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#111318] p-6 shadow-2xl shadow-black/60 overflow-hidden">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <div className="relative w-full max-w-lg rounded-2xl border border-white/8 bg-[#111318] p-6 shadow-2xl shadow-black/60 overflow-hidden">
         {/* Glow blobs */}
         <div className={`absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl pointer-events-none opacity-15 ${colors.accent}`} />
         <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#14b8a6]/5 rounded-full blur-3xl pointer-events-none" />
@@ -493,12 +493,12 @@ const ModerationActionModal: React.FC<ModerationActionModalProps> = ({ isOpen, r
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            <span className={`text-[9px] font-black uppercase tracking-[0.12em] px-2 py-1 rounded-md border ${colors.accent} ${colors.text} border-current/20`}>
+            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border ${colors.accent} ${colors.text} border-current/20`}>
               {report.targetType}
             </span>
             <h3 className="text-sm font-bold text-white">Resolve Report</h3>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-white hover:bg-white/[0.06] transition-all cursor-pointer">
+          <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-white hover:bg-white/6 transition-all cursor-pointer">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -507,10 +507,10 @@ const ModerationActionModal: React.FC<ModerationActionModalProps> = ({ isOpen, r
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Content Preview */}
-          <div className="p-3.5 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+          <div className="p-3.5 bg-white/3 border border-white/6 rounded-xl">
             <p className="text-[9px] font-bold text-white/25 uppercase tracking-wider mb-1.5">Report Reason</p>
             <p className="text-[11px] text-white/50 italic">&ldquo;{report.reason}&rdquo;</p>
-            <div className="mt-2 pt-2 border-t border-white/[0.06]">
+            <div className="mt-2 pt-2 border-t border-white/6">
               <p className="text-[9px] font-bold text-white/25 uppercase tracking-wider mb-1.5">Content Preview</p>
               <p className="text-xs text-white/70 leading-relaxed line-clamp-3">{report.contentPreview}</p>
             </div>
@@ -526,7 +526,7 @@ const ModerationActionModal: React.FC<ModerationActionModalProps> = ({ isOpen, r
                   type="button"
                   onClick={() => handleActionChange(opt.value)}
                   className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-semibold text-left transition-all cursor-pointer
-                    ${action === opt.value ? opt.color : "border-white/[0.07] bg-white/[0.02] text-white/40 hover:border-white/[0.12] hover:text-white/60"}
+                    ${action === opt.value ? opt.color : "border-white/7 bg-white/2 text-white/40 hover:border-white/12 hover:text-white/60"}
                   `}
                 >
                   <span>{opt.icon}</span>
@@ -549,7 +549,7 @@ const ModerationActionModal: React.FC<ModerationActionModalProps> = ({ isOpen, r
                     className={`py-2 rounded-xl text-[10px] font-bold transition-all cursor-pointer border text-center
                       ${durationHours === dur.hours
                         ? "border-[#f97316]/40 bg-[#f97316]/10 text-[#f97316]"
-                        : "border-white/[0.07] bg-white/[0.02] text-white/35 hover:border-white/[0.12]"
+                        : "border-white/7 bg-white/2 text-white/35 hover:border-white/12"
                       }
                     `}
                   >
@@ -568,16 +568,16 @@ const ModerationActionModal: React.FC<ModerationActionModalProps> = ({ isOpen, r
                 value={warningMessage}
                 onChange={(e) => setWarningMessage(e.target.value)}
                 placeholder="Type a message to send to the user..."
-                className="w-full min-h-[80px] px-3.5 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-xs text-white/70 focus:outline-none focus:border-[#f97316]/40 placeholder-white/20 leading-relaxed transition-all resize-none"
+                className="w-full min-h-[80px] px-3.5 py-3 bg-white/4 border border-white/8 rounded-xl text-xs text-white/70 focus:outline-none focus:border-[#f97316]/40 placeholder-white/20 leading-relaxed transition-all resize-none"
                 required
               />
             </div>
           )}
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-white/[0.06]">
+          <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-white/6">
             <button type="button" onClick={onClose} disabled={isSubmitting}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-white/40 hover:text-white hover:bg-white/[0.06] transition-all cursor-pointer">
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-white/40 hover:text-white hover:bg-white/6 transition-all cursor-pointer">
               Cancel
             </button>
             <button type="submit" disabled={isSubmitting}

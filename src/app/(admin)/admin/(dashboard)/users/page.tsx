@@ -150,7 +150,7 @@ function UserManagementPageContent() {
       sortable: true,
       render: (row: UserItem) => (
         <div className="flex items-center gap-3">
-          <Link href={`/admin/users/${row.id}`} className="relative w-9 h-9 rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.04] hover:border-[#f97316]/40 shrink-0 block transition-all">
+          <Link href={`/admin/users/${row.id}`} className="relative w-9 h-9 rounded-xl overflow-hidden border border-white/8 bg-white/4 hover:border-[#f97316]/40 shrink-0 block transition-all">
             {row.avatar ? (
               <img src={row.avatar} alt={row.name} className="w-full h-full object-cover"
                 onError={(e) => { (e.target as HTMLImageElement).src = `https://avatar.iran.liara.run/public/boy?username=${row.username || row.name}`; }}
@@ -221,7 +221,7 @@ function UserManagementPageContent() {
           <Link
             href={`/admin/users/${row.id}`}
             title="Inspect User"
-            className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white/40 hover:text-[#14b8a6] hover:border-[#14b8a6]/30 hover:bg-[#14b8a6]/[0.06] flex items-center justify-center transition-all"
+            className="w-7 h-7 rounded-lg bg-white/4 border border-white/8 text-white/40 hover:text-[#14b8a6] hover:border-[#14b8a6]/30 hover:bg-[#14b8a6]/6 flex items-center justify-center transition-all"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -235,8 +235,8 @@ function UserManagementPageContent() {
             title={row.isBanned ? "Unban User" : "Ban User"}
             className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer
               ${row.isBanned
-                ? "bg-green-500/[0.06] border-green-500/20 text-green-400 hover:bg-green-500/[0.12]"
-                : "bg-orange-500/[0.06] border-orange-500/20 text-orange-400 hover:bg-orange-500/[0.12]"
+                ? "bg-green-500/6 border-green-500/20 text-green-400 hover:bg-green-500/12"
+                : "bg-orange-500/6 border-orange-500/20 text-orange-400 hover:bg-orange-500/12"
               }
             `}
           >
@@ -257,8 +257,8 @@ function UserManagementPageContent() {
             title={row.isMuted ? "Unmute User" : "Mute User"}
             className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer
               ${row.isMuted
-                ? "bg-green-500/[0.06] border-green-500/20 text-green-400 hover:bg-green-500/[0.12]"
-                : "bg-white/[0.04] border-white/[0.08] text-white/40 hover:text-orange-400 hover:border-orange-500/20 hover:bg-orange-500/[0.06]"
+                ? "bg-green-500/6 border-green-500/20 text-green-400 hover:bg-green-500/12"
+                : "bg-white/4 border-white/8 text-white/40 hover:text-orange-400 hover:border-orange-500/20 hover:bg-orange-500/6"
               }
             `}
           >
@@ -278,7 +278,7 @@ function UserManagementPageContent() {
           <button
             onClick={() => { setSelectedUser(row); setDeleteModalOpen(true); }}
             title="Delete User"
-            className="w-7 h-7 rounded-lg bg-red-500/[0.06] border border-red-500/20 text-red-400 hover:bg-red-500/[0.12] flex items-center justify-center transition-all cursor-pointer"
+            className="w-7 h-7 rounded-lg bg-red-500/6 border border-red-500/20 text-red-400 hover:bg-red-500/12 flex items-center justify-center transition-all cursor-pointer"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -315,7 +315,7 @@ function UserManagementPageContent() {
       </div>
 
       {/* Filters */}
-      <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-4 space-y-4">
+      <div className="rounded-2xl border border-white/7 bg-[#111318] p-4 space-y-4">
         {/* Search */}
         <div className="relative">
           <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,7 +326,7 @@ function UserManagementPageContent() {
             placeholder="Search by name, username, or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#f97316]/40 focus:bg-white/[0.06] transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/4 border border-white/8 rounded-xl text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#f97316]/40 focus:bg-white/6 transition-all"
           />
         </div>
 
@@ -341,7 +341,7 @@ function UserManagementPageContent() {
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all cursor-pointer
                   ${role === f.value
                     ? "bg-[#f97316] text-white shadow-sm shadow-[#f97316]/20"
-                    : "bg-white/[0.04] text-white/40 hover:text-white/70 hover:bg-white/[0.07]"
+                    : "bg-white/4 text-white/40 hover:text-white/70 hover:bg-white/7"
                   }
                 `}
               >
@@ -358,7 +358,7 @@ function UserManagementPageContent() {
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all cursor-pointer
                   ${banned === f.value
                     ? "bg-[#f97316] text-white shadow-sm shadow-[#f97316]/20"
-                    : "bg-white/[0.04] text-white/40 hover:text-white/70 hover:bg-white/[0.07]"
+                    : "bg-white/4 text-white/40 hover:text-white/70 hover:bg-white/7"
                   }
                 `}
               >
@@ -384,8 +384,8 @@ function UserManagementPageContent() {
 
       {/* Ban Modal */}
       {banModalOpen && selectedUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-          <div className="relative w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#111318] p-6 shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+          <div className="relative w-full max-w-sm rounded-2xl border border-white/8 bg-[#111318] p-6 shadow-2xl overflow-hidden">
             <div className="absolute -top-12 -right-12 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="flex items-center gap-3 mb-5">
               <div className="w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center shrink-0">
@@ -403,7 +403,7 @@ function UserManagementPageContent() {
               <select
                 value={banDuration}
                 onChange={(e) => setBanDuration(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 focus:outline-none focus:border-[#f97316]/40 transition-all"
+                className="w-full px-3.5 py-2.5 bg-white/4 border border-white/8 rounded-xl text-sm text-white/80 focus:outline-none focus:border-[#f97316]/40 transition-all"
               >
                 <option value="0">Permanent Ban</option>
                 <option value="1">1 Hour</option>
@@ -415,7 +415,7 @@ function UserManagementPageContent() {
             <div className="flex gap-2.5">
               <button
                 onClick={() => { setBanModalOpen(false); setSelectedUser(null); }}
-                className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-white/50 hover:bg-white/[0.06] hover:text-white transition-all cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-white/50 hover:bg-white/6 hover:text-white transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -432,8 +432,8 @@ function UserManagementPageContent() {
 
       {/* Mute Modal */}
       {muteModalOpen && selectedUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-          <div className="relative w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#111318] p-6 shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+          <div className="relative w-full max-w-sm rounded-2xl border border-white/8 bg-[#111318] p-6 shadow-2xl overflow-hidden">
             <div className="absolute -top-12 -right-12 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="flex items-center gap-3 mb-5">
               <div className="w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center shrink-0">
@@ -452,7 +452,7 @@ function UserManagementPageContent() {
               <select
                 value={muteDuration}
                 onChange={(e) => setMuteDuration(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 focus:outline-none focus:border-[#f97316]/40 transition-all"
+                className="w-full px-3.5 py-2.5 bg-white/4 border border-white/8 rounded-xl text-sm text-white/80 focus:outline-none focus:border-[#f97316]/40 transition-all"
               >
                 <option value="0">Permanent Mute</option>
                 <option value="1">1 Hour</option>
@@ -464,7 +464,7 @@ function UserManagementPageContent() {
             <div className="flex gap-2.5">
               <button
                 onClick={() => { setMuteModalOpen(false); setSelectedUser(null); }}
-                className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-white/50 hover:bg-white/[0.06] hover:text-white transition-all cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-white/50 hover:bg-white/6 hover:text-white transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -497,9 +497,9 @@ export default function UserManagementPage() {
   return (
     <Suspense fallback={
       <div className="space-y-5 animate-pulse">
-        <div className="h-14 bg-white/[0.04] rounded-2xl w-1/3" />
-        <div className="h-32 bg-white/[0.04] rounded-2xl" />
-        <div className="h-96 bg-white/[0.04] rounded-2xl" />
+        <div className="h-14 bg-white/4 rounded-2xl w-1/3" />
+        <div className="h-32 bg-white/4 rounded-2xl" />
+        <div className="h-96 bg-white/4 rounded-2xl" />
       </div>
     }>
       <UserManagementPageContent />

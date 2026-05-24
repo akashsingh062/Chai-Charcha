@@ -61,7 +61,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({ onToggleSidebar }) => 
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 h-16 border-b border-white/[0.06] bg-[#0a0b0f]/80 backdrop-blur-xl px-5 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-30 h-16 border-b border-white/6 bg-[#0a0b0f]/80 backdrop-blur-xl px-5 flex items-center justify-between gap-4">
       {/* Left: mobile toggle + breadcrumb */}
       <div className="flex items-center gap-3 min-w-0">
         <button
@@ -98,7 +98,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({ onToggleSidebar }) => 
         {/* Reports badge */}
         <Link
           href="/admin/reports"
-          className="relative w-9 h-9 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] transition-all"
+          className="relative w-9 h-9 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/6 transition-all"
           title="Moderation Queue"
         >
           <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,13 +118,13 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({ onToggleSidebar }) => 
         </Link>
 
         {/* Divider */}
-        <div className="w-px h-6 bg-white/[0.08]" />
+        <div className="w-px h-6 bg-white/8" />
 
         {/* User dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 hover:bg-white/[0.06] transition-all cursor-pointer"
+            className="flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 hover:bg-white/6 transition-all cursor-pointer"
           >
             <div className="relative w-7 h-7 rounded-lg overflow-hidden border border-white/10 bg-[#1c1f26] shrink-0">
               {userData?.avatar ? (
@@ -157,9 +157,9 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({ onToggleSidebar }) => 
 
           {/* Dropdown */}
           {dropdownOpen && (
-            <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-white/[0.08] bg-[#111318]/95 backdrop-blur-xl shadow-2xl shadow-black/50 overflow-hidden z-50">
+            <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-white/8 bg-[#111318]/95 backdrop-blur-xl shadow-2xl shadow-black/50 overflow-hidden z-50">
               {/* User info header */}
-              <div className="px-4 py-3 border-b border-white/[0.06]">
+              <div className="px-4 py-3 border-b border-white/6">
                 <span className="text-xs font-semibold text-white block">{userData?.name || "Administrator"}</span>
                 <span className="text-[10px] text-white/40 block mt-0.5">@{userData?.username || "admin"}</span>
               </div>
@@ -169,7 +169,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({ onToggleSidebar }) => 
                 <Link
                   href="/"
                   onClick={() => setDropdownOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-white/60 hover:text-white hover:bg-white/[0.06] transition-all"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-white/60 hover:text-white hover:bg-white/6 transition-all"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -178,7 +178,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({ onToggleSidebar }) => 
                 </Link>
                 <button
                   onClick={() => { handelSignOut(); setDropdownOpen(false); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-red-400 hover:text-red-300 hover:bg-red-500/[0.08] transition-all cursor-pointer"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-red-400 hover:text-red-300 hover:bg-red-500/8 transition-all cursor-pointer"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

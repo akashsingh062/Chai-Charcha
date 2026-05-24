@@ -28,10 +28,10 @@ interface CommunityItem {
 
 function StatCard({ label, value, color, icon }: { label: string; value: string | number; color?: string; icon?: React.ReactNode }) {
   return (
-    <div className="group relative flex flex-col justify-between p-4 rounded-2xl bg-[#111318] border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.02] transition-all duration-300 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <div className="group relative flex flex-col justify-between p-4 rounded-2xl bg-[#111318] border border-white/6 hover:border-white/12 hover:bg-white/2 transition-all duration-300 overflow-hidden">
+      <div className="absolute inset-0 bg-linear-to-br from-white/2 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       <div className="flex items-center justify-between gap-3 mb-2">
-        <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.1em]">{label}</span>
+        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{label}</span>
         {icon && <div className="text-white/20 group-hover:text-white/40 transition-colors duration-300">{icon}</div>}
       </div>
       <span className={`text-xl font-black tabular-nums leading-none tracking-tight ${color || "text-white"}`}>
@@ -171,7 +171,7 @@ export default function CommunityManagementPage() {
       sortable: true,
       render: (row: CommunityItem) => (
         <div className="flex items-center gap-3">
-          <Link href={`/admin/communities/${row.id}`} className="relative w-9 h-9 rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.04] shrink-0 block hover:border-[#14b8a6]/40 transition-all">
+          <Link href={`/admin/communities/${row.id}`} className="relative w-9 h-9 rounded-xl overflow-hidden border border-white/8 bg-white/4 shrink-0 block hover:border-[#14b8a6]/40 transition-all">
             {row.avatar ? (
               <img src={row.avatar} alt={row.name} className="w-full h-full object-cover" />
             ) : (
@@ -245,7 +245,7 @@ export default function CommunityManagementPage() {
           <Link
             href={`/admin/communities/${row.id}`}
             title="Inspect Community"
-            className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white/40 hover:text-[#14b8a6] hover:border-[#14b8a6]/30 hover:bg-[#14b8a6]/[0.06] flex items-center justify-center transition-all"
+            className="w-7 h-7 rounded-lg bg-white/4 border border-white/8 text-white/40 hover:text-[#14b8a6] hover:border-[#14b8a6]/30 hover:bg-[#14b8a6]/6 flex items-center justify-center transition-all"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -257,8 +257,8 @@ export default function CommunityManagementPage() {
             title={row.isBanned ? "Unban Community" : "Ban Community"}
             className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer
               ${row.isBanned
-                ? "bg-green-500/[0.06] border-green-500/20 text-green-400 hover:bg-green-500/[0.12]"
-                : "bg-orange-500/[0.06] border-orange-500/20 text-orange-400 hover:bg-orange-500/[0.12]"
+                ? "bg-green-500/6 border-green-500/20 text-green-400 hover:bg-green-500/12"
+                : "bg-orange-500/6 border-orange-500/20 text-orange-400 hover:bg-orange-500/12"
               }`}
           >
             {row.isBanned ? (
@@ -274,7 +274,7 @@ export default function CommunityManagementPage() {
           <button
             onClick={() => { setSelectedCommunity(row); setDeleteModalOpen(true); }}
             title="Delete Community"
-            className="w-7 h-7 rounded-lg bg-red-500/[0.06] border border-red-500/20 text-red-400 hover:bg-red-500/[0.12] flex items-center justify-center transition-all cursor-pointer"
+            className="w-7 h-7 rounded-lg bg-red-500/6 border border-red-500/20 text-red-400 hover:bg-red-500/12 flex items-center justify-center transition-all cursor-pointer"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -294,7 +294,7 @@ export default function CommunityManagementPage() {
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Community Channels</h1>
+        <h1 className="text-2xl font-black tracking-tight bg-linear-to-r from-white to-white/70 bg-clip-text text-transparent">Community Channels</h1>
         <p className="text-xs text-white/30 mt-1">
           Managing <span className="font-bold text-white/60">{totalCommunities.toLocaleString()}</span> sub-charcha forum channels
         </p>
@@ -325,8 +325,8 @@ export default function CommunityManagementPage() {
       </div>
 
       {/* Filters bar */}
-      <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-4 shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-full blur-2xl pointer-events-none" />
+      <div className="rounded-3xl border border-white/6 bg-[#111318] p-4 shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/1 rounded-full blur-2xl pointer-events-none" />
         <div className="relative">
           <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -336,7 +336,7 @@ export default function CommunityManagementPage() {
             placeholder="Search by community name, slug, or description..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-11 pr-4 py-3.5 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#14b8a6]/40 focus:bg-white/[0.04] rounded-2xl text-xs text-white placeholder-white/20 focus:outline-none transition-all duration-200"
+            className="w-full pl-11 pr-4 py-3.5 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#14b8a6]/40 focus:bg-white/4 rounded-2xl text-xs text-white placeholder-white/20 focus:outline-none transition-all duration-200"
           />
         </div>
       </div>
@@ -356,8 +356,8 @@ export default function CommunityManagementPage() {
 
       {/* Ban Duration Modal */}
       {banModalOpen && selectedCommunity && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-sm rounded-3xl border border-white/[0.08] bg-[#111318] p-6 shadow-2xl overflow-hidden animate-scale-in">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-sm rounded-3xl border border-white/8 bg-[#111318] p-6 shadow-2xl overflow-hidden animate-scale-in">
             <div className="absolute -top-16 -right-16 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="flex items-center gap-3.5 mb-5">
               <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center shrink-0">
@@ -376,7 +376,7 @@ export default function CommunityManagementPage() {
               <select
                 value={banDuration}
                 onChange={(e) => setBanDuration(e.target.value)}
-                className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
               >
                 <option value="0">Indefinite (Permanent Ban)</option>
                 <option value="1">1 Hour Suspension</option>
@@ -389,7 +389,7 @@ export default function CommunityManagementPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => { setBanModalOpen(false); setSelectedCommunity(null); }}
-                className="flex-1 py-3 rounded-xl text-xs font-bold text-white/40 hover:bg-white/[0.04] hover:text-white transition-all cursor-pointer"
+                className="flex-1 py-3 rounded-xl text-xs font-bold text-white/40 hover:bg-white/4 hover:text-white transition-all cursor-pointer"
               >
                 Cancel
               </button>

@@ -26,9 +26,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
       {/* Modal card */}
-      <div className="relative w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#111318] p-6 shadow-2xl shadow-black/60 overflow-hidden">
+      <div className="relative w-full max-w-md rounded-2xl border border-white/8 bg-[#111318] p-6 shadow-2xl shadow-black/60 overflow-hidden">
         {/* Radial glow */}
         <div
           className={`absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl pointer-events-none opacity-20
@@ -60,16 +60,16 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         </div>
 
         {/* Message */}
-        <p className="text-sm text-white/50 leading-relaxed ml-[3.375rem]">
+        <p className="text-sm text-white/50 leading-relaxed ml-13.5">
           {message}
         </p>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-2.5 mt-6 pt-4 border-t border-white/[0.06]">
+        <div className="flex items-center justify-end gap-2.5 mt-6 pt-4 border-t border-white/6">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white/50 hover:text-white hover:bg-white/[0.06] transition-all cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-semibold text-white/50 hover:text-white hover:bg-white/6 transition-all cursor-pointer"
           >
             {cancelText}
           </button>
