@@ -239,7 +239,18 @@ export default function CommunityDetailPage() {
               </div>
               <div className="flex justify-between">
                 <span>Creator:</span>
-                <span className="text-floral-white">@{community.creator?.username || "deleted"}</span>
+                <span className="text-floral-white">
+                  {community.creator?.username ? (
+                    <Link
+                      href={`/admin/users?search=${community.creator.username}`}
+                      className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
+                    >
+                      @{community.creator.username}
+                    </Link>
+                  ) : (
+                    "deleted"
+                  )}
+                </span>
               </div>
             </div>
           </div>
@@ -259,7 +270,18 @@ export default function CommunityDetailPage() {
                   </div>
                   <div className="min-w-0">
                     <span className="text-xs font-bold text-floral-white block truncate">{mod.name}</span>
-                    <span className="text-3xs text-dust-grey/60 block truncate">@{mod.username}</span>
+                    <span className="text-3xs text-dust-grey/60 block truncate">
+                      {mod.username ? (
+                        <Link
+                          href={`/admin/users?search=${mod.username}`}
+                          className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
+                        >
+                          @{mod.username}
+                        </Link>
+                      ) : (
+                        "deleted"
+                      )}
+                    </span>
                   </div>
                 </div>
               ))}

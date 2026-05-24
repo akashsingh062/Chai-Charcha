@@ -190,7 +190,18 @@ export default function AdminDashboard() {
                       {post.title}
                     </span>
                     <span className="text-3xs text-dust-grey/60 uppercase tracking-widest mt-1 block">
-                      By @{post.author?.username || "deleted"} • {post.votes} votes • {post.comments} comments
+                      By{" "}
+                      {post.author?.username ? (
+                        <Link
+                          href={`/admin/users?search=${post.author.username}`}
+                          className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
+                        >
+                          @{post.author.username}
+                        </Link>
+                      ) : (
+                        "deleted"
+                      )}{" "}
+                      • {post.votes} votes • {post.comments} comments
                     </span>
                   </div>
                   <span className="shrink-0 text-2xs font-black bg-stormy-teal/10 text-stormy-teal px-2.5 py-1 rounded-md border border-stormy-teal/20">
@@ -273,7 +284,12 @@ export default function AdminDashboard() {
                         {user.name}
                       </span>
                       <span className="text-3xs text-dust-grey/60 block truncate">
-                        @{user.username}
+                        <Link
+                          href={`/admin/users?search=${user.username}`}
+                          className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
+                        >
+                          @{user.username}
+                        </Link>
                       </span>
                     </div>
                   </div>

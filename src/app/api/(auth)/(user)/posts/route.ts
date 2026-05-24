@@ -78,6 +78,25 @@ export async function GET(req: Request) {
       query.isSoftDeleted = { $ne: true };
     }
 
+    // Exclude banned communities from any feed
+    const bannedCommunities = await Community.find({ isBanned: true }).select("_id");
+    const bannedCommunityIds = bannedCommunities.map((c) => c._id.toString());
+    if (bannedCommunityIds.length > 0) {
+      const bannedObjectIds = bannedCommunityIds.map(id => new mongoose.Types.ObjectId(id));
+      if (query.community) {
+        if (query.community.$in) {
+          query.community.$in = query.community.$in.filter(
+            (id: any) => !bannedCommunityIds.includes(id.toString())
+          );
+        } else if (bannedCommunityIds.includes(query.community.toString())) {
+          // Banned community targeted directly
+          return NextResponse.json({ posts: [] });
+        }
+      } else {
+        query.community = { $nin: bannedObjectIds };
+      }
+    }
+
     // Recalculate trending scores of active posts (created in the last 48 hours) to ensure correct time decay
     const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
     const activePosts = await Post.find({ createdAt: { $gte: fortyEightHoursAgo } });
@@ -168,10 +187,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if user is banned in the community
+    // Check if user is banned in the community, or if the community itself is banned
     if (validatedData.data.community) {
       const comm = await Community.findById(validatedData.data.community);
       if (comm) {
+        if (comm.isBanned) {
+          return NextResponse.json({ error: "This community has been suspended/banned by administrators." }, { status: 403 });
+        }
         if (comm.bannedUsers && comm.bannedUsers.some((uid: any) => uid.toString() === session.user.id)) {
           return NextResponse.json({ error: "You are banned from posting in this community." }, { status: 403 });
         }

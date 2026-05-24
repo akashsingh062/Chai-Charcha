@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
+import Link from "next/link";
 
 interface AuditLogItem {
   id: string;
@@ -75,7 +76,16 @@ export default function AuditLogPage() {
             {row.admin?.name || "System / Script"}
           </span>
           <span className="text-3xs text-dust-grey/60 block truncate">
-            @{row.admin?.username || "system"}
+            {row.admin?.username ? (
+              <Link
+                href={`/admin/users?search=${row.admin.username}`}
+                className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
+              >
+                @{row.admin.username}
+              </Link>
+            ) : (
+              "system"
+            )}
           </span>
         </div>
       ),
