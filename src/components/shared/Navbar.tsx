@@ -211,9 +211,9 @@ const Navbar = () => {
                       <Link href="/post" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
                         My Posts
                       </Link>
-                      {userData?.role === "admin" && (
+                      {(userData?.role === "admin" || userData?.role === "moderator") && (
                         <Link href="/admin" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-orange hover:text-orange-600 rounded-lg hover:bg-(--btn-icon-hover-bg) transition-colors font-extrabold uppercase tracking-wider">
-                          Admin Panel
+                          {userData.role === "admin" ? "Admin Panel" : "Mod Panel"}
                         </Link>
                       )}
                       <Link href="/settings" onClick={() => setProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-(--text-secondary) rounded-lg hover:bg-(--btn-icon-hover-bg) hover:text-(--btn-icon-hover-text) transition-colors">
@@ -388,13 +388,13 @@ const Navbar = () => {
                   My Posts
                 </Link>
 
-                {userData?.role === "admin" && (
+                {(userData?.role === "admin" || userData?.role === "moderator") && (
                   <Link 
                     href="/admin" 
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex w-full items-center justify-center rounded-full border border-orange/30 bg-orange/5 py-2.5 text-sm font-bold text-orange uppercase tracking-wider hover:text-orange-600"
                   >
-                    Admin Panel
+                    {userData.role === "admin" ? "Admin Panel" : "Mod Panel"}
                   </Link>
                 )}
 

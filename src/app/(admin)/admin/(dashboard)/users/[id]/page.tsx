@@ -253,6 +253,30 @@ export default function UserDetailPage() {
             <h1 className="text-2xl font-black tracking-tight bg-linear-to-r from-white to-white/70 bg-clip-text text-transparent">{user.name}</h1>
             <div className="flex items-center gap-2">
               <AdminBadge type={user.isBanned ? "banned" : user.role} />
+              
+              {isAdmin && !isSelf && user.role !== "admin" && (
+                <button
+                  onClick={async () => {
+                    const newRole = user.role === "moderator" ? "member" : "moderator";
+                    try {
+                      await axiosInstance.put(`/api/admin/users/${user.id}`, { role: newRole });
+                      toast.success(`User role updated to ${newRole}`);
+                      fetchUserDetails();
+                    } catch (err: unknown) {
+                      toast.error("Failed to update user role");
+                    }
+                  }}
+                  className={`px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider cursor-pointer transition-colors
+                    ${user.role === "moderator" 
+                      ? "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20" 
+                      : "bg-white/5 text-white/50 border-white/10 hover:bg-white/10 hover:text-white"
+                    }
+                  `}
+                >
+                  {user.role === "moderator" ? "Demote Mod" : "Appoint Mod"}
+                </button>
+              )}
+
               {user.isMuted && (
                 <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20 uppercase tracking-wider">
                   Muted

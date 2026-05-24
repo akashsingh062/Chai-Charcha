@@ -133,6 +133,19 @@ function UserManagementPageContent() {
     } catch { toast.error("Failed to mute user"); }
   };
 
+  const handleRoleToggle = async (user: UserItem) => {
+    try {
+      const newRole = user.role === "moderator" ? "member" : "moderator";
+      const res = await axiosInstance.put(`/api/admin/users/${user.id}`, { role: newRole });
+      if (res.status === 200) {
+        setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, role: newRole } : u));
+        toast.success(`User role updated to ${newRole}`);
+      }
+    } catch (err: unknown) {
+      toast.error("Failed to update user role");
+    }
+  };
+
   const handleDeleteConfirm = async () => {
     if (!selectedUser) return;
     try {
@@ -283,6 +296,30 @@ function UserManagementPageContent() {
                 </svg>
               )}
             </button>
+
+            {/* Appoint / Remove Moderator */}
+            {isAdmin && !isSelf && row.role !== "admin" && (
+              <button
+                onClick={() => handleRoleToggle(row)}
+                title={row.role === "moderator" ? "Demote to Member" : "Appoint Moderator"}
+                className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer
+                  ${row.role === "moderator"
+                    ? "bg-blue-500/6 border-blue-500/20 text-blue-400 hover:bg-blue-500/12"
+                    : "bg-white/4 border-white/8 text-white/40 hover:text-blue-400 hover:border-blue-500/20 hover:bg-blue-500/6"
+                  }
+                `}
+              >
+                {row.role === "moderator" ? (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                ) : (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                )}
+              </button>
+            )}
 
             {/* Delete */}
             {isAdmin && (

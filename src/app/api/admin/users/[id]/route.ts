@@ -5,6 +5,7 @@ import { User } from "@/lib/models/User";
 import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { AuditLog } from "@/lib/models/AuditLog";
+import { Notification } from "@/lib/models/Notification";
 import mongoose from "mongoose";
 
 interface UserDoc {
@@ -158,16 +159,14 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
       updates.role = role;
       
       // Notify the user about their role change
-      const Notification = mongoose.models.Notification;
-      if (Notification) {
-        await Notification.create({
-          recipient: user._id,
-          type: "system",
-          title: "Role Updated",
-          message: `Your account role has been updated from ${user.role} to ${role} by an administrator.`,
-          isRead: false,
-        });
-      }
+      await Notification.create({
+        recipient: user._id,
+        sender: adminUser.id,
+        type: "system",
+        link: "/profile",
+        message: `Your account role has been updated from ${user.role} to ${role} by an administrator.`,
+        isRead: false,
+      });
     }
     if (karma !== undefined && karma !== user.karma) {
       const parsedKarma = parseInt(karma);

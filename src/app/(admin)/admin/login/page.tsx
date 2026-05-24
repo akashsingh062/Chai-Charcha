@@ -49,10 +49,11 @@ export default function AdminLoginPage() {
           },
           onSuccess: async () => {
             const session = await authClient.getSession();
-            if (session?.data?.user?.role !== "admin") {
+            const role = session?.data?.user?.role;
+            if (role !== "admin" && role !== "moderator") {
               await authClient.signOut();
               setLoading(false);
-              setGlobalError("Access Denied — Admin access required");
+              setGlobalError("Access Denied — Moderator or Admin access required");
               return;
             }
             setLoading(false);

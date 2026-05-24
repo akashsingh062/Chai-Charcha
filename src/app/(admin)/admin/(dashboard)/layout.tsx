@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/adminAuth";
+import { requireModeratorOrAdmin } from "@/lib/adminAuth";
 import { redirect } from "next/navigation";
 import React from "react";
 import { AdminLayoutClient } from "./AdminLayoutClient";
@@ -13,10 +13,10 @@ export default async function AdminDashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let isAdmin = false;
+  let hasAccess = false;
   try {
-    const { user } = await requireAdmin();
-    isAdmin = user.role === "admin";
+    const { user } = await requireModeratorOrAdmin();
+    hasAccess = user.role === "admin" || user.role === "moderator";
   } catch (error: unknown) {
     // If unauthorized, redirect to admin login
     if (error && typeof error === "object" && "status" in error && error.status === 401) {
@@ -26,7 +26,7 @@ export default async function AdminDashboardLayout({
     redirect("/");
   }
 
-  if (!isAdmin) {
+  if (!hasAccess) {
     redirect("/");
   }
 
