@@ -43,26 +43,21 @@ const Footer = () => {
             <h3 className="text-xs font-bold uppercase tracking-widest text-dust-grey">Community</h3>
             <ul className="flex flex-col gap-2 text-xs">
               <li>
-                <Link href="#feed" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
+                <Link href="/" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
                   All Discussions
                 </Link>
               </li>
               <li>
-                <Link href="/search?tab=communities" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors flex items-center gap-1">
-                  <span>Explore Guilds</span>
+                <Link href="/communities" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors flex items-center gap-1">
+                  <span>Explore Communities</span>
                   <svg className="w-3 h-3 text-dust-grey shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582" />
                   </svg>
                 </Link>
               </li>
               <li>
-                <Link href="#tags" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
-                  Trending Tags
-                </Link>
-              </li>
-              <li>
-                <Link href="#feed" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
-                  Charcha Stats
+                <Link href="/search" className="text-(--text-secondary) hover:text-spicy-paprika transition-colors">
+                  Search Discussions
                 </Link>
               </li>
             </ul>
@@ -72,22 +67,22 @@ const Footer = () => {
             <h3 className="text-xs font-bold uppercase tracking-widest text-dust-grey">Resources</h3>
             <ul className="flex flex-col gap-2 text-xs">
               <li>
-                <Link href="#conduct" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
+                <Link href="/code-of-conduct" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
                   Code of Conduct
                 </Link>
               </li>
               <li>
-                <Link href="#terms" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
+                <Link href="/terms" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="#privacy" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
+                <Link href="/privacy" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="#feedback" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
+                <Link href="/feedback" className="text-(--text-secondary) hover:text-stormy-teal transition-colors">
                   Feedback Portal
                 </Link>
               </li>
