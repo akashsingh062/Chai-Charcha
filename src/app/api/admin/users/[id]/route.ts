@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
+import { requireAdmin, requireModeratorOrAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { User } from "@/lib/models/User";
 import { Post } from "@/lib/models/Post";
@@ -37,7 +37,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
   try {
     const params = await props.params;
     const { id: userId } = params;
-    await requireAdmin();
+    await requireModeratorOrAdmin();
     await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -156,6 +156,18 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
       }
       changes.role = { old: user.role, new: role };
       updates.role = role;
+      
+      // Notify the user about their role change
+      const Notification = mongoose.models.Notification;
+      if (Notification) {
+        await Notification.create({
+          recipient: user._id,
+          type: "system",
+          title: "Role Updated",
+          message: `Your account role has been updated from ${user.role} to ${role} by an administrator.`,
+          isRead: false,
+        });
+      }
     }
     if (karma !== undefined && karma !== user.karma) {
       const parsedKarma = parseInt(karma);

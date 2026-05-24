@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
+import { requireModeratorOrAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { User } from "@/lib/models/User";
 import { Post } from "@/lib/models/Post";
@@ -11,7 +11,7 @@ import { Message } from "@/lib/models/Message";
 // GET /api/admin/stats — Dashboard aggregate statistics
 export async function GET() {
   try {
-    await requireAdmin();
+    await requireModeratorOrAdmin();
     await connectDB();
 
     const now = new Date();

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
+import { requireModeratorOrAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Report } from "@/lib/models/Report";
 import { User } from "@/lib/models/User";
@@ -20,7 +20,7 @@ interface PopulateTarget {
 // GET /api/admin/reports — List reports with pagination and status/type filtering
 export async function GET(req: Request) {
   try {
-    await requireAdmin();
+    await requireModeratorOrAdmin();
     await connectDB();
 
     const { searchParams } = new URL(req.url);
@@ -137,7 +137,7 @@ export async function GET(req: Request) {
 // PUT /api/admin/reports — Bulk resolve or ignore reports
 export async function PUT(req: Request) {
   try {
-    const { user: adminUser } = await requireAdmin();
+    const { user: adminUser } = await requireModeratorOrAdmin();
     await connectDB();
 
     const body = await req.json();

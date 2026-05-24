@@ -57,6 +57,49 @@ export async function requireAdmin(): Promise<{ user: AdminUser }> {
 }
 
 /**
+ * Server-side moderator or admin authorization guard.
+ * Call this for endpoints that both admins and moderators can access.
+ */
+export async function requireModeratorOrAdmin(): Promise<{ user: AdminUser }> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || !session.user) {
+    throw { status: 401, message: "Unauthorized — no active session" };
+  }
+
+  await connectDB();
+
+  const dbUser = await User.findById(session.user.id).select(
+    "name email role username avatar isBanned"
+  );
+
+  if (!dbUser) {
+    throw { status: 404, message: "User not found in database" };
+  }
+
+  if (dbUser.isBanned) {
+    throw { status: 403, message: "Account is banned" };
+  }
+
+  if (dbUser.role !== "admin" && dbUser.role !== "moderator") {
+    throw { status: 403, message: "Forbidden — moderator or admin access required" };
+  }
+
+  return {
+    user: {
+      id: dbUser._id.toString(),
+      name: dbUser.name,
+      email: dbUser.email,
+      role: dbUser.role,
+      username: dbUser.username,
+      avatar: dbUser.avatar,
+    },
+  };
+}
+
+/**
  * Helper to create a JSON error response from requireAdmin() exceptions
  */
 export function adminErrorResponse(error: unknown) {

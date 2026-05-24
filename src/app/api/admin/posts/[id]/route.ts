@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
+import { requireModeratorOrAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
@@ -11,7 +11,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
   try {
     const params = await props.params;
     const { id: postId } = params;
-    await requireAdmin();
+    await requireModeratorOrAdmin();
     await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
@@ -58,7 +58,7 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
   try {
     const params = await props.params;
     const { id: postId } = params;
-    const { user: adminUser } = await requireAdmin();
+    const { user: adminUser } = await requireModeratorOrAdmin();
     await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
@@ -121,7 +121,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
   try {
     const params = await props.params;
     const { id: postId } = params;
-    const { user: adminUser } = await requireAdmin();
+    const { user: adminUser } = await requireModeratorOrAdmin();
     await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
@@ -163,7 +163,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
   try {
     const params = await props.params;
     const { id: postId } = params;
-    const { user: adminUser } = await requireAdmin();
+    const { user: adminUser } = await requireModeratorOrAdmin();
     await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {

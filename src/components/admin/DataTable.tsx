@@ -110,11 +110,11 @@ export function DataTable<T extends { id: string | number }>({
             {isLoading ? (
               Array.from({ length: 6 }).map((_, rIdx) => (
                 <tr key={rIdx} className="animate-pulse">
-                  {columns.map((col) => (
+                  {columns.map((col, cIdx) => (
                     <td key={col.key} className="px-5 py-4">
                       <div
                         className="h-3.5 bg-white/6 rounded-full"
-                        style={{ width: `${50 + Math.random() * 40}%` }}
+                        style={{ width: `${50 + ((rIdx * 7 + cIdx * 13) % 40)}%` }}
                       />
                     </td>
                   ))}

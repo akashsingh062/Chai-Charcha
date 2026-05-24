@@ -8,6 +8,7 @@ import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/store/useToastStore";
 
 interface UserItem {
@@ -26,6 +27,8 @@ interface UserItem {
 function UserManagementPageContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams?.get("search") || "";
+  const { userData: loggedInUser } = useAuth();
+  const isAdmin = loggedInUser?.role === "admin";
 
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -215,77 +218,88 @@ function UserManagementPageContent() {
     {
       key: "actions",
       label: "Actions",
-      render: (row: UserItem) => (
-        <div className="flex items-center gap-1.5">
-          {/* Inspect */}
-          <Link
-            href={`/admin/users/${row.id}`}
-            title="Inspect User"
-            className="w-7 h-7 rounded-lg bg-white/4 border border-white/8 text-white/40 hover:text-[#14b8a6] hover:border-[#14b8a6]/30 hover:bg-[#14b8a6]/6 flex items-center justify-center transition-all"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </Link>
+      render: (row: UserItem) => {
+        const isSelf = loggedInUser?.id === row.id;
+        const targetIsModOrAdmin = row.role === "admin" || row.role === "moderator";
+        const disableSanctions = isSelf || (!isAdmin && targetIsModOrAdmin);
+        
+        return (
+          <div className="flex items-center gap-1.5">
+            {/* Inspect */}
+            <Link
+              href={`/admin/users/${row.id}`}
+              title="Inspect User"
+              className="w-7 h-7 rounded-lg bg-white/4 border border-white/8 text-white/40 hover:text-[#14b8a6] hover:border-[#14b8a6]/30 hover:bg-[#14b8a6]/6 flex items-center justify-center transition-all"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </Link>
 
-          {/* Ban/Unban */}
-          <button
-            onClick={() => handleBanClick(row)}
-            title={row.isBanned ? "Unban User" : "Ban User"}
-            className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer
-              ${row.isBanned
-                ? "bg-green-500/6 border-green-500/20 text-green-400 hover:bg-green-500/12"
-                : "bg-orange-500/6 border-orange-500/20 text-orange-400 hover:bg-orange-500/12"
-              }
-            `}
-          >
-            {row.isBanned ? (
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            ) : (
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-              </svg>
+            {/* Ban/Unban */}
+            <button
+              onClick={() => handleBanClick(row)}
+              disabled={disableSanctions}
+              title={row.isBanned ? "Unban User" : "Ban User"}
+              className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed
+                ${row.isBanned
+                  ? "bg-green-500/6 border-green-500/20 text-green-400 hover:bg-green-500/12"
+                  : "bg-orange-500/6 border-orange-500/20 text-orange-400 hover:bg-orange-500/12"
+                }
+              `}
+            >
+              {row.isBanned ? (
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+              )}
+            </button>
+
+            {/* Mute/Unmute */}
+            <button
+              onClick={() => handleMuteClick(row)}
+              disabled={disableSanctions}
+              title={row.isMuted ? "Unmute User" : "Mute User"}
+              className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed
+                ${row.isMuted
+                  ? "bg-green-500/6 border-green-500/20 text-green-400 hover:bg-green-500/12"
+                  : "bg-white/4 border-white/8 text-white/40 hover:text-orange-400 hover:border-orange-500/20 hover:bg-orange-500/6"
+                }
+              `}
+            >
+              {row.isMuted ? (
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M12 6v12m0 0l-3-3m3 3l3-3" />
+                </svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                </svg>
+              )}
+            </button>
+
+            {/* Delete */}
+            {isAdmin && (
+              <button
+                onClick={() => { setSelectedUser(row); setDeleteModalOpen(true); }}
+                disabled={isSelf}
+                title="Delete User"
+                className="w-7 h-7 rounded-lg bg-red-500/6 border border-red-500/20 text-red-400 hover:bg-red-500/12 flex items-center justify-center transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
             )}
-          </button>
-
-          {/* Mute/Unmute */}
-          <button
-            onClick={() => handleMuteClick(row)}
-            title={row.isMuted ? "Unmute User" : "Mute User"}
-            className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer
-              ${row.isMuted
-                ? "bg-green-500/6 border-green-500/20 text-green-400 hover:bg-green-500/12"
-                : "bg-white/4 border-white/8 text-white/40 hover:text-orange-400 hover:border-orange-500/20 hover:bg-orange-500/6"
-              }
-            `}
-          >
-            {row.isMuted ? (
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M12 6v12m0 0l-3-3m3 3l3-3" />
-              </svg>
-            ) : (
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-              </svg>
-            )}
-          </button>
-
-          {/* Delete */}
-          <button
-            onClick={() => { setSelectedUser(row); setDeleteModalOpen(true); }}
-            title="Delete User"
-            className="w-7 h-7 rounded-lg bg-red-500/6 border border-red-500/20 text-red-400 hover:bg-red-500/12 flex items-center justify-center transition-all cursor-pointer"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
-        </div>
-      ),
+          </div>
+        );
+      },
     },
   ];
 

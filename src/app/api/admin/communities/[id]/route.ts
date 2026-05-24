@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
+import { requireAdmin, requireModeratorOrAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Community } from "@/lib/models/Community";
 import { Post } from "@/lib/models/Post";
@@ -13,7 +13,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
   try {
     const params = await props.params;
     const { id: communityId } = params;
-    await requireAdmin();
+    await requireModeratorOrAdmin();
     await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(communityId)) {
@@ -63,7 +63,7 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
   try {
     const params = await props.params;
     const { id: communityId } = params;
-    const { user: adminUser } = await requireAdmin();
+    const { user: adminUser } = await requireModeratorOrAdmin();
     await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(communityId)) {

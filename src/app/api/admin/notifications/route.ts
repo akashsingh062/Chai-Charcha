@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
+import { requireModeratorOrAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Notification } from "@/lib/models/Notification";
 import { User } from "@/lib/models/User";
@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 // GET /api/admin/notifications — List notifications with pagination
 export async function GET(req: Request) {
   try {
-    await requireAdmin();
+    await requireModeratorOrAdmin();
     await connectDB();
 
     const { searchParams } = new URL(req.url);
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
 // POST /api/admin/notifications — Broadcast a notification to all users or a specific user
 export async function POST(req: Request) {
   try {
-    const { user: adminUser } = await requireAdmin();
+    const { user: adminUser } = await requireModeratorOrAdmin();
     await connectDB();
 
     const body = await req.json();
@@ -146,7 +146,7 @@ export async function POST(req: Request) {
 // DELETE /api/admin/notifications — Bulk clean up old read or total notifications
 export async function DELETE(req: Request) {
   try {
-    const { user: adminUser } = await requireAdmin();
+    const { user: adminUser } = await requireModeratorOrAdmin();
     await connectDB();
 
     const { searchParams } = new URL(req.url);

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
+import { requireModeratorOrAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { User } from "@/lib/models/User";
 import { AuditLog } from "@/lib/models/AuditLog";
@@ -10,21 +10,29 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
   try {
     const params = await props.params;
     const { id: userId } = params;
-    const { user: adminUser } = await requireAdmin();
+    const { user: adminUser } = await requireModeratorOrAdmin();
     await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    // Safeguard: Admin cannot ban themselves
+    // Safeguard: User cannot ban themselves
     if (userId === adminUser.id) {
-      return NextResponse.json({ error: "You cannot ban your own admin account" }, { status: 400 });
+      return NextResponse.json({ error: "You cannot ban your own account" }, { status: 400 });
     }
 
     const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Safeguard: Moderators cannot ban Admins or other Moderators
+    if (adminUser.role === "moderator" && ["admin", "moderator"].includes(user.role)) {
+      return NextResponse.json(
+        { error: "Moderators cannot ban other moderators or administrators" },
+        { status: 403 }
+      );
     }
 
     let durationHours: number | null = null;
@@ -33,7 +41,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       if (body && typeof body.durationHours === "number") {
         durationHours = body.durationHours;
       }
-    } catch (e) {
+    } catch {
       // Body may be empty, ignore
     }
 

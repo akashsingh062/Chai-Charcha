@@ -6,6 +6,7 @@ import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/store/useToastStore";
 
 interface CommunityItem {
@@ -42,6 +43,8 @@ function StatCard({ label, value, color, icon }: { label: string; value: string 
 }
 
 export default function CommunityManagementPage() {
+  const { userData: loggedInUser } = useAuth();
+  const isAdmin = loggedInUser?.role === "admin";
   const [communities, setCommunities] = useState<CommunityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -271,15 +274,17 @@ export default function CommunityManagementPage() {
               </svg>
             )}
           </button>
-          <button
-            onClick={() => { setSelectedCommunity(row); setDeleteModalOpen(true); }}
-            title="Delete Community"
-            className="w-7 h-7 rounded-lg bg-red-500/6 border border-red-500/20 text-red-400 hover:bg-red-500/12 flex items-center justify-center transition-all cursor-pointer"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => { setSelectedCommunity(row); setDeleteModalOpen(true); }}
+              title="Delete Community"
+              className="w-7 h-7 rounded-lg bg-red-500/6 border border-red-500/20 text-red-400 hover:bg-red-500/12 flex items-center justify-center transition-all cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          )}
         </div>
       ),
     },

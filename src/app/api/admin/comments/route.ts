@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
+import { requireModeratorOrAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Comment } from "@/lib/models/Comment";
 import mongoose from "mongoose";
@@ -19,7 +19,7 @@ interface CommentDoc {
 // GET /api/admin/comments — List comments with pagination, search, author/post filters
 export async function GET(req: Request) {
   try {
-    await requireAdmin();
+    await requireModeratorOrAdmin();
     await connectDB();
 
     const { searchParams } = new URL(req.url);

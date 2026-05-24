@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
+import { requireModeratorOrAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { User } from "@/lib/models/User";
 import mongoose from "mongoose";
@@ -27,7 +27,7 @@ interface UserDoc {
 // GET /api/admin/users — List all users with pagination, search, filter, sort
 export async function GET(req: Request) {
   try {
-    await requireAdmin();
+    await requireModeratorOrAdmin();
     await connectDB();
 
     const { searchParams } = new URL(req.url);

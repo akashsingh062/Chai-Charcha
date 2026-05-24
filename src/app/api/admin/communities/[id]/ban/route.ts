@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
+import { requireModeratorOrAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Community } from "@/lib/models/Community";
 import { AuditLog } from "@/lib/models/AuditLog";
@@ -10,7 +10,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
   try {
     const params = await props.params;
     const { id: communityId } = params;
-    const { user: adminUser } = await requireAdmin();
+    const { user: adminUser } = await requireModeratorOrAdmin();
     await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(communityId)) {
