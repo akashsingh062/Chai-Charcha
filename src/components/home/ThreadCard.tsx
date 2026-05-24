@@ -7,6 +7,7 @@ import axiosInstance from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/store/useToastStore";
 import { ConfirmModal } from "../shared/ConfirmModal";
+import { ReportModal } from "../shared/ReportModal";
 import Link from "next/link";
 
 interface ThreadCardProps {
@@ -49,6 +50,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const startEditing = () => {
     setEditTitle(thread.title);
@@ -379,6 +381,18 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
         </div>
         
         <div className="flex items-center gap-2">
+          {userData && !isAuthor && (
+            <button
+              onClick={() => setIsReportModalOpen(true)}
+              className="p-1 rounded-full text-dust-grey hover:text-spicy-paprika hover:bg-spicy-paprika/10 transition-all cursor-pointer"
+              title="Report Post"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18M3 5h12l-1 3.5 1 3.5H3" />
+              </svg>
+            </button>
+          )}
+
           {canModify && (
             <div className="flex items-center gap-1">
               <button
@@ -596,6 +610,13 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
         message="Are you sure you want to delete this charcha? This will also permanently delete all its replies."
         onConfirm={executeDelete}
         onCancel={() => setIsDeleteModalOpen(false)}
+      />
+
+      <ReportModal
+        isOpen={isReportModalOpen}
+        targetId={thread.id}
+        targetType="Post"
+        onClose={() => setIsReportModalOpen(false)}
       />
     </article>
   );

@@ -81,6 +81,8 @@ export function buildCommentTree(comments: DBComment[], parentId: string | null 
       return {
         id: comment._id.toString(),
         author: {
+          id: comment.author?._id?.toString() || "",
+          username: comment.author?.username || "",
           name: comment.author?.name || "Unknown",
           avatar: comment.author?.avatar || (comment.author?.name ? comment.author.name.substring(0, 2).toUpperCase() : "U"),
           role: comment.author?.role || "Member",

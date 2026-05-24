@@ -8,6 +8,7 @@ import { FeedSidebar } from "@/components/home/FeedSidebar";
 import { DiscussionFeed } from "@/components/home/DiscussionFeed";
 import axiosInstance from "@/lib/axios";
 import { toast } from "@/store/useToastStore";
+import { ReportModal } from "@/components/shared/ReportModal";
 import { 
   insertReply, 
   updateComment, 
@@ -65,6 +66,7 @@ function CommunityPageContent() {
   const [isPending, setIsPending] = useState(false);
   const [isBanned, setIsBanned] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isModerator, setIsModerator] = useState(false);
   const [membersCount, setMembersCount] = useState(0);
   const [sortBy, setSortBy] = useState<"trending" | "recent">("trending");
@@ -1362,6 +1364,18 @@ function CommunityPageContent() {
               </div>
 
               <div className="flex items-center gap-2">
+                {isLoggedIn && !isAdmin && (
+                  <button
+                    onClick={() => setIsReportModalOpen(true)}
+                    className="p-2.5 rounded-2xl border border-(--card-border) bg-(--card-background) text-dust-grey hover:text-spicy-paprika hover:border-spicy-paprika/20 transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 flex items-center justify-center"
+                    title="Report Community"
+                  >
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18M3 5h12l-1 3.5 1 3.5H3" />
+                    </svg>
+                  </button>
+                )}
+
                 {isLoggedIn && !isBanned && !isAdmin && (
                   <button
                     onClick={handleJoinLeave}
@@ -1519,6 +1533,15 @@ function CommunityPageContent() {
         </aside>
 
       </div>
+
+      {community && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          targetId={community._id}
+          targetType="Community"
+          onClose={() => setIsReportModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

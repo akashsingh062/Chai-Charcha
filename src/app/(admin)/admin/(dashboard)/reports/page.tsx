@@ -10,7 +10,7 @@ import Link from "next/link";
 interface ReportItem {
   id: string;
   targetId: string | null;
-  targetType: "Post" | "Comment";
+  targetType: "Post" | "Comment" | "User" | "Community";
   reason: string;
   status: "pending" | "resolved" | "rejected";
   contentPreview: string;
@@ -261,6 +261,8 @@ export default function ModerationQueuePage() {
             <option value="">All Types</option>
             <option value="Post">Posts</option>
             <option value="Comment">Comments</option>
+            <option value="User">Users</option>
+            <option value="Community">Communities</option>
           </select>
         </div>
       </div>
@@ -280,21 +282,27 @@ export default function ModerationQueuePage() {
         isOpen={confirmModalOpen}
         title={
           modAction === "delete_content"
-            ? "Delete Reported Content"
+            ? (selectedReport?.targetType === "User" || selectedReport?.targetType === "Community")
+              ? `Ban reported ${selectedReport?.targetType}`
+              : "Delete Reported Content"
             : modAction === "keep_content"
             ? "Approve Content & Dismiss Reports"
             : "Reject Report"
         }
         message={
           modAction === "delete_content"
-            ? `Are you sure you want to resolve this report by hard-deleting the reported ${selectedReport?.targetType.toLowerCase()}? This will also auto-resolve any other pending reports for this exact content.`
+            ? (selectedReport?.targetType === "User" || selectedReport?.targetType === "Community")
+              ? `Are you sure you want to resolve this report by permanently banning/suspending the reported ${selectedReport?.targetType.toLowerCase()}? This will also auto-resolve any other pending reports for this target.`
+              : `Are you sure you want to resolve this report by hard-deleting the reported ${selectedReport?.targetType.toLowerCase()}? This will also auto-resolve any other pending reports for this exact content.`
             : modAction === "keep_content"
             ? `Are you sure you want to dismiss the reports for this content and mark them as resolved? The content will remain active on the platform.`
             : `Are you sure you want to reject this report? This marks the report as rejected without making any changes to the content.`
         }
         confirmText={
           modAction === "delete_content"
-            ? "Hard Delete Content"
+            ? (selectedReport?.targetType === "User" || selectedReport?.targetType === "Community")
+              ? `Permanently Ban ${selectedReport?.targetType}`
+              : "Hard Delete Content"
             : modAction === "keep_content"
             ? "Dismiss & Resolve"
             : "Reject Report"

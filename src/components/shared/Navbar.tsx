@@ -17,9 +17,7 @@ const Navbar = () => {
   const [avatarError, setAvatarError] = useState(false);
   const [prevAvatar, setPrevAvatar] = useState<string | undefined>(userData?.avatar);
 
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
+
 
   if (userData?.avatar !== prevAvatar) {
     setPrevAvatar(userData?.avatar);
@@ -73,6 +71,10 @@ const Navbar = () => {
     const interval = setInterval(fetchUnreadCount, 6000); // Poll every 6 seconds
     return () => clearInterval(interval);
   }, [user, unreadCount]);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-(--nav-bg) border-b border-(--nav-border) text-(--foreground) shadow-lg backdrop-blur-md transition-all duration-300">

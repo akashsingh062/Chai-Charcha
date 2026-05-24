@@ -4,6 +4,8 @@ import connectDB from "@/lib/connectDB";
 import { Report } from "@/lib/models/Report";
 import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
+import { User } from "@/lib/models/User";
+import { Community } from "@/lib/models/Community";
 import { AuditLog } from "@/lib/models/AuditLog";
 import mongoose from "mongoose";
 
@@ -64,6 +66,26 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
             });
             // Delete direct comment
             await Comment.findByIdAndDelete(targetIdStr);
+            details.contentDeleted = true;
+          }
+        } else if (report.targetType === "User") {
+          const userObj = await User.findById(targetIdStr);
+          if (userObj) {
+            userObj.isBanned = true;
+            userObj.bannedAt = new Date();
+            userObj.bannedBy = new mongoose.Types.ObjectId(adminUser.id);
+            userObj.banExpiresAt = null;
+            await userObj.save();
+            details.contentDeleted = true;
+          }
+        } else if (report.targetType === "Community") {
+          const communityObj = await Community.findById(targetIdStr);
+          if (communityObj) {
+            communityObj.isBanned = true;
+            communityObj.bannedAt = new Date();
+            communityObj.bannedBy = new mongoose.Types.ObjectId(adminUser.id);
+            communityObj.banExpiresAt = null;
+            await communityObj.save();
             details.contentDeleted = true;
           }
         }

@@ -89,8 +89,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-stormy-teal/15 bg-ink-black p-5 flex flex-col justify-between transition-transform duration-300 md:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-stormy-teal/15 bg-ink-black p-5 flex flex-col justify-between transition-[transform,visibility] duration-300 md:translate-x-0 ${
+          isOpen ? "translate-x-0 visible" : "-translate-x-full invisible md:visible"
         }`}
       >
         <div className="space-y-6">
@@ -104,7 +104,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
                 </span>
               </span>
             </Link>
-            {onClose && (
+            {isOpen && onClose && (
               <button
                 onClick={onClose}
                 className="md:hidden text-dust-grey hover:text-floral-white cursor-pointer"

@@ -2,7 +2,7 @@ import mongoose, { Document, Model, Schema } from 'mongoose';
 
 export interface Report extends Document {
     targetId: mongoose.Types.ObjectId;
-    targetType: 'Post' | 'Comment';
+    targetType: 'Post' | 'Comment' | 'User' | 'Community';
     reporter: mongoose.Types.ObjectId;
     reason: string;
     status: 'pending' | 'resolved' | 'rejected';
@@ -19,7 +19,7 @@ export const ReportSchema = new Schema<Report>({
     targetType: {
         type: String,
         required: [true, "Report target type is required"],
-        enum: ['Post', 'Comment']
+        enum: ['Post', 'Comment', 'User', 'Community']
     },
     reporter: {
         type: mongoose.Schema.Types.ObjectId,
@@ -36,5 +36,9 @@ export const ReportSchema = new Schema<Report>({
         default: 'pending'
     }
 }, { timestamps: true });
+
+if (mongoose.models && mongoose.models.Report) {
+    delete mongoose.models.Report;
+}
 
 export const Report = mongoose.models.Report as Model<Report> || mongoose.model<Report>("Report", ReportSchema);

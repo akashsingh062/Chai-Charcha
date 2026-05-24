@@ -3,12 +3,17 @@ import { requireAdmin, adminErrorResponse } from "@/lib/adminAuth";
 import connectDB from "@/lib/connectDB";
 import { Report } from "@/lib/models/Report";
 import { User } from "@/lib/models/User";
+import { Community } from "@/lib/models/Community";
 
 interface PopulateTarget {
   _id?: { toString: () => string };
   title?: string;
   content?: string;
   author?: string;
+  name?: string;
+  username?: string;
+  description?: string;
+  creator?: string;
 }
 
 // GET /api/admin/reports — List reports with pagination and status/type filtering
@@ -29,7 +34,7 @@ export async function GET(req: Request) {
       query.status = status;
     }
 
-    if (targetType && ["Post", "Comment"].includes(targetType)) {
+    if (targetType && ["Post", "Comment", "User", "Community"].includes(targetType)) {
       query.targetType = targetType;
     }
 
@@ -76,6 +81,20 @@ export async function GET(req: Request) {
               authorName = commentAuthor.name;
               authorUsername = commentAuthor.username;
               authorAvatar = commentAuthor.avatar || "";
+            }
+          } else if (r.targetType === "User") {
+            contentPreview = `User Account: ${target.name} (@${target.username})`;
+            authorName = target.name || "Unknown";
+            authorUsername = target.username || "";
+            authorAvatar = (target as any).avatar || "";
+          } else if (r.targetType === "Community") {
+            contentPreview = `Community: c/${target.name} - ${target.description}`;
+            // Find community creator
+            const creatorUser = await User.findById(target.creator).select("name username avatar");
+            if (creatorUser) {
+              authorName = creatorUser.name;
+              authorUsername = creatorUser.username;
+              authorAvatar = creatorUser.avatar || "";
             }
           }
         }

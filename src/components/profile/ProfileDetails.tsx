@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axios";
 import { toast } from "@/store/useToastStore";
+import { ReportModal } from "../shared/ReportModal";
 
 interface UserProfileData {
   _id: string;
@@ -44,6 +45,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   // Follow state
   const [isFollowing, setIsFollowing] = useState(false);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const handleShareProfile = async () => {
     if (!user) return;
@@ -394,10 +396,29 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
                 </svg>
                 <span>Share</span>
               </button>
+
+              <button
+                onClick={() => setIsReportModalOpen(true)}
+                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-4 py-2.5 bg-transparent hover:bg-spicy-paprika/15 border border-spicy-paprika text-spicy-paprika hover:text-floral-white rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18M3 5h12l-1 3.5 1 3.5H3" />
+                </svg>
+                <span>Report</span>
+              </button>
             </>
           )}
         </div>
       </div>
+
+      {user && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          targetId={user._id}
+          targetType="User"
+          onClose={() => setIsReportModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
