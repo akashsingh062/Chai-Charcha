@@ -32,6 +32,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
       title,
       description,
+      alternates: {
+        canonical: `https://chai-charcha.vercel.app/c/${community.slug}`,
+      },
       openGraph: {
         title,
         description,
@@ -89,12 +92,43 @@ export default async function CommunityPage({ params }: PageProps) {
     }
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://chai-charcha.vercel.app"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Communities",
+        "item": "https://chai-charcha.vercel.app/communities"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": `c/${community.slug}`,
+        "item": `https://chai-charcha.vercel.app/c/${community.slug}`
+      }
+    ]
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(forumJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
         }}
       />
       <Suspense fallback={

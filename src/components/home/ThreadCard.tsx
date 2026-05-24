@@ -22,6 +22,7 @@ interface ThreadCardProps {
   onUpdateThread?: (thread: Thread) => void;
   onDeletePost?: (id: string) => void;
   isCommunityMod?: boolean;
+  defaultExpanded?: boolean;
 }
 
 export const ThreadCard: React.FC<ThreadCardProps> = ({
@@ -36,9 +37,10 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   onUpdateThread,
   onDeletePost,
   isCommunityMod = false,
+  defaultExpanded = false,
 }) => {
   const { userData } = useAuth();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [isSoftDeletingLoading, setIsSoftDeletingLoading] = useState(false);
 
   // Editing States

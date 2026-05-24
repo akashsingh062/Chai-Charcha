@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import connectDB from "@/lib/connectDB";
 import { Community } from "@/lib/models/Community";
 import { User } from "@/lib/models/User";
+import { Post } from "@/lib/models/Post";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://chai-charcha.vercel.app";
@@ -71,5 +72,51 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("Failed to query user profiles for sitemap:", err);
   }
 
+  // Retrieve dynamic public post detail endpoints
+  try {
+    const posts = await Post.find(
+      { isSoftDeleted: { $ne: true }, isCommunityOnly: { $ne: true } },
+      { _id: 1, updatedAt: 1 }
+    )
+      .sort({ createdAt: -1 })
+      .lean() as unknown as Array<{ _id: string; updatedAt?: Date | string }>;
+
+    posts.forEach((post) => {
+      if (post._id) {
+        routes.push({
+          url: `${baseUrl}/post/${post._id.toString()}`,
+          lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(),
+          changeFrequency: "daily",
+          priority: 0.8,
+        });
+      }
+    });
+  } catch (err) {
+    console.error("Failed to query posts for sitemap:", err);
+  }
+
+  // Retrieve distinct trending tags for search routes
+  try {
+    const tags = await Post.distinct("tags", {
+      isSoftDeleted: { $ne: true },
+      isCommunityOnly: { $ne: true },
+    }) as string[];
+
+    tags.forEach((tag) => {
+      const cleanTag = tag?.trim();
+      if (cleanTag) {
+        routes.push({
+          url: `${baseUrl}/search?q=${encodeURIComponent(cleanTag)}`,
+          lastModified: new Date(),
+          changeFrequency: "weekly",
+          priority: 0.6,
+        });
+      }
+    });
+  } catch (err) {
+    console.error("Failed to query tags for sitemap:", err);
+  }
+
   return routes;
 }
+

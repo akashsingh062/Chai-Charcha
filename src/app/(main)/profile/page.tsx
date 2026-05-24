@@ -40,6 +40,9 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     return {
       title,
       description,
+      alternates: {
+        canonical: `https://chai-charcha.vercel.app/profile?username=${encodeURIComponent(user.username)}`,
+      },
       openGraph: {
         title,
         description,
