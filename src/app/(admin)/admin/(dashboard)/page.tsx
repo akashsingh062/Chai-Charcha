@@ -266,12 +266,10 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-stormy-teal/20 bg-stormy-teal/10">
                       {user.avatar ? (
-                        <Image
+                        <img
                           src={user.avatar}
                           alt="User avatar"
-                          fill
-                          sizes="32px"
-                          className="object-cover"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-3xs font-black uppercase">

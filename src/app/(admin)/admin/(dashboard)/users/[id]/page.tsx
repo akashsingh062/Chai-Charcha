@@ -238,7 +238,7 @@ export default function UserDetailPage() {
           <div className="rounded-2xl border border-stormy-teal/15 bg-card-background/40 p-6 shadow-lg backdrop-blur-xs text-center space-y-4">
             <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-stormy-teal/20 bg-stormy-teal/10 mx-auto">
               {user.avatar ? (
-                <Image src={user.avatar} alt={user.name} fill sizes="96px" className="object-cover" />
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-xl font-black uppercase">
                   {user.name.substring(0, 2)}
@@ -315,134 +315,37 @@ export default function UserDetailPage() {
             </div>
           )}
 
-          {/* Edit Form */}
+          {/* Inspect Details Card */}
           <div className="rounded-2xl border border-stormy-teal/15 bg-card-background/40 p-6 shadow-lg backdrop-blur-xs">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-stormy-teal border-b border-stormy-teal/10 pb-2 mb-4">
-              Edit User Settings
+              Inspect User Configuration
             </h3>
 
-            <form onSubmit={handleUpdate} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                    Display Name
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                    Reputation (Karma)
-                  </label>
-                  <input
-                    type="number"
-                    value={karma}
-                    onChange={(e) => setKarma(parseInt(e.target.value) || 0)}
-                    required
-                    className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                  />
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-3 bg-white/5 border border-stormy-teal/10 rounded-xl">
+                <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block mb-1">Display Name</span>
+                <span className="text-xs font-bold text-floral-white">{user.name}</span>
               </div>
-
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  Avatar URL
-                </label>
-                <input
-                  type="text"
-                  value={avatar}
-                  onChange={(e) => setAvatar(e.target.value)}
-                  placeholder="Leave empty for auto-generated avatar"
-                  className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                />
+              <div className="p-3 bg-white/5 border border-stormy-teal/10 rounded-xl">
+                <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block mb-1">Username</span>
+                <span className="text-xs font-bold text-floral-white">@{user.username}</span>
               </div>
-
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  Banner Image URL
-                </label>
-                <input
-                  type="text"
-                  value={banner}
-                  onChange={(e) => setBanner(e.target.value)}
-                  placeholder="Profile banner image link"
-                  className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                />
+              <div className="p-3 bg-white/5 border border-stormy-teal/10 rounded-xl">
+                <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block mb-1">Email Address</span>
+                <span className="text-xs font-bold text-floral-white">{user.email}</span>
               </div>
-
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  User Role
-                </label>
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  disabled={isSelf}
-                  className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine disabled:opacity-50"
-                >
-                  <option value="member">Member</option>
-                  <option value="moderator">Moderator</option>
-                  <option value="admin">Administrator</option>
-                </select>
-                {isSelf && (
-                  <span className="text-4xs text-spicy-paprika font-bold uppercase tracking-widest mt-1 block">
-                    You cannot demote yourself from the admin role.
-                  </span>
-                )}
+              <div className="p-3 bg-white/5 border border-stormy-teal/10 rounded-xl">
+                <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block mb-1">Account Role</span>
+                <span className="text-xs font-bold text-floral-white uppercase tracking-wider">{user.role}</span>
               </div>
+            </div>
 
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  User Bio
-                </label>
-                <textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  rows={4}
-                  className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine resize-none"
-                />
+            {user.bio && (
+              <div className="mt-4 p-3 bg-white/5 border border-stormy-teal/10 rounded-xl">
+                <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block mb-1">User Biography</span>
+                <p className="text-xs text-dust-grey leading-relaxed">{user.bio}</p>
               </div>
-
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-5 py-2.5 rounded-xl bg-stormy-teal hover:bg-stormy-teal/80 text-floral-white font-extrabold uppercase tracking-widest text-2xs transition-colors cursor-pointer"
-              >
-                {saving ? "Saving changes..." : "Save details"}
-              </button>
-            </form>
+            )}
           </div>
 
           {/* Danger Zone */}

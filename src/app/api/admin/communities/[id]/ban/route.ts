@@ -22,12 +22,29 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       return NextResponse.json({ error: "Community not found" }, { status: 404 });
     }
 
+    let durationHours: number | null = null;
+    try {
+      const body = await req.json();
+      if (body && typeof body.durationHours === "number") {
+        durationHours = body.durationHours;
+      }
+    } catch (e) {
+      // Body may be empty, ignore
+    }
+
     const currentlyBanned = !!community.isBanned;
     const nextBanStatus = !currentlyBanned;
 
     community.isBanned = nextBanStatus;
     community.bannedAt = nextBanStatus ? new Date() : null;
     community.bannedBy = nextBanStatus ? new mongoose.Types.ObjectId(adminUser.id) : null;
+    
+    if (nextBanStatus && durationHours && durationHours > 0) {
+      community.banExpiresAt = new Date(Date.now() + durationHours * 60 * 60 * 1000);
+    } else {
+      community.banExpiresAt = null;
+    }
+
     await community.save();
 
     // Log action to AuditLog
@@ -39,6 +56,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       details: {
         communityName: community.name,
         communitySlug: community.slug,
+        durationHours: nextBanStatus ? durationHours : undefined,
+        expiresAt: nextBanStatus ? community.banExpiresAt : undefined,
       },
     });
 

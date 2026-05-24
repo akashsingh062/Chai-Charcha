@@ -41,6 +41,10 @@ export default function CommunityManagementPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState<CommunityItem | null>(null);
 
+  // Ban Modal
+  const [banModalOpen, setBanModalOpen] = useState(false);
+  const [banDuration, setBanDuration] = useState("0");
+
   const fetchCommunities = useCallback(async () => {
     try {
       setLoading(true);
@@ -78,20 +82,40 @@ export default function CommunityManagementPage() {
     return () => clearTimeout(delayDebounceFn);
   }, [search]);
 
-  const handleBanToggle = async (community: CommunityItem) => {
+  const handleBanClick = async (community: CommunityItem) => {
+    if (community.isBanned) {
+      // Unban directly
+      try {
+        const res = await axiosInstance.post(`/api/admin/communities/${community.id}/ban`);
+        if (res.status === 200) {
+          setCommunities((prev) =>
+            prev.map((c) => (c.id === community.id ? { ...c, isBanned: res.data.isBanned } : c))
+          );
+        }
+      } catch (err: unknown) {
+        alert("Failed to unban community");
+      }
+    } else {
+      setSelectedCommunity(community);
+      setBanDuration("0");
+      setBanModalOpen(true);
+    }
+  };
+
+  const handleConfirmBan = async () => {
+    if (!selectedCommunity) return;
     try {
-      const res = await axiosInstance.post(`/api/admin/communities/${community.id}/ban`);
+      const payload = banDuration !== "0" ? { durationHours: parseInt(banDuration) } : {};
+      const res = await axiosInstance.post(`/api/admin/communities/${selectedCommunity.id}/ban`, payload);
       if (res.status === 200) {
         setCommunities((prev) =>
-          prev.map((c) => (c.id === community.id ? { ...c, isBanned: res.data.isBanned } : c))
+          prev.map((c) => (c.id === selectedCommunity.id ? { ...c, isBanned: res.data.isBanned } : c))
         );
       }
+      setBanModalOpen(false);
+      setSelectedCommunity(null);
     } catch (err: unknown) {
-      const errorMsg =
-        err && typeof err === "object" && "response" in err
-          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
-          : "";
-      alert(errorMsg || "Failed to update community ban status");
+      alert("Failed to ban community");
     }
   };
 
@@ -131,7 +155,7 @@ export default function CommunityManagementPage() {
         <div className="flex items-center gap-3">
           <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-stormy-teal/20 bg-stormy-teal/10 shrink-0">
             {row.avatar ? (
-              <Image src={row.avatar} alt={row.name} fill sizes="32px" className="object-cover" />
+              <img src={row.avatar} alt={row.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-3xs font-black uppercase text-stormy-teal">
                 {row.name.substring(0, 2)}
@@ -208,10 +232,10 @@ export default function CommunityManagementPage() {
             href={`/admin/communities/${row.id}`}
             className="px-2.5 py-1 rounded bg-stormy-teal/10 hover:bg-stormy-teal/20 text-stormy-teal border border-stormy-teal/20 text-3xs font-bold uppercase transition-all"
           >
-            Edit / View
+            Inspect
           </Link>
           <button
-            onClick={() => handleBanToggle(row)}
+            onClick={() => handleBanClick(row)}
             className={`px-2.5 py-1 rounded text-3xs font-bold uppercase transition-all border cursor-pointer ${
               row.isBanned
                 ? "bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20"
@@ -272,6 +296,53 @@ export default function CommunityManagementPage() {
         onPageChange={setPage}
         emptyMessage="No communities found matching search criteria"
       />
+
+      {/* Ban Duration Modal */}
+      {banModalOpen && selectedCommunity && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border border-stormy-teal/20 bg-ink-black p-6 shadow-2xl space-y-4">
+            <h3 className="text-base font-extrabold text-floral-white uppercase tracking-wider border-b border-stormy-teal/10 pb-2">
+              Ban Community: c/{selectedCommunity.slug}
+            </h3>
+            
+            <div>
+              <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
+                Suspension Duration
+              </label>
+              <select
+                value={banDuration}
+                onChange={(e) => setBanDuration(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine"
+              >
+                <option value="0">Permanent Ban</option>
+                <option value="1">1 Hour Suspension</option>
+                <option value="24">1 Day Suspension</option>
+                <option value="168">1 Week Suspension</option>
+                <option value="720">30 Days Suspension</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setBanModalOpen(false);
+                  setSelectedCommunity(null);
+                }}
+                className="px-4 py-2 rounded-xl text-2xs font-extrabold uppercase tracking-wider text-dust-grey hover:bg-white/5 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmBan}
+                className="px-4 py-2 rounded-xl bg-orange hover:bg-orange/80 text-ink-black font-extrabold uppercase tracking-wider text-2xs cursor-pointer"
+              >
+                Confirm Ban
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal

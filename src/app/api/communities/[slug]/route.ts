@@ -25,7 +25,8 @@ export async function GET(
       return NextResponse.json({ error: "Community not found" }, { status: 404 });
     }
 
-    if (community.isBanned) {
+    const isBanActive = community.isBanned && (community.banExpiresAt === null || (community.banExpiresAt && new Date(community.banExpiresAt as any).getTime() > Date.now()));
+    if (isBanActive) {
       return NextResponse.json(
         { error: "This community has been suspended/banned by administrators." },
         { status: 403 }

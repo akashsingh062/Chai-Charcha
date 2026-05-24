@@ -13,13 +13,25 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search") || "";
 
-    let query: Record<string, any> = { isBanned: { $ne: true } };
+    const now = new Date();
+    const activeBanQuery = {
+      $or: [
+        { isBanned: { $ne: true } },
+        { banExpiresAt: { $ne: null, $lte: now } }
+      ]
+    };
+
+    let query: Record<string, any> = { ...activeBanQuery };
     if (search.trim()) {
       query = {
-        isBanned: { $ne: true },
-        $or: [
-          { name: { $regex: search.trim(), $options: "i" } },
-          { description: { $regex: search.trim(), $options: "i" } }
+        ...activeBanQuery,
+        $and: [
+          {
+            $or: [
+              { name: { $regex: search.trim(), $options: "i" } },
+              { description: { $regex: search.trim(), $options: "i" } }
+            ]
+          }
         ]
       };
     }

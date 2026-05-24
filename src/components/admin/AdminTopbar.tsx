@@ -49,27 +49,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({ onToggleSidebar }) => 
 
       {/* Right notifications and user menu */}
       <div className="flex items-center gap-3.5 ml-auto">
-        {/* Main Site shortcut */}
-        <Link
-          href="/"
-          className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-dust-grey hover:text-floral-white hover:bg-white/10 transition-colors"
-          title="View Main Site"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </Link>
 
-        {/* Dashboard Home shortcut */}
-        <Link
-          href="/admin"
-          className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-dust-grey hover:text-floral-white hover:bg-white/10 transition-colors"
-          title="Dashboard Home"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-        </Link>
 
         {/* Pending Reports alert badge */}
         <Link
@@ -100,12 +80,10 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({ onToggleSidebar }) => 
 
           <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-vivid-tangerine/30 bg-vivid-tangerine/10">
             {userData?.avatar ? (
-              <Image
+              <img
                 src={userData.avatar}
                 alt="Admin avatar"
-                fill
-                sizes="32px"
-                className="object-cover"
+                className="w-full h-full object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-xs font-black text-floral-white uppercase">

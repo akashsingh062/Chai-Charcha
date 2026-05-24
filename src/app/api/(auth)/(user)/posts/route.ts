@@ -78,8 +78,15 @@ export async function GET(req: Request) {
       query.isSoftDeleted = { $ne: true };
     }
 
-    // Exclude banned communities from any feed
-    const bannedCommunities = await Community.find({ isBanned: true }).select("_id");
+    // Exclude banned communities from any feed (only if ban is still active/not expired)
+    const now = new Date();
+    const bannedCommunities = await Community.find({
+      isBanned: true,
+      $or: [
+        { banExpiresAt: null },
+        { banExpiresAt: { $gt: now } }
+      ]
+    }).select("_id");
     const bannedCommunityIds = bannedCommunities.map((c) => c._id.toString());
     if (bannedCommunityIds.length > 0) {
       const bannedObjectIds = bannedCommunityIds.map(id => new mongoose.Types.ObjectId(id));
@@ -191,7 +198,8 @@ export async function POST(req: Request) {
     if (validatedData.data.community) {
       const comm = await Community.findById(validatedData.data.community);
       if (comm) {
-        if (comm.isBanned) {
+        const isCommBanActive = comm.isBanned && (comm.banExpiresAt === null || (comm.banExpiresAt && new Date(comm.banExpiresAt as any).getTime() > Date.now()));
+        if (isCommBanActive) {
           return NextResponse.json({ error: "This community has been suspended/banned by administrators." }, { status: 403 });
         }
         if (comm.bannedUsers && comm.bannedUsers.some((uid: any) => uid.toString() === session.user.id)) {

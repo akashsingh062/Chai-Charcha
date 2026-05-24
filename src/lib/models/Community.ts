@@ -16,6 +16,7 @@ export interface Community extends Document {
     isBanned?: boolean;
     bannedAt?: Date | null;
     bannedBy?: mongoose.Types.ObjectId | null;
+    banExpiresAt?: Date | null;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -80,6 +81,10 @@ export const CommunitySchema = new Schema<Community>({
     bannedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        default: null
+    },
+    banExpiresAt: {
+        type: Date,
         default: null
     },
     rules: {

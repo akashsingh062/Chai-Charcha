@@ -208,7 +208,7 @@ function UserManagementPageContent() {
         <div className="flex items-center gap-3">
           <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-stormy-teal/20 bg-stormy-teal/10 shrink-0">
             {row.avatar ? (
-              <Image src={row.avatar} alt={row.name} fill sizes="32px" className="object-cover" />
+              <img src={row.avatar} alt={row.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-3xs font-black uppercase">
                 {row.name.substring(0, 2)}
@@ -274,7 +274,7 @@ function UserManagementPageContent() {
             href={`/admin/users/${row.id}`}
             className="px-2.5 py-1 rounded bg-stormy-teal/10 hover:bg-stormy-teal/20 text-stormy-teal border border-stormy-teal/20 text-3xs font-bold uppercase transition-all"
           >
-            Edit
+            Inspect
           </Link>
           <button
             onClick={() => handleBanClick(row)}

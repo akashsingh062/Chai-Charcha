@@ -41,6 +41,8 @@ interface CommunityDetail {
     name: string;
     username: string;
   }>;
+  isBanned?: boolean;
+  banExpiresAt?: string | null;
 }
 
 export default function CommunityDetailPage() {
@@ -205,7 +207,7 @@ export default function CommunityDetailPage() {
           <div className="rounded-2xl border border-stormy-teal/15 bg-card-background/40 p-6 shadow-lg backdrop-blur-xs text-center space-y-4">
             <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-stormy-teal/20 bg-stormy-teal/10 mx-auto">
               {community.avatar ? (
-                <Image src={community.avatar} alt={community.name} fill sizes="96px" className="object-cover" />
+                <img src={community.avatar} alt={community.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-xl font-black uppercase text-stormy-teal">
                   {community.name.substring(0, 2)}
@@ -265,7 +267,7 @@ export default function CommunityDetailPage() {
                 <div key={mod.id} className="flex items-center gap-2">
                   <div className="relative w-6 h-6 rounded-md overflow-hidden bg-stormy-teal/10 shrink-0">
                     {mod.avatar && (
-                      <Image src={mod.avatar} alt={mod.name} fill sizes="24px" className="object-cover" />
+                      <img src={mod.avatar} alt={mod.name} className="w-full h-full object-cover" />
                     )}
                   </div>
                   <div className="min-w-0">
@@ -306,140 +308,55 @@ export default function CommunityDetailPage() {
             </div>
           )}
 
-          {/* Edit settings */}
+          {/* Inspect details */}
           <div className="rounded-2xl border border-stormy-teal/15 bg-card-background/40 p-6 shadow-lg backdrop-blur-xs">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-stormy-teal border-b border-stormy-teal/10 pb-2 mb-4">
-              Edit Community Configuration
+              Inspect Community Configuration
             </h3>
 
-            <form onSubmit={handleUpdate} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                    Channel Name
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                    Slug
-                  </label>
-                  <input
-                    type="text"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                  />
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-3 bg-white/5 border border-stormy-teal/10 rounded-xl">
+                <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block mb-1">Channel Name</span>
+                <span className="text-xs font-bold text-floral-white">{community.name}</span>
               </div>
-
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  required
-                  className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs text-floral-white focus:outline-none focus:border-vivid-tangerine resize-none"
-                />
+              <div className="p-3 bg-white/5 border border-stormy-teal/10 rounded-xl">
+                <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block mb-1">Slug</span>
+                <span className="text-xs font-bold text-floral-white">c/{community.slug}</span>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                    Avatar URL
-                  </label>
-                  <input
-                    type="text"
-                    value={avatar}
-                    onChange={(e) => setAvatar(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                    Banner URL
-                  </label>
-                  <input
-                    type="text"
-                    value={banner}
-                    onChange={(e) => setBanner(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                  />
-                </div>
+              <div className="p-3 bg-white/5 border border-stormy-teal/10 rounded-xl">
+                <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block mb-1">Visibility Setting</span>
+                <span className="text-xs font-bold text-floral-white uppercase tracking-wider">
+                  {community.isPrivate ? "Private (Requires Request)" : "Public (Open Join)"}
+                </span>
               </div>
-
-              <div>
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  Privacy Settings
-                </label>
-                <select
-                  value={isPrivate ? "true" : "false"}
-                  onChange={(e) => setIsPrivate(e.target.value === "true")}
-                  className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine"
-                >
-                  <option value="false">Public (Anyone can join and view)</option>
-                  <option value="true">Private (Join requests required)</option>
-                </select>
+              <div className="p-3 bg-white/5 border border-stormy-teal/10 rounded-xl">
+                <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block mb-1">Post Restrictions</span>
+                <span className="text-xs font-bold text-floral-white uppercase tracking-wider">
+                  {community.isBanned ? "Suspended (Read-Only)" : "Active"}
+                </span>
               </div>
+            </div>
 
-              {/* Rules Management */}
-              <div className="space-y-2">
-                <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block">
-                  Community Rules
-                </label>
+            <div className="mt-4 p-3 bg-white/5 border border-stormy-teal/10 rounded-xl">
+              <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block mb-1">Description</span>
+              <p className="text-xs text-dust-grey leading-relaxed">{community.description}</p>
+            </div>
+
+            {/* Rules Display */}
+            {rules.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <span className="text-3xs font-extrabold text-stormy-teal uppercase tracking-widest block">
+                  Community Rules ({rules.length})
+                </span>
                 <div className="space-y-1.5">
                   {rules.map((rule, idx) => (
-                    <div key={idx} className="flex items-center justify-between gap-3 p-2 border border-stormy-teal/10 bg-white/5 rounded-lg">
-                      <span className="text-2xs font-semibold text-floral-white">{rule}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveRule(idx)}
-                        className="text-spicy-paprika hover:text-floral-white text-3xs font-extrabold uppercase cursor-pointer"
-                      >
-                        Remove
-                      </button>
+                    <div key={idx} className="p-2.5 border border-stormy-teal/10 bg-white/5 rounded-lg text-2xs font-semibold text-floral-white">
+                      {idx + 1}. {rule}
                     </div>
                   ))}
                 </div>
-
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newRule}
-                    onChange={(e) => setNewRule(e.target.value)}
-                    placeholder="Type a new rule..."
-                    className="flex-1 px-3.5 py-2 bg-white/5 border border-stormy-teal/20 rounded-xl text-2xs text-floral-white focus:outline-none focus:border-vivid-tangerine"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddRule}
-                    className="px-4 py-2 rounded-xl bg-stormy-teal hover:bg-stormy-teal/80 text-2xs font-extrabold uppercase tracking-wider text-floral-white cursor-pointer"
-                  >
-                    Add
-                  </button>
-                </div>
               </div>
-
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-5 py-2.5 rounded-xl bg-stormy-teal hover:bg-stormy-teal/80 text-floral-white font-extrabold uppercase tracking-widest text-2xs transition-colors cursor-pointer"
-              >
-                {saving ? "Saving Community..." : "Save details"}
-              </button>
-            </form>
+            )}
           </div>
 
           {/* Danger Zone */}
