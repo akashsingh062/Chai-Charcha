@@ -6,6 +6,7 @@ export interface Notification extends Document {
     type: string;
     link: string;
     isRead: boolean;
+    message?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -32,7 +33,16 @@ export const NotificationSchema = new Schema<Notification>({
     isRead: {
         type: Boolean,
         default: false
+    },
+    message: {
+        type: String,
+        required: false
     }
 }, { timestamps: true });
+
+// Clear compiled model cache in development to force re-compilation of updated schema
+if (mongoose.models && mongoose.models.Notification) {
+    delete mongoose.models.Notification;
+}
 
 export const Notification = mongoose.models.Notification as Model<Notification> || mongoose.model<Notification>("Notification", NotificationSchema);

@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { DataTable } from "@/components/admin/DataTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
-import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import Link from "next/link";
 
 interface ReportItem {
@@ -36,9 +35,8 @@ export default function ModerationQueuePage() {
   const [totalReports, setTotalReports] = useState(0);
 
   // Modal actions
-  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [actionModalOpen, setActionModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<ReportItem | null>(null);
-  const [modAction, setModAction] = useState<"delete_content" | "keep_content" | "reject">("keep_content");
 
   const fetchReports = useCallback(async () => {
     try {
@@ -66,19 +64,20 @@ export default function ModerationQueuePage() {
     fetchReports();
   }, [fetchReports]);
 
-  const handleActionClick = (report: ReportItem, action: "delete_content" | "keep_content" | "reject") => {
+  const handleActionClick = (report: ReportItem) => {
     setSelectedReport(report);
-    setModAction(action);
-    setConfirmModalOpen(true);
+    setActionModalOpen(true);
   };
 
-  const handleConfirmAction = async () => {
+  const handleConfirmAction = async (payload: { action: string; warningMessage: string; durationHours?: number }) => {
     if (!selectedReport) return;
     try {
-      const nextStatus = modAction === "reject" ? "rejected" : "resolved";
+      const nextStatus = payload.action === "reject" ? "rejected" : "resolved";
       await axiosInstance.put(`/api/admin/reports/${selectedReport.id}`, {
         status: nextStatus,
-        action: modAction,
+        action: payload.action,
+        warningMessage: payload.warningMessage,
+        durationHours: payload.durationHours,
       });
       fetchReports();
     } catch (err: unknown) {
@@ -87,6 +86,23 @@ export default function ModerationQueuePage() {
           ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
           : "";
       alert(errorMsg || "Failed to submit moderation decision");
+    }
+  };
+
+  const handleIgnoreClick = async (report: ReportItem) => {
+    if (!confirm("Are you sure you want to ignore this report? It will be marked as rejected.")) return;
+    try {
+      await axiosInstance.put(`/api/admin/reports/${report.id}`, {
+        status: "rejected",
+        action: "keep_content",
+      });
+      fetchReports();
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? ((err as { response?: { data?: { error?: string } } }).response?.data?.error as string)
+          : "";
+      alert(errorMsg || "Failed to ignore report");
     }
   };
 
@@ -183,20 +199,14 @@ export default function ModerationQueuePage() {
           {row.status === "pending" ? (
             <>
               <button
-                onClick={() => handleActionClick(row, "delete_content")}
-                className="px-2 py-1 rounded bg-spicy-paprika text-floral-white text-3xs font-black uppercase shadow-xs hover:bg-spicy-paprika/80 cursor-pointer"
+                onClick={() => handleActionClick(row)}
+                className="px-2.5 py-1 rounded bg-orange hover:bg-orange/80 text-ink-black text-3xs font-black uppercase shadow-xs cursor-pointer transition-all"
               >
-                Delete Content
+                Resolve
               </button>
               <button
-                onClick={() => handleActionClick(row, "keep_content")}
-                className="px-2 py-1 rounded bg-green-600 text-floral-white text-3xs font-black uppercase shadow-xs hover:bg-green-600/80 cursor-pointer"
-              >
-                Keep Content
-              </button>
-              <button
-                onClick={() => handleActionClick(row, "reject")}
-                className="px-2 py-1 rounded bg-white/5 border border-stormy-teal/20 text-dust-grey hover:text-floral-white text-3xs font-bold uppercase transition-all cursor-pointer"
+                onClick={() => handleIgnoreClick(row)}
+                className="px-2.5 py-1 rounded bg-white/5 border border-stormy-teal/20 text-dust-grey hover:text-floral-white text-3xs font-bold uppercase transition-all cursor-pointer"
               >
                 Ignore
               </button>
@@ -277,43 +287,332 @@ export default function ModerationQueuePage() {
         emptyMessage="Moderation queue is clean! No reports found."
       />
 
-      {/* Action Confirmation Modal */}
-      <ConfirmModal
-        isOpen={confirmModalOpen}
-        title={
-          modAction === "delete_content"
-            ? (selectedReport?.targetType === "User" || selectedReport?.targetType === "Community")
-              ? `Ban reported ${selectedReport?.targetType}`
-              : "Delete Reported Content"
-            : modAction === "keep_content"
-            ? "Approve Content & Dismiss Reports"
-            : "Reject Report"
-        }
-        message={
-          modAction === "delete_content"
-            ? (selectedReport?.targetType === "User" || selectedReport?.targetType === "Community")
-              ? `Are you sure you want to resolve this report by permanently banning/suspending the reported ${selectedReport?.targetType.toLowerCase()}? This will also auto-resolve any other pending reports for this target.`
-              : `Are you sure you want to resolve this report by hard-deleting the reported ${selectedReport?.targetType.toLowerCase()}? This will also auto-resolve any other pending reports for this exact content.`
-            : modAction === "keep_content"
-            ? `Are you sure you want to dismiss the reports for this content and mark them as resolved? The content will remain active on the platform.`
-            : `Are you sure you want to reject this report? This marks the report as rejected without making any changes to the content.`
-        }
-        confirmText={
-          modAction === "delete_content"
-            ? (selectedReport?.targetType === "User" || selectedReport?.targetType === "Community")
-              ? `Permanently Ban ${selectedReport?.targetType}`
-              : "Hard Delete Content"
-            : modAction === "keep_content"
-            ? "Dismiss & Resolve"
-            : "Reject Report"
-        }
-        onConfirm={handleConfirmAction}
-        onCancel={() => {
-          setConfirmModalOpen(false);
+      {/* Moderation Action Modal */}
+      <ModerationActionModal
+        isOpen={actionModalOpen}
+        report={selectedReport}
+        onClose={() => {
+          setActionModalOpen(false);
           setSelectedReport(null);
         }}
-        isDanger={modAction === "delete_content"}
+        onConfirm={handleConfirmAction}
       />
     </div>
   );
 }
+
+interface ModerationActionModalProps {
+  isOpen: boolean;
+  report: ReportItem | null;
+  onClose: () => void;
+  onConfirm: (payload: { action: string; warningMessage: string; durationHours?: number }) => Promise<void>;
+}
+
+const ModerationActionModal: React.FC<ModerationActionModalProps> = ({
+  isOpen,
+  report,
+  onClose,
+  onConfirm,
+}) => {
+  const [action, setAction] = useState<string>("");
+  const [warningMessage, setWarningMessage] = useState("");
+  const [durationHours, setDurationHours] = useState<number>(24);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Set default action and warning message when report changes
+  useEffect(() => {
+    if (report) {
+      if (report.targetType === "Post" || report.targetType === "Comment") {
+        setAction("delete_content");
+        setWarningMessage(
+          `Your ${report.targetType.toLowerCase()} was removed for violating community guidelines. Reason: ${report.reason}`
+        );
+      } else {
+        setAction("warn");
+        setWarningMessage(
+          `You are receiving a warning regarding community guidelines. Reason: ${report.reason}`
+        );
+      }
+      setDurationHours(24);
+    }
+  }, [report]);
+
+  // Update default warning message when action changes
+  const handleActionChange = (newAction: string) => {
+    setAction(newAction);
+    if (!report) return;
+
+    if (report.targetType === "Post" || report.targetType === "Comment") {
+      if (newAction === "delete_content") {
+        setWarningMessage(
+          `Your ${report.targetType.toLowerCase()} was removed for violating community guidelines. Reason: ${report.reason}`
+        );
+      } else if (newAction === "keep_content") {
+        setWarningMessage(""); // No warning if keeping content
+      }
+    } else {
+      const targetLabel = report.targetType === "User" ? "account" : "community";
+      if (newAction === "warn") {
+        setWarningMessage(
+          `You are receiving a warning regarding community guidelines. Reason: ${report.reason}`
+        );
+      } else if (newAction === "ban_temporary") {
+        setWarningMessage(
+          `Your ${targetLabel} has been temporarily suspended for ${durationHours / 24} days for violating community guidelines. Reason: ${report.reason}`
+        );
+      } else if (newAction === "ban_permanent") {
+        setWarningMessage(
+          `Your ${targetLabel} has been permanently banned for violating community guidelines. Reason: ${report.reason}`
+        );
+      } else if (newAction === "keep_content") {
+        setWarningMessage("");
+      }
+    }
+  };
+
+  // Update warning message when duration changes
+  const handleDurationChange = (hours: number) => {
+    setDurationHours(hours);
+    if (!report) return;
+    const targetLabel = report.targetType === "User" ? "account" : "community";
+    if (action === "ban_temporary") {
+      setWarningMessage(
+        `Your ${targetLabel} has been temporarily suspended for ${hours / 24} days for violating community guidelines. Reason: ${report.reason}`
+      );
+    }
+  };
+
+  if (!isOpen || !report) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await onConfirm({
+        action,
+        warningMessage,
+        durationHours: action === "ban_temporary" ? durationHours : undefined,
+      });
+      onClose();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isPostOrComment = report.targetType === "Post" || report.targetType === "Comment";
+
+  return (
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xs animate-fade-in">
+      <div className="w-full max-w-lg rounded-3xl border border-stormy-teal/20 bg-ink-black p-7 shadow-2xl backdrop-blur-md pointer-events-auto overflow-hidden relative">
+        {/* Glow effect */}
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-orange/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-spicy-paprika/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex items-center gap-3 border-b border-stormy-teal/10 pb-4 mb-5">
+          <div className={`p-2.5 rounded-2xl shrink-0 ${isPostOrComment ? 'bg-spicy-paprika/10 text-spicy-paprika border border-spicy-paprika/20' : 'bg-orange/10 text-orange border border-orange/20'}`}>
+            {isPostOrComment ? (
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            )}
+          </div>
+          <div>
+            <h3 className="text-lg font-black text-floral-white uppercase tracking-wider">
+              Resolve Reported {report.targetType}
+            </h3>
+            <p className="text-3xs text-dust-grey/70 uppercase tracking-widest font-extrabold mt-0.5">
+              Reason: &ldquo;{report.reason}&rdquo;
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Content Preview */}
+          <div className="p-4 bg-ink-black/40 border border-stormy-teal/10 rounded-2xl">
+            <span className="text-4xs uppercase tracking-widest font-black text-stormy-teal block mb-1">
+              Content Preview
+            </span>
+            <p className="text-xs text-dust-grey leading-relaxed line-clamp-3 italic">
+              {report.contentPreview}
+            </p>
+          </div>
+
+          {/* Action Choice */}
+          <div>
+            <label className="text-3xs uppercase tracking-widest font-extrabold text-stormy-teal block mb-2">
+              Select Moderation Action
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {isPostOrComment ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleActionChange("delete_content")}
+                    className={`flex items-center justify-between p-3.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      action === "delete_content"
+                        ? "border-spicy-paprika bg-spicy-paprika/10 text-floral-white"
+                        : "border-stormy-teal/10 bg-white/3 text-dust-grey hover:border-stormy-teal/30"
+                    }`}
+                  >
+                    <span>Delete Content & Warn User</span>
+                    <span className={`w-2.5 h-2.5 rounded-full ${action === "delete_content" ? 'bg-spicy-paprika' : 'bg-transparent border border-dust-grey'}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleActionChange("keep_content")}
+                    className={`flex items-center justify-between p-3.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      action === "keep_content"
+                        ? "border-green-600 bg-green-600/10 text-floral-white"
+                        : "border-stormy-teal/10 bg-white/3 text-dust-grey hover:border-stormy-teal/30"
+                    }`}
+                  >
+                    <span>Keep Content (Dismiss)</span>
+                    <span className={`w-2.5 h-2.5 rounded-full ${action === "keep_content" ? 'bg-green-600' : 'bg-transparent border border-dust-grey'}`} />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleActionChange("warn")}
+                    className={`flex items-center justify-between p-3.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      action === "warn"
+                        ? "border-orange bg-orange/10 text-floral-white"
+                        : "border-stormy-teal/10 bg-white/3 text-dust-grey hover:border-stormy-teal/30"
+                    }`}
+                  >
+                    <span>Send Warning Only</span>
+                    <span className={`w-2.5 h-2.5 rounded-full ${action === "warn" ? 'bg-orange' : 'bg-transparent border border-dust-grey'}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleActionChange("ban_temporary")}
+                    className={`flex items-center justify-between p-3.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      action === "ban_temporary"
+                        ? "border-orange/80 bg-orange/5 text-floral-white"
+                        : "border-stormy-teal/10 bg-white/3 text-dust-grey hover:border-stormy-teal/30"
+                    }`}
+                  >
+                    <span>Temporary Ban</span>
+                    <span className={`w-2.5 h-2.5 rounded-full ${action === "ban_temporary" ? 'bg-orange' : 'bg-transparent border border-dust-grey'}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleActionChange("ban_permanent")}
+                    className={`flex items-center justify-between p-3.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      action === "ban_permanent"
+                        ? "border-spicy-paprika bg-spicy-paprika/10 text-floral-white"
+                        : "border-stormy-teal/10 bg-white/3 text-dust-grey hover:border-stormy-teal/30"
+                    }`}
+                  >
+                    <span>Permanent Ban</span>
+                    <span className={`w-2.5 h-2.5 rounded-full ${action === "ban_permanent" ? 'bg-spicy-paprika' : 'bg-transparent border border-dust-grey'}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleActionChange("keep_content")}
+                    className={`flex items-center justify-between p-3.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      action === "keep_content"
+                        ? "border-green-600 bg-green-600/10 text-floral-white"
+                        : "border-stormy-teal/10 bg-white/3 text-dust-grey hover:border-stormy-teal/30"
+                    }`}
+                  >
+                    <span>Keep Content (Dismiss)</span>
+                    <span className={`w-2.5 h-2.5 rounded-full ${action === "keep_content" ? 'bg-green-600' : 'bg-transparent border border-dust-grey'}`} />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Temp Ban Expiration duration selector */}
+          {action === "ban_temporary" && (
+            <div className="animate-fade-in">
+              <label className="text-3xs uppercase tracking-widest font-extrabold text-stormy-teal block mb-2">
+                Ban Duration
+              </label>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { label: "1 Day", hours: 24 },
+                  { label: "3 Days", hours: 72 },
+                  { label: "7 Days", hours: 168 },
+                  { label: "30 Days", hours: 720 },
+                ].map((dur) => (
+                  <button
+                    key={dur.hours}
+                    type="button"
+                    onClick={() => handleDurationChange(dur.hours)}
+                    className={`py-2 px-1 rounded-xl text-3xs uppercase font-extrabold border text-center transition-all cursor-pointer ${
+                      durationHours === dur.hours
+                        ? "border-vivid-tangerine bg-vivid-tangerine/10 text-floral-white"
+                        : "border-stormy-teal/10 bg-white/3 text-dust-grey hover:border-stormy-teal/20"
+                    }`}
+                  >
+                    {dur.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Warning Message text field */}
+          {action !== "keep_content" && (
+            <div className="animate-fade-in">
+              <label className="text-3xs uppercase tracking-widest font-extrabold text-stormy-teal block mb-1.5">
+                Warning Message (Sent to User)
+              </label>
+              <textarea
+                value={warningMessage}
+                onChange={(e) => setWarningMessage(e.target.value)}
+                placeholder="Type a warning explanation to the user..."
+                className="w-full min-h-[90px] px-3.5 py-3 bg-ink-black border border-stormy-teal/20 rounded-2xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine placeholder:text-dust-grey/30 leading-relaxed"
+                required
+              />
+            </div>
+          )}
+
+          {/* Footer Actions */}
+          <div className="flex items-center justify-end gap-3 border-t border-stormy-teal/10 pt-5 mt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl px-5 py-2.5 text-xs font-bold text-dust-grey hover:bg-white/5 cursor-pointer transition-colors"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`rounded-xl px-5 py-2.5 text-xs font-black uppercase tracking-wider text-floral-white shadow-md cursor-pointer transition-all flex items-center gap-1.5 ${
+                action === "keep_content"
+                  ? "bg-green-600 hover:bg-green-600/80"
+                  : action === "delete_content" || action === "ban_permanent"
+                  ? "bg-spicy-paprika hover:bg-spicy-paprika/80"
+                  : "bg-orange hover:bg-orange/80"
+              }`}
+            >
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-1.5 h-3.5 w-3.5 text-floral-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <span>Submit Decision</span>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
