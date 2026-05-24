@@ -10,7 +10,8 @@ export async function GET() {
     const topUsers = await User.find({})
       .sort({ karma: -1, createdAt: 1 })
       .limit(10)
-      .select("name username avatar role karma");
+      .select("name username avatar role karma")
+      .lean();
 
     // Map into a clean response
     const leaderboard = topUsers.map((user, index) => {

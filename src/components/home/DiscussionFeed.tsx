@@ -1,5 +1,5 @@
 import React from "react";
-import { Thread } from "@/app/(main)/post/postData";
+import { Thread } from "@/types/post";
 import { UserProfile } from "@/context/AuthContext";
 import { ThreadCard } from "./ThreadCard";
 

@@ -47,29 +47,35 @@ export async function GET(req: Request) {
       console.warn("User schema not registered dynamically.");
     }
 
-    // Fetch all posts from DB
-    const posts = await Post.find({}).populate(
-      "author",
-      "name username avatar role karma"
-    );
+    // Fetch pre-filtered posts from DB using query parameters (cap at 100)
+    const posts = await Post.find({
+      $or: [
+        { title: { $regex: cleanQuery, $options: "i" } },
+        { tags: { $regex: cleanQuery, $options: "i" } },
+        { category: { $regex: cleanQuery, $options: "i" } }
+      ]
+    })
+      .populate("author", "name username avatar role karma")
+      .limit(100)
+      .lean();
 
-    // Fetch matching users from DB
+    // Fetch matching users from DB with lean()
     const matchedUsers = await User.find({
       $or: [
         { name: { $regex: cleanQuery, $options: "i" } },
         { username: { $regex: cleanQuery, $options: "i" } },
         { bio: { $regex: cleanQuery, $options: "i" } }
       ]
-    }).limit(3);
+    }).limit(3).lean();
 
-    // Fetch matching communities from DB
+    // Fetch matching communities from DB with lean()
     const matchedCommunities = await Community.find({
       $or: [
         { name: { $regex: cleanQuery, $options: "i" } },
         { slug: { $regex: cleanQuery, $options: "i" } },
         { description: { $regex: cleanQuery, $options: "i" } }
       ]
-    }).limit(3);
+    }).limit(3).lean();
 
     // Map DB posts to searchable documents
     const searchItems = posts.map(mapPostToSearchItem);

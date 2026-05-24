@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Thread } from "../../app/(main)/post/postData";
+import { Thread } from "@/types/post";
 import { CommentNode } from "./CommentNode";
 
 interface CommentSectionProps {

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Comment, Thread } from "../app/(main)/post/postData";
+import { Comment, Thread } from "@/types/post";
 import { Post } from "./models/Post";
 
 
@@ -38,7 +38,12 @@ export interface DBPost {
   upvotes: mongoose.Types.ObjectId[];
   downvotes: mongoose.Types.ObjectId[];
   commentCount: number;
-  community?: any;
+  community?: {
+    _id: mongoose.Types.ObjectId;
+    name: string;
+    slug: string;
+    description?: string;
+  } | null;
   category?: string;
   isSoftDeleted?: boolean;
   softDeletedBy?: mongoose.Types.ObjectId | null;
@@ -104,7 +109,7 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
 
   let community = null;
   if (post.community && typeof post.community === "object") {
-    const com = post.community as any;
+    const com = post.community;
     community = {
       id: com._id?.toString() || "",
       name: com.name || "",

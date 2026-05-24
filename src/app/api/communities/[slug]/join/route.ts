@@ -34,7 +34,7 @@ export async function POST(
     }
 
     // Check if user is banned
-    if (community.bannedUsers && community.bannedUsers.some((id: any) => id.toString() === session.user.id)) {
+    if (community.bannedUsers && community.bannedUsers.some((id: unknown) => String(id) === session.user.id)) {
       return NextResponse.json({ error: "You are banned from this community." }, { status: 403 });
     }
 
@@ -46,11 +46,11 @@ export async function POST(
     let joined: string[] = [];
     if (user.joinedCommunities) {
       if (Array.isArray(user.joinedCommunities)) {
-        joined = user.joinedCommunities.map((id: any) => id.toString());
+        joined = user.joinedCommunities.map((id: unknown) => String(id));
       } else if (typeof user.joinedCommunities === "string") {
         try {
-          joined = JSON.parse(user.joinedCommunities).map((id: any) => id.toString());
-        } catch (e) {
+          joined = JSON.parse(user.joinedCommunities).map((id: unknown) => String(id));
+        } catch {
           joined = [];
         }
       }
@@ -104,7 +104,7 @@ export async function POST(
       let updatedCommunity = community;
 
       // Remove from pending requests if present
-      if (community.pendingRequests && community.pendingRequests.some((id: any) => id.toString() === user._id.toString())) {
+      if (community.pendingRequests && community.pendingRequests.some((id: unknown) => String(id) === user._id.toString())) {
         updatedCommunity = await Community.findOneAndUpdate(
           { slug },
           { $pull: { pendingRequests: user._id } },

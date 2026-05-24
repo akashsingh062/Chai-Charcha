@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ProfileDetails } from "@/components/profile/ProfileDetails";
 import { ProfilePosts } from "@/components/profile/ProfilePosts";
@@ -22,9 +22,8 @@ interface UserProfileData {
 }
 
 function ProfilePageContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const { user: isLoggedIn, userData } = useAuth();
+  const { userData } = useAuth();
   
   const usernameParam = searchParams.get("username") || "";
 

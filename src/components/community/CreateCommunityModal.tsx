@@ -83,9 +83,10 @@ export const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ onCl
         // Redirect to new community page
         router.push(`/c/${res.data.community.slug}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error creating community:", err);
-      toast.error(err.response?.data?.error || "Failed to create community. Please try again.");
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error.response?.data?.error || "Failed to create community. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

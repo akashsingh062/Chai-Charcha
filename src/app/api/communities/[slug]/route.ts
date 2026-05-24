@@ -25,7 +25,7 @@ export async function GET(
       return NextResponse.json({ error: "Community not found" }, { status: 404 });
     }
 
-    const isBanActive = community.isBanned && (community.banExpiresAt === null || (community.banExpiresAt && new Date(community.banExpiresAt as any).getTime() > Date.now()));
+    const isBanActive = community.isBanned && (community.banExpiresAt === null || (community.banExpiresAt && new Date(community.banExpiresAt as string | number | Date).getTime() > Date.now()));
     if (isBanActive) {
       return NextResponse.json(
         { error: "This community has been suspended/banned by administrators." },
@@ -51,19 +51,19 @@ export async function GET(
         : community.creator.toString();
 
       isAdmin = creatorIdStr === userId;
-      isModerator = !!(isAdmin || (community.moderators && community.moderators.some((id: any) => id.toString() === userId)));
-      isBanned = !!(community.bannedUsers && community.bannedUsers.some((id: any) => id.toString() === userId));
-      isPending = !!(community.pendingRequests && community.pendingRequests.some((id: any) => id.toString() === userId));
+      isModerator = !!(isAdmin || (community.moderators && community.moderators.some((id: unknown) => String(id) === userId)));
+      isBanned = !!(community.bannedUsers && community.bannedUsers.some((id: unknown) => String(id) === userId));
+      isPending = !!(community.pendingRequests && community.pendingRequests.some((id: unknown) => String(id) === userId));
 
       const currentUser = await User.findById(userId);
       if (currentUser && currentUser.joinedCommunities) {
         let joined: string[] = [];
         if (Array.isArray(currentUser.joinedCommunities)) {
-          joined = currentUser.joinedCommunities.map((id: any) => id.toString());
+          joined = currentUser.joinedCommunities.map((id: unknown) => String(id));
         } else if (typeof currentUser.joinedCommunities === "string") {
           try {
-            joined = JSON.parse(currentUser.joinedCommunities).map((id: any) => id.toString());
-          } catch (e) {
+            joined = JSON.parse(currentUser.joinedCommunities).map((id: unknown) => String(id));
+          } catch {
             joined = [];
           }
         }
@@ -113,7 +113,7 @@ export async function PUT(
 
     const currentUserId = session.user.id;
     const isAdmin = community.creator.toString() === currentUserId;
-    const isMod = isAdmin || (community.moderators && community.moderators.some((uid: any) => uid.toString() === currentUserId));
+    const isMod = isAdmin || (community.moderators && community.moderators.some((uid: unknown) => String(uid) === currentUserId));
 
     if (!isMod) {
       return NextResponse.json({ error: "Forbidden. Only moderators can update settings." }, { status: 403 });
@@ -212,11 +212,13 @@ export async function DELETE(
       let joined: string[] = [];
       if (u.joinedCommunities) {
         if (Array.isArray(u.joinedCommunities)) {
-          joined = u.joinedCommunities.map((id: any) => id.toString());
+          joined = u.joinedCommunities.map((id: unknown) => String(id));
         } else if (typeof u.joinedCommunities === "string") {
           try {
-            joined = JSON.parse(u.joinedCommunities).map((id: any) => id.toString());
-          } catch (e) {}
+            joined = JSON.parse(u.joinedCommunities).map((id: unknown) => String(id));
+          } catch {
+            // Optional catch binding
+          }
         }
       }
       const communityIdStr = communityId.toString();

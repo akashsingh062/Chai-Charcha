@@ -33,7 +33,7 @@ export async function GET(
 
     const userId = session.user.id;
     const isAdmin = community.creator.toString() === userId;
-    const isMod = isAdmin || (community.moderators && community.moderators.some((id: any) => id.toString() === userId));
+    const isMod = isAdmin || (community.moderators && community.moderators.some((id: unknown) => String(id) === userId));
 
     if (!isMod) {
       return NextResponse.json({ error: "Forbidden. Only moderators can view banned users." }, { status: 403 });
@@ -77,7 +77,7 @@ export async function POST(
 
     const currentUserId = session.user.id;
     const isAdmin = community.creator.toString() === currentUserId;
-    const isMod = isAdmin || (community.moderators && community.moderators.some((id: any) => id.toString() === currentUserId));
+    const isMod = isAdmin || (community.moderators && community.moderators.some((id: unknown) => String(id) === currentUserId));
 
     if (!isMod) {
       return NextResponse.json({ error: "Forbidden. Only moderators can manage bans." }, { status: 403 });
@@ -110,11 +110,13 @@ export async function POST(
       let joined: string[] = [];
       if (targetUser.joinedCommunities) {
         if (Array.isArray(targetUser.joinedCommunities)) {
-          joined = targetUser.joinedCommunities.map((id: any) => id.toString());
+          joined = targetUser.joinedCommunities.map((id: unknown) => String(id));
         } else if (typeof targetUser.joinedCommunities === "string") {
           try {
-            joined = JSON.parse(targetUser.joinedCommunities).map((id: any) => id.toString());
-          } catch (e) {}
+            joined = JSON.parse(targetUser.joinedCommunities).map((id: unknown) => String(id));
+          } catch {
+            // Optional catch binding
+          }
         }
       }
 

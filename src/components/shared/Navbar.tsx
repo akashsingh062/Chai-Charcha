@@ -70,7 +70,7 @@ const Navbar = () => {
 
     const interval = setInterval(fetchUnreadCount, 6000); // Poll every 6 seconds
     return () => clearInterval(interval);
-  }, [user, unreadCount]);
+  }, [user, userData, unreadCount]);
 
   if (pathname?.startsWith("/admin")) {
     return null;

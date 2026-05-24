@@ -23,22 +23,23 @@ export async function GET(
     });
     const userId = session?.user?.id || null;
 
-    const dbPostDoc = await Post.findById(id)
+    const dbPost = await Post.findById(id)
       .populate("author", "name username avatar role karma")
-      .populate("community", "name slug description membersCount");
+      .populate("community", "name slug description membersCount")
+      .lean() as unknown as DBPost;
 
-    if (!dbPostDoc) {
+    if (!dbPost) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
     // Check if post is soft deleted
-    if (dbPostDoc.isSoftDeleted) {
+    if (dbPost.isSoftDeleted) {
       let allowed = false;
-      if (userId && dbPostDoc.community) {
-        const comm = await Community.findById(dbPostDoc.community);
+      if (userId && dbPost.community) {
+        const comm = await Community.findById(dbPost.community).lean();
         if (comm) {
           const isAdmin = comm.creator.toString() === userId;
-          const isMod = isAdmin || (comm.moderators && comm.moderators.some((uid: any) => uid.toString() === userId));
+          const isMod = isAdmin || (comm.moderators && comm.moderators.some((uid: unknown) => String(uid) === userId));
           if (isMod) allowed = true;
         }
       }
@@ -47,12 +48,11 @@ export async function GET(
       }
     }
 
-    const dbPost = dbPostDoc as unknown as DBPost;
-
     // Fetch all comments for this post
     const dbComments = await Comment.find({ postId: id })
       .populate("author", "name username avatar role karma")
-      .sort({ createdAt: 1 }) as unknown as DBComment[];
+      .sort({ createdAt: 1 })
+      .lean() as unknown as DBComment[];
 
     const formattedPost = formatPostForFrontend(dbPost, dbComments, userId);
 
@@ -125,11 +125,12 @@ export async function PUT(
     const populatedPost = await Post.findById(post._id).populate(
       "author",
       "name username avatar role karma"
-    ) as unknown as DBPost;
+    ).lean() as unknown as DBPost;
 
     const dbComments = await Comment.find({ postId: id })
       .populate("author", "name username avatar role karma")
-      .sort({ createdAt: 1 }) as unknown as DBComment[];
+      .sort({ createdAt: 1 })
+      .lean() as unknown as DBComment[];
 
     const formattedPost = formatPostForFrontend(populatedPost, dbComments, session.user.id);
 

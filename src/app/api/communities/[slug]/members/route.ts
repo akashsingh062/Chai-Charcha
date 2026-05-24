@@ -29,19 +29,19 @@ export async function GET(
 
     const currentUserId = session.user.id;
 
-    // Fetch all users and filter who has joined
-    const allUsers = await User.find({}, "name username avatar role karma joinedCommunities");
+    // Fetch all users and filter who has joined (use lean() to bypass mongoose document wrappers)
+    const allUsers = await User.find({}, "name username avatar role karma joinedCommunities").lean();
     const communityIdStr = community._id.toString();
 
     const members = allUsers.filter((u) => {
       let joined: string[] = [];
       if (u.joinedCommunities) {
         if (Array.isArray(u.joinedCommunities)) {
-          joined = u.joinedCommunities.map((id: any) => id.toString());
+          joined = u.joinedCommunities.map((id: unknown) => String(id));
         } else if (typeof u.joinedCommunities === "string") {
           try {
-            joined = JSON.parse(u.joinedCommunities).map((id: any) => id.toString());
-          } catch (e) {
+            joined = JSON.parse(u.joinedCommunities).map((id: unknown) => String(id));
+          } catch {
             joined = [];
           }
         }
@@ -52,7 +52,7 @@ export async function GET(
     // Check if the current user has joined, or is creator/moderator
     const isJoined = members.some((m) => m._id.toString() === currentUserId);
     const isAdmin = community.creator.toString() === currentUserId;
-    const isMod = isAdmin || (community.moderators && community.moderators.some((id: any) => id.toString() === currentUserId));
+    const isMod = isAdmin || (community.moderators && community.moderators.some((id: unknown) => String(id) === currentUserId));
 
     if (!isJoined && !isMod) {
       return NextResponse.json(
@@ -70,7 +70,7 @@ export async function GET(
       role: m.role,
       karma: m.karma,
       isCreator: community.creator.toString() === m._id.toString(),
-      isModerator: community.moderators && community.moderators.some((id: any) => id.toString() === m._id.toString())
+      isModerator: community.moderators && community.moderators.some((id: unknown) => String(id) === m._id.toString())
     }));
 
     return NextResponse.json({ success: true, members: formattedMembers });
@@ -111,7 +111,7 @@ export async function POST(
 
     const currentUserId = session.user.id;
     const isAdmin = community.creator.toString() === currentUserId;
-    const isMod = isAdmin || (community.moderators && community.moderators.some((id: any) => id.toString() === currentUserId));
+    const isMod = isAdmin || (community.moderators && community.moderators.some((id: unknown) => String(id) === currentUserId));
 
     if (!isMod) {
       return NextResponse.json({ error: "Forbidden. Only moderators can kick members." }, { status: 403 });
@@ -132,7 +132,7 @@ export async function POST(
     }
 
     // 2. Moderators cannot kick other moderators (only creator can)
-    const isTargetMod = community.moderators && community.moderators.some((id: any) => id.toString() === targetUserId);
+    const isTargetMod = community.moderators && community.moderators.some((id: unknown) => String(id) === targetUserId);
     if (isTargetMod && !isAdmin) {
       return NextResponse.json({ error: "Moderators cannot kick other moderators." }, { status: 403 });
     }
@@ -141,11 +141,11 @@ export async function POST(
     let joined: string[] = [];
     if (targetUser.joinedCommunities) {
       if (Array.isArray(targetUser.joinedCommunities)) {
-        joined = targetUser.joinedCommunities.map((id: any) => id.toString());
+        joined = targetUser.joinedCommunities.map((id: unknown) => String(id));
       } else if (typeof targetUser.joinedCommunities === "string") {
         try {
-          joined = JSON.parse(targetUser.joinedCommunities).map((id: any) => id.toString());
-        } catch (e) {}
+          joined = JSON.parse(targetUser.joinedCommunities).map((id: unknown) => String(id));
+        } catch {}
       }
     }
 

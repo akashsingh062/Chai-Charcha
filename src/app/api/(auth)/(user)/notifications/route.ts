@@ -6,7 +6,7 @@ import { Notification } from "@/lib/models/Notification";
 import mongoose from "mongoose";
 
 // GET /api/notifications - Get all notifications for current user
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -22,7 +22,8 @@ export async function GET(req: Request) {
 
     const notifications = await Notification.find({ recipient: currentUserId })
       .sort({ createdAt: -1 })
-      .populate("sender", "name username avatar role karma");
+      .populate("sender", "name username avatar role karma")
+      .lean();
 
     return NextResponse.json({ notifications });
   } catch (error) {

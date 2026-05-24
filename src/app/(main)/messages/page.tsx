@@ -33,7 +33,7 @@ interface ChatThread {
 }
 
 function MessagesPageContent() {
-  const { user: isLoggedIn, userData } = useAuth();
+  const { userData } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);

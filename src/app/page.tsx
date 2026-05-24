@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Thread } from "@/app/(main)/post/postData";
+import { Thread } from "@/types/post";
 import { MarketingView } from "@/components/home/MarketingView";
 import { FeedSidebar } from "@/components/home/FeedSidebar";
 import { FeedRightSidebar } from "@/components/home/FeedRightSidebar";
@@ -20,7 +20,7 @@ export default function Home() {
   const { user, login, userData, setIsCreatePostOpen } = useAuth();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("All");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery] = useState<string>("");
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [sortBy, setSortBy] = useState<"trending" | "recent">("trending");
   const [feedTab, setFeedTab] = useState<"all" | "home">("all");
@@ -46,6 +46,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!user) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadPosts();
   }, [user, loadPosts]);
 
@@ -60,6 +61,7 @@ export default function Home() {
   }, [loadPosts]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisibleCount(10);
   }, [activeCategory, searchQuery, selectedTag, sortBy]);
 

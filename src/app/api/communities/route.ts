@@ -21,7 +21,7 @@ export async function GET(req: Request) {
       ]
     };
 
-    let query: Record<string, any> = { ...activeBanQuery };
+    let query: Record<string, unknown> = { ...activeBanQuery };
     if (search.trim()) {
       query = {
         ...activeBanQuery,
@@ -43,34 +43,35 @@ export async function GET(req: Request) {
 
     let joinedIds: string[] = [];
     if (currentUserId) {
-      const currentUser = await User.findById(currentUserId);
+      const currentUser = await User.findById(currentUserId).lean();
       if (currentUser && currentUser.joinedCommunities) {
         if (Array.isArray(currentUser.joinedCommunities)) {
-          joinedIds = currentUser.joinedCommunities.map((id: any) => id.toString());
+          joinedIds = currentUser.joinedCommunities.map((id: unknown) => String(id));
         } else if (typeof currentUser.joinedCommunities === "string") {
           try {
-            joinedIds = JSON.parse(currentUser.joinedCommunities).map((id: any) => id.toString());
-          } catch (e) {}
+            joinedIds = JSON.parse(currentUser.joinedCommunities).map((id: unknown) => String(id));
+          } catch {
+            // Optional catch binding
+          }
         }
       }
     }
 
-    const list = await Community.find(query).sort({ membersCount: -1, createdAt: -1 });
+    const list = await Community.find(query).sort({ membersCount: -1, createdAt: -1 }).lean();
 
     const formattedList = list.map((c) => {
-      const plain = c.toObject();
       const isJoined = currentUserId ? (
         c.creator.toString() === currentUserId || 
-        (c.moderators && c.moderators.some((m: any) => m.toString() === currentUserId)) || 
+        (c.moderators && c.moderators.some((m: unknown) => String(m) === currentUserId)) || 
         joinedIds.includes(c._id.toString())
       ) : false;
 
       const isPending = currentUserId ? (
-        c.pendingRequests && c.pendingRequests.some((id: any) => id.toString() === currentUserId)
+        c.pendingRequests && c.pendingRequests.some((id: unknown) => String(id) === currentUserId)
       ) : false;
 
       return {
-        ...plain,
+        ...c,
         isJoined,
         isPending
       };
@@ -139,11 +140,11 @@ export async function POST(req: Request) {
       let joined: string[] = [];
       if (user.joinedCommunities) {
         if (Array.isArray(user.joinedCommunities)) {
-          joined = user.joinedCommunities.map((id: any) => id.toString());
+          joined = user.joinedCommunities.map((id: unknown) => String(id));
         } else if (typeof user.joinedCommunities === "string") {
           try {
-            joined = JSON.parse(user.joinedCommunities).map((id: any) => id.toString());
-          } catch (e) {
+            joined = JSON.parse(user.joinedCommunities).map((id: unknown) => String(id));
+          } catch {
             joined = [];
           }
         }

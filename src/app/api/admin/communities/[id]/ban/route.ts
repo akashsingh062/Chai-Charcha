@@ -28,7 +28,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       if (body && typeof body.durationHours === "number") {
         durationHours = body.durationHours;
       }
-    } catch (e) {
+    } catch {
       // Body may be empty, ignore
     }
 

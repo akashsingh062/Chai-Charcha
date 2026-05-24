@@ -141,7 +141,7 @@ function UserManagementPageContent() {
         setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, role: newRole } : u));
         toast.success(`User role updated to ${newRole}`);
       }
-    } catch (err: unknown) {
+    } catch {
       toast.error("Failed to update user role");
     }
   };

@@ -25,7 +25,11 @@ export async function GET(req: Request) {
     });
     const userId = session?.user?.id || null;
 
-    let query: Record<string, any> = {};
+    const query: {
+      community?: { $in?: mongoose.Types.ObjectId[]; $nin?: mongoose.Types.ObjectId[] } | mongoose.Types.ObjectId | string;
+      isCommunityOnly?: { $ne: boolean };
+      isSoftDeleted?: { $ne: boolean };
+    } = {};
     let isCurrentUserMod = false;
 
     if (communityId) {
@@ -34,7 +38,7 @@ export async function GET(req: Request) {
         const comm = await Community.findById(communityId);
         if (comm && userId) {
           const isAdmin = comm.creator.toString() === userId;
-          isCurrentUserMod = isAdmin || (comm.moderators && comm.moderators.some((id: any) => id.toString() === userId));
+          isCurrentUserMod = isAdmin || (comm.moderators && comm.moderators.some((id: unknown) => String(id) === userId));
         }
       }
     } else if (communitySlug) {
@@ -43,7 +47,7 @@ export async function GET(req: Request) {
         query.community = comm._id;
         if (userId) {
           const isAdmin = comm.creator.toString() === userId;
-          isCurrentUserMod = isAdmin || (comm.moderators && comm.moderators.some((id: any) => id.toString() === userId));
+          isCurrentUserMod = isAdmin || (comm.moderators && comm.moderators.some((id: unknown) => String(id) === userId));
         }
       } else {
         return NextResponse.json({ posts: [] });
@@ -54,13 +58,13 @@ export async function GET(req: Request) {
     if (feed === "home" && userId) {
       const currentUser = await User.findById(userId);
       if (currentUser) {
-        let joined: any[] = [];
+        let joined: mongoose.Types.ObjectId[] = [];
         if (Array.isArray(currentUser.joinedCommunities)) {
-          joined = currentUser.joinedCommunities.map((id: any) => new mongoose.Types.ObjectId(id.toString()));
+          joined = currentUser.joinedCommunities.map((id: unknown) => new mongoose.Types.ObjectId(String(id)));
         } else if (typeof currentUser.joinedCommunities === "string") {
           try {
-            joined = JSON.parse(currentUser.joinedCommunities).map((id: any) => new mongoose.Types.ObjectId(id.toString()));
-          } catch (e) {
+            joined = JSON.parse(currentUser.joinedCommunities).map((id: unknown) => new mongoose.Types.ObjectId(String(id)));
+          } catch {
             joined = [];
           }
         }
@@ -86,16 +90,17 @@ export async function GET(req: Request) {
         { banExpiresAt: null },
         { banExpiresAt: { $gt: now } }
       ]
-    }).select("_id");
+    }).select("_id").lean();
     const bannedCommunityIds = bannedCommunities.map((c) => c._id.toString());
     if (bannedCommunityIds.length > 0) {
       const bannedObjectIds = bannedCommunityIds.map(id => new mongoose.Types.ObjectId(id));
       if (query.community) {
-        if (query.community.$in) {
-          query.community.$in = query.community.$in.filter(
-            (id: any) => !bannedCommunityIds.includes(id.toString())
+        const commObj = query.community as { $in?: mongoose.Types.ObjectId[] };
+        if (commObj.$in) {
+          commObj.$in = commObj.$in.filter(
+            (id: unknown) => !bannedCommunityIds.includes(String(id))
           );
-        } else if (bannedCommunityIds.includes(query.community.toString())) {
+        } else if (bannedCommunityIds.includes(String(query.community))) {
           // Banned community targeted directly
           return NextResponse.json({ posts: [] });
         }
@@ -125,14 +130,16 @@ export async function GET(req: Request) {
     const dbPosts = await Post.find(query)
       .populate("author", "name username avatar role karma")
       .populate("community", "name slug description membersCount")
-      .sort(sortCriteria) as unknown as DBPost[];
+      .sort(sortCriteria)
+      .lean() as unknown as DBPost[];
 
     const postIds = dbPosts.map((p) => p._id);
 
     // Fetch all comments for all these posts in one batch
     const dbComments = await Comment.find({ postId: { $in: postIds } })
       .populate("author", "name username avatar role karma")
-      .sort({ createdAt: 1 }) as unknown as DBComment[];
+      .sort({ createdAt: 1 })
+      .lean() as unknown as DBComment[];
 
     // Map comments by postId for fast retrieval
     const commentsByPostId: Record<string, DBComment[]> = {};
@@ -198,11 +205,11 @@ export async function POST(req: Request) {
     if (validatedData.data.community) {
       const comm = await Community.findById(validatedData.data.community);
       if (comm) {
-        const isCommBanActive = comm.isBanned && (comm.banExpiresAt === null || (comm.banExpiresAt && new Date(comm.banExpiresAt as any).getTime() > Date.now()));
+        const isCommBanActive = comm.isBanned && (comm.banExpiresAt === null || (comm.banExpiresAt && new Date(comm.banExpiresAt as string | number | Date).getTime() > Date.now()));
         if (isCommBanActive) {
           return NextResponse.json({ error: "This community has been suspended/banned by administrators." }, { status: 403 });
         }
-        if (comm.bannedUsers && comm.bannedUsers.some((uid: any) => uid.toString() === session.user.id)) {
+        if (comm.bannedUsers && comm.bannedUsers.some((uid: unknown) => String(uid) === session.user.id)) {
           return NextResponse.json({ error: "You are banned from posting in this community." }, { status: 403 });
         }
       }

@@ -27,7 +27,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
           setCommunities(res.data.communities);
           
           if (params?.slug) {
-            const active = res.data.communities.find((c: any) => c.slug === params.slug);
+            const active = res.data.communities.find((c: { _id: string; name: string; slug: string }) => c.slug === params.slug);
             if (active) {
               setSelectedCommunityId(active._id);
             }

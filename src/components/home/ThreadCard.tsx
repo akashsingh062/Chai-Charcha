@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Thread } from "@/app/(main)/post/postData";
+import { Thread } from "@/types/post";
 import { CommentSection } from "../post/CommentSection";
 import axiosInstance from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
@@ -176,9 +176,10 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
           });
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to toggle soft-delete:", err);
-      toast.error(err.response?.data?.error || "Failed to update charcha status.");
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error.response?.data?.error || "Failed to update charcha status.");
     } finally {
       setIsSoftDeletingLoading(false);
     }

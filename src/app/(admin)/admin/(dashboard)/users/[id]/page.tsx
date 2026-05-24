@@ -262,7 +262,7 @@ export default function UserDetailPage() {
                       await axiosInstance.put(`/api/admin/users/${user.id}`, { role: newRole });
                       toast.success(`User role updated to ${newRole}`);
                       fetchUserDetails();
-                    } catch (err: unknown) {
+                    } catch {
                       toast.error("Failed to update user role");
                     }
                   }}

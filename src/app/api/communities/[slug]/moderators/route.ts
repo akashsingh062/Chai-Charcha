@@ -62,11 +62,13 @@ export async function POST(
       let joined: string[] = [];
       if (targetUser.joinedCommunities) {
         if (Array.isArray(targetUser.joinedCommunities)) {
-          joined = targetUser.joinedCommunities.map((id: any) => id.toString());
+          joined = targetUser.joinedCommunities.map((id: unknown) => String(id));
         } else if (typeof targetUser.joinedCommunities === "string") {
           try {
-            joined = JSON.parse(targetUser.joinedCommunities).map((id: any) => id.toString());
-          } catch (e) {}
+            joined = JSON.parse(targetUser.joinedCommunities).map((id: unknown) => String(id));
+          } catch {
+            // Optional catch binding
+          }
         }
       }
 

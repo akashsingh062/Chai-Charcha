@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Thread } from "@/app/(main)/post/postData";
+import { Thread } from "@/types/post";
 import { FeedSidebar } from "@/components/home/FeedSidebar";
 import { DiscussionFeed } from "@/components/home/DiscussionFeed";
 import axiosInstance from "@/lib/axios";
@@ -118,7 +118,7 @@ function CommunityPageContent() {
         setAvatarInput(res.data.imageUrl);
         toast.success("Successfully resolved avatar image URL!");
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to resolve image URL.");
     } finally {
       setIsResolvingAvatar(false);
@@ -134,7 +134,7 @@ function CommunityPageContent() {
         setBannerInput(res.data.imageUrl);
         toast.success("Successfully resolved banner image URL!");
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to resolve image URL.");
     } finally {
       setIsResolvingBanner(false);

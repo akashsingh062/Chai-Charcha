@@ -1,4 +1,4 @@
-import { Comment } from "../../app/(main)/post/postData";
+import { Comment } from "@/types/post";
 
 /**
  * Recursively inserts a new reply comment at the target parentId.

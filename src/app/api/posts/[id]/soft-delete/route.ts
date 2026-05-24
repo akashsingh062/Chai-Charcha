@@ -45,14 +45,14 @@ export async function POST(
 
     const currentUserId = session.user.id;
     const isAdmin = community.creator.toString() === currentUserId;
-    const isMod = isAdmin || (community.moderators && community.moderators.some((uid: any) => uid.toString() === currentUserId));
+    const isMod = isAdmin || (community.moderators && community.moderators.some((uid: unknown) => String(uid) === currentUserId));
 
     if (!isMod) {
       return NextResponse.json({ error: "Forbidden. Only moderators can soft-delete discussions." }, { status: 403 });
     }
 
     post.isSoftDeleted = action === "delete";
-    post.softDeletedBy = action === "delete" ? currentUserId as any : null;
+    post.softDeletedBy = action === "delete" ? currentUserId as unknown as typeof post.softDeletedBy : null;
     await post.save();
 
     return NextResponse.json({

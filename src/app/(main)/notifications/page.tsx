@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axios";
 
 interface NotificationItem {
@@ -25,7 +24,6 @@ interface NotificationItem {
 }
 
 export default function NotificationsPage() {
-  const { user: isLoggedIn } = useAuth();
   const router = useRouter();
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);

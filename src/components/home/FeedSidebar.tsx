@@ -20,7 +20,6 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
   selectedTag,
   setSelectedTag,
   categories,
-  categoryCounts,
   tagCounts,
 }) => {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -46,16 +45,16 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
         let joinedIds: string[] = [];
         const val = profileRes.data.user.joinedCommunities;
         if (Array.isArray(val)) {
-          joinedIds = val.map((id: any) => id.toString());
+          joinedIds = val.map((id: unknown) => String(id));
         } else if (typeof val === "string") {
           try {
-            joinedIds = JSON.parse(val).map((id: any) => id.toString());
-          } catch (e) {
+            joinedIds = JSON.parse(val).map((id: unknown) => String(id));
+          } catch {
             joinedIds = [];
           }
         }
 
-        const joined = allComms.filter((c: any) => joinedIds.includes(c._id.toString()));
+        const joined = allComms.filter((c: { _id: string }) => joinedIds.includes(c._id.toString()));
         setJoinedComms(joined);
       }
     } catch (err) {
@@ -64,6 +63,7 @@ export const FeedSidebar: React.FC<FeedSidebarProps> = ({
   }, [isLoggedIn]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchJoinedCommunities();
   }, [fetchJoinedCommunities]);
 

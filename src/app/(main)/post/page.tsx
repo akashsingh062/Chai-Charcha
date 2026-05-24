@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Thread } from "./postData";
+import { Thread } from "@/types/post";
 import { ThreadCard } from "@/components/home/ThreadCard";
 import { authClient } from "@/lib/auth-client";
 import axiosInstance from "@/lib/axios";

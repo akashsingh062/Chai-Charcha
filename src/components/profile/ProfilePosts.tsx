@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Thread } from "@/app/(main)/post/postData";
+import { Thread } from "@/types/post";
 import { ThreadCard } from "@/components/home/ThreadCard";
 import axiosInstance from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
@@ -54,9 +54,10 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
         setPosts(filtered);
         onPostsCountChangeRef.current(filtered.length);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error loading user profile posts:", err);
-      setError(err.response?.data?.error || err.message || "Failed to load posts");
+      const error = err as { response?: { data?: { error?: string } }; message?: string };
+      setError(error.response?.data?.error || error.message || "Failed to load posts");
     } finally {
       setIsLoading(false);
     }

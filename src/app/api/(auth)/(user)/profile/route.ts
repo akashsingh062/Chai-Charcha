@@ -20,14 +20,16 @@ export async function GET(req: Request) {
     if (listAll === "true") {
       const users = await User.find({})
         .select("name username avatar role karma bio createdAt")
-        .sort({ karma: -1 });
+        .sort({ karma: -1 })
+        .lean();
       return NextResponse.json({ users });
     }
 
     // 2. Fetch specific user profile by username handle
     if (usernameParam) {
       const dbUser = await User.findOne({ username: usernameParam.toLowerCase() })
-        .select("name username avatar banner role karma bio createdAt joinedCommunities followers following");
+        .select("name username avatar banner role karma bio createdAt joinedCommunities followers following")
+        .lean();
       if (!dbUser) {
         return NextResponse.json({ error: "User profile not found" }, { status: 404 });
       }
@@ -43,7 +45,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const dbUser = await User.findOne({ email: session.user.email });
+    const dbUser = await User.findOne({ email: session.user.email }).lean();
     if (!dbUser) {
       return NextResponse.json({ error: "User not found in database" }, { status: 404 });
     }

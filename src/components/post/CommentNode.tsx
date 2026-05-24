@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Comment } from "../../app/(main)/post/postData";
+import { Comment } from "@/types/post";
 import { useAuth } from "@/context/AuthContext";
 import { ReportModal } from "../shared/ReportModal";
 import Link from "next/link";

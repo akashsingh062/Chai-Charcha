@@ -32,7 +32,7 @@ export async function GET(req: Request) {
       }
       const targetUserId = new mongoose.Types.ObjectId(chatWith);
 
-      // Fetch all messages between them
+      // Fetch all messages between them with lean()
       const messages = await Message.find({
         $or: [
           { sender: currentUserId, recipient: targetUserId },
@@ -41,7 +41,8 @@ export async function GET(req: Request) {
       })
       .sort({ createdAt: 1 })
       .populate("sender", "name username avatar")
-      .populate("recipient", "name username avatar");
+      .populate("recipient", "name username avatar")
+      .lean();
 
       // Mark incoming messages as read
       await Message.updateMany(
@@ -65,15 +66,29 @@ export async function GET(req: Request) {
     })
     .sort({ createdAt: -1 })
     .populate("sender", "name username avatar")
-    .populate("recipient", "name username avatar");
+    .populate("recipient", "name username avatar")
+    .lean();
 
-    const threadsMap = new Map<string, any>();
+    interface ChatThread {
+      user: {
+        _id: mongoose.Types.ObjectId;
+        name: string;
+        username: string;
+        avatar?: string;
+      };
+      lastMessage: unknown;
+      unreadCount: number;
+    }
+
+    const threadsMap = new Map<string, ChatThread>();
 
     for (const msg of allMessages) {
       // Determine who the "other" user is in this conversation
-      const otherUser = msg.sender._id.toString() === session.user.id
-        ? msg.recipient
-        : msg.sender;
+      const sender = msg.sender as unknown as ChatThread["user"];
+      const recipient = msg.recipient as unknown as ChatThread["user"];
+      const otherUser = sender._id.toString() === session.user.id
+        ? recipient
+        : sender;
 
       const otherUserIdStr = otherUser._id.toString();
 
@@ -86,9 +101,10 @@ export async function GET(req: Request) {
       }
 
       // If message is unread and recipient is current user, increment unreadCount
-      if (!msg.isRead && msg.recipient._id.toString() === session.user.id) {
+      const recipientUser = msg.recipient as unknown as ChatThread["user"];
+      if (!msg.isRead && recipientUser._id.toString() === session.user.id) {
         const thread = threadsMap.get(otherUserIdStr);
-        thread.unreadCount += 1;
+        if (thread) thread.unreadCount += 1;
       }
     }
 
@@ -148,7 +164,8 @@ export async function POST(req: Request) {
     // Populate sender info for the response
     const populatedMessage = await Message.findById(newMessage._id)
       .populate("sender", "name username avatar")
-      .populate("recipient", "name username avatar");
+      .populate("recipient", "name username avatar")
+      .lean();
 
     // Create a database notification for the recipient
     await Notification.create({
@@ -168,7 +185,7 @@ export async function POST(req: Request) {
 }
 
 // PUT /api/messages - Mark all incoming messages and message notifications as read
-export async function PUT(req: Request) {
+export async function PUT() {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),

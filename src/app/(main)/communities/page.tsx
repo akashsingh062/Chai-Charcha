@@ -35,11 +35,13 @@ export default function CommunitiesPage() {
 
   // Reset explore visible count when tab or search query changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setExploreVisibleCount(8);
   }, [searchQuery, activeTab]);
 
   // Sync active tab state to Joined by default if logged in
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveTab(user ? "joined" : "explore");
   }, [user]);
 

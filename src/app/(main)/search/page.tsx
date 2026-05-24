@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Thread } from "@/app/(main)/post/postData";
+import { Thread } from "@/types/post";
 import { ThreadCard } from "@/components/home/ThreadCard";
 import axiosInstance from "@/lib/axios";
 import Link from "next/link";
@@ -47,7 +47,7 @@ interface CommunitySearchInfo {
 }
 
 function SearchPageContent() {
-  const { user, userData } = useAuth();
+  const { userData } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryParam = searchParams.get("q") || "";
@@ -543,17 +543,7 @@ function SearchPageContent() {
     return Array.from(new Set([...defaultCats, ...extraCats]));
   }, [searchedThreads]);
 
-  const categoryCounts = useMemo(() => {
-    return searchedThreads.reduce(
-      (acc, t) => {
-        if (t.category) {
-          acc[t.category] = (acc[t.category] || 0) + 1;
-        }
-        return acc;
-      },
-      { All: searchedThreads.length } as Record<string, number>
-    );
-  }, [searchedThreads]);
+
 
   const tagCounts = useMemo(() => {
     return searchedThreads.reduce((acc, t) => {

@@ -1,0 +1,201 @@
+
+> coderun@0.1.0 lint
+> eslint
+
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/(admin)/admin/(dashboard)/communities/page.tsx
+  179:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/(admin)/admin/(dashboard)/users/[id]/page.tsx
+  265:30  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/(admin)/admin/(dashboard)/users/page.tsx
+  144:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/(main)/c/[slug]/page.tsx
+  121:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+  137:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/(main)/communities/page.tsx
+  38:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/(main)/communities/page.tsx:38:5
+  36 |   // Reset explore visible count when tab or search query changes
+  37 |   useEffect(() => {
+> 38 |     setExploreVisibleCount(8);
+     |     ^^^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  39 |   }, [searchQuery, activeTab]);
+  40 |
+  41 |   // Sync active tab state to Joined by default if logged in  react-hooks/set-state-in-effect
+  43:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/(main)/communities/page.tsx:43:5
+  41 |   // Sync active tab state to Joined by default if logged in
+  42 |   useEffect(() => {
+> 43 |     setActiveTab(user ? "joined" : "explore");
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  44 |   }, [user]);
+  45 |
+  46 |   const fetchCommunities = useCallback(async () => {                           react-hooks/set-state-in-effect
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/(main)/messages/page.tsx
+  36:17  warning  'isLoggedIn' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/(main)/notifications/page.tsx
+  28:17  warning  'isLoggedIn' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/(main)/profile/ProfileClient.tsx
+  25:9   warning  'router' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  27:17  warning  'isLoggedIn' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/(auth)/(user)/comments/route.ts
+  7:10  warning  'User' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/(auth)/(user)/messages/route.ts
+  188:27  warning  '_req' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/(auth)/(user)/notifications/route.ts
+  9:27  warning  '_req' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/(auth)/(user)/posts/[id]/route.ts
+  42:83  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/(auth)/(user)/posts/route.ts
+   28:33   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   37:87   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   46:87   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   57:21   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   59:59   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   62:73   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   63:20   warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+   96:18   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  203:133  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  207:61   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/admin/communities/[id]/ban/route.ts
+  31:14  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/communities/[slug]/bans/route.ts
+   36:86  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   80:86  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  113:58  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  116:72  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  117:20  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/communities/[slug]/join/route.ts
+   37:66  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   49:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   52:64  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   53:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  107:76  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/communities/[slug]/members/route.ts
+  114:86  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/communities/[slug]/moderators/route.ts
+  65:58  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:72  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  69:20  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/communities/[slug]/requests/route.ts
+   36:86  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   80:86  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   87:88  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   99:60  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  102:74  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  103:22  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/communities/[slug]/route.ts
+   28:145  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   54:91   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:78   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   56:87   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   62:59   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   65:73   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   66:20   warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  116:87   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  215:49   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  218:63   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  219:20   warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/communities/route.ts
+   24:33  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   49:62  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   52:76  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   53:20  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+   63:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   68:58  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  141:52  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:66  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  145:20  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/api/posts/[id]/soft-delete/route.ts
+  48:87  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  55:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/page.tsx
+  49:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/page.tsx:49:5
+  47 |   useEffect(() => {
+  48 |     if (!user) return;
+> 49 |     loadPosts();
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  50 |   }, [user, loadPosts]);
+  51 |
+  52 |   useEffect(() => {                          react-hooks/set-state-in-effect
+  63:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/app/page.tsx:63:5
+  61 |
+  62 |   useEffect(() => {
+> 63 |     setVisibleCount(10);
+     |     ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  64 |   }, [activeCategory, searchQuery, selectedTag, sortBy]);
+  65 |
+  66 |   useEffect(() => {  react-hooks/set-state-in-effect
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/components/community/CreateCommunityModal.tsx
+  86:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/components/home/CreatePostModal.tsx
+  30:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/components/home/FeedSidebar.tsx
+  23:19  warning  '_categoryCounts' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/components/home/ThreadCard.tsx
+  179:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/components/profile/ProfilePosts.tsx
+  57:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/akash/Skill-Stack/Web-Dev-Mastery/Next-Projects/chai-charcha/src/components/shared/Navbar.tsx
+  73:6  warning  React Hook useEffect has a missing dependency: 'userData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+✖ 76 problems (52 errors, 24 warnings)
+
