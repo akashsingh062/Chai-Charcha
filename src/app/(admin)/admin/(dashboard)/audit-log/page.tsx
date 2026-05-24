@@ -190,7 +190,7 @@ export default function AuditLogPage() {
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Audit Logs</h1>
+        <h1 className="text-2xl font-black tracking-tight bg-linear-to-r from-white to-white/70 bg-clip-text text-transparent">Audit Logs</h1>
         <p className="text-xs text-white/30 mt-1">
           Reviewing <span className="font-bold text-white/60">{totalLogs.toLocaleString()}</span> historical administrative events
         </p>
@@ -222,13 +222,13 @@ export default function AuditLogPage() {
       </div>
 
       {/* Filters bar */}
-      <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-4 shadow-lg flex items-center gap-3 flex-wrap relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-full blur-2xl pointer-events-none" />
+      <div className="rounded-3xl border border-white/6 bg-[#111318] p-4 shadow-lg flex items-center gap-3 flex-wrap relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/1 rounded-full blur-2xl pointer-events-none" />
         <div className="relative">
           <select
             value={action}
             onChange={(e) => { setAction(e.target.value); setPage(1); }}
-            className="pl-3.5 pr-8 py-2.5 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-xs text-white/75 focus:outline-none focus:border-[#f97316]/40 transition-all appearance-none cursor-pointer"
+            className="pl-3.5 pr-8 py-2.5 bg-white/2 border border-white/8 hover:border-white/15 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[#f97316]/40 transition-all appearance-none cursor-pointer"
           >
             <option value="">All Operations</option>
             <option value="ban_user">Ban User</option>
@@ -258,7 +258,7 @@ export default function AuditLogPage() {
           <select
             value={targetType}
             onChange={(e) => { setTargetType(e.target.value); setPage(1); }}
-            className="pl-3.5 pr-8 py-2.5 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-xs text-white/75 focus:outline-none focus:border-[#f97316]/40 transition-all appearance-none cursor-pointer"
+            className="pl-3.5 pr-8 py-2.5 bg-white/2 border border-white/8 hover:border-white/15 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[#f97316]/40 transition-all appearance-none cursor-pointer"
           >
             <option value="">All Target Types</option>
             <option value="User">Users</option>
@@ -288,8 +288,8 @@ export default function AuditLogPage() {
 
       {/* Log Details Inspector Modal */}
       {inspectedLog && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-2xl rounded-3xl border border-white/[0.08] bg-[#111318] p-6 shadow-2xl overflow-hidden animate-scale-in">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-2xl rounded-3xl border border-white/8 bg-[#111318] p-6 shadow-2xl overflow-hidden animate-scale-in">
             <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#14b8a6]/5 rounded-full blur-3xl pointer-events-none" />
             
             <div className="flex items-center justify-between mb-5">
@@ -304,7 +304,7 @@ export default function AuditLogPage() {
                 <span className="text-[10px] font-mono text-white/20 select-all">Log ID: {inspectedLog.id}</span>
                 <button
                   onClick={() => setInspectedLog(null)}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-white hover:bg-white/[0.06] transition-all cursor-pointer border border-white/[0.06]"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-white hover:bg-white/6 transition-all cursor-pointer border border-white/6"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -315,11 +315,11 @@ export default function AuditLogPage() {
 
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+                <div className="p-3.5 rounded-2xl bg-white/2 border border-white/5">
                   <span className="text-[9px] font-bold text-white/25 uppercase tracking-wider block mb-1">Trigger Operation</span>
                   <span className="text-xs font-black text-white uppercase tracking-wider">{inspectedLog.action.replace(/_/g, " ")}</span>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+                <div className="p-3.5 rounded-2xl bg-white/2 border border-white/5">
                   <span className="text-[9px] font-bold text-white/25 uppercase tracking-wider block mb-1">Responsible Agent</span>
                   <span className="text-xs text-white/80 font-bold">{inspectedLog.admin?.name || "System Daemon"}</span>
                 </div>
@@ -335,7 +335,7 @@ export default function AuditLogPage() {
                     Copy JSON Payload
                   </button>
                 </div>
-                <pre className="p-4 bg-black/40 border border-white/[0.06] rounded-2xl font-mono text-[11px] text-green-400 overflow-x-auto whitespace-pre-wrap select-all">
+                <pre className="p-4 bg-black/40 border border-white/6 rounded-2xl font-mono text-[11px] text-green-400 overflow-x-auto whitespace-pre-wrap select-all">
                   {JSON.stringify(inspectedLog.details || {}, null, 2)}
                 </pre>
               </div>
