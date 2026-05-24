@@ -22,6 +22,21 @@ interface CommentItem {
   createdAt: string;
 }
 
+function StatCard({ label, value, color, icon }: { label: string; value: string | number; color?: string; icon?: React.ReactNode }) {
+  return (
+    <div className="group relative flex flex-col justify-between p-4 rounded-2xl bg-[#111318] border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.02] transition-all duration-300 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.1em]">{label}</span>
+        {icon && <div className="text-white/20 group-hover:text-white/40 transition-colors duration-300">{icon}</div>}
+      </div>
+      <span className={`text-xl font-black tabular-nums leading-none tracking-tight ${color || "text-white"}`}>
+        {typeof value === "number" ? value.toLocaleString() : value}
+      </span>
+    </div>
+  );
+}
+
 export default function CommentManagementPage() {
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,8 +53,6 @@ export default function CommentManagementPage() {
   // Modals state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null);
-
-
 
   const fetchComments = useCallback(async () => {
     try {
@@ -66,7 +79,6 @@ export default function CommentManagementPage() {
   }, [page, postId, authorId, sort, order, debouncedSearch]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchComments();
   }, [fetchComments]);
 
@@ -90,15 +102,12 @@ export default function CommentManagementPage() {
     setPage(1);
   };
 
-
-
   const handleDeleteConfirm = async () => {
     if (!selectedComment) return;
     try {
       const res = await axiosInstance.delete(`/api/admin/comments/${selectedComment.id}`);
       if (res.status === 200) {
-        // Since delete cascade might delete replies, reload is cleaner but filtering is faster
-        // The API returns message about comments deleted. Let's refetch to keep data accurate.
+        toast.success("Comment and nested replies deleted");
         fetchComments();
       }
     } catch (err) {
@@ -112,19 +121,19 @@ export default function CommentManagementPage() {
       key: "content",
       label: "Comment Content",
       render: (row: CommentItem) => (
-        <div className="min-w-0 max-w-md">
-          <p className="text-xs font-semibold text-white/80 line-clamp-2 leading-relaxed">
+        <div className="min-w-0 max-w-md space-y-1 py-1">
+          <p className="text-xs font-semibold text-white/90 line-clamp-2 leading-relaxed">
             {row.content}
           </p>
-          <span className="text-[10px] text-white/30 block mt-1">
+          <span className="text-[10px] text-white/30 block">
             By{" "}
             {row.author?.username ? (
               <Link href={`/admin/users?search=${row.author.username}`}
-                className="text-[#14b8a6] hover:text-[#2dd4bf] font-semibold transition-colors">
+                className="text-[#14b8a6] hover:text-[#2dd4bf] font-bold transition-colors">
                 @{row.author.username}
               </Link>
             ) : "deleted"}{" "}
-            · on &ldquo;{row.postTitle}&rdquo;
+            · on &ldquo;<span className="text-white/40 font-medium">{row.postTitle}</span>&rdquo;
           </span>
         </div>
       ),
@@ -133,9 +142,9 @@ export default function CommentManagementPage() {
       key: "stats",
       label: "Stats",
       render: (row: CommentItem) => (
-        <div className="text-[10px] text-white/40 space-y-0.5">
-          <span className="block">▲ {row.upvotesCount} votes</span>
-          <span className="block">💬 {row.repliesCount} replies</span>
+        <div className="text-[10px] text-white/50 space-y-0.5 font-semibold">
+          <span className="block text-orange-400">▲ {row.upvotesCount} votes</span>
+          <span className="block text-stormy-teal">💬 {row.repliesCount} replies</span>
         </div>
       ),
     },
@@ -143,10 +152,10 @@ export default function CommentManagementPage() {
       key: "parentId",
       label: "Type",
       render: (row: CommentItem) => (
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider
+        <span className={`text-[9px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider
           ${row.parentId
-            ? "bg-[#14b8a6]/10 text-[#14b8a6] border-[#14b8a6]/20"
-            : "bg-white/[0.06] text-white/50 border-white/[0.08]"
+            ? "bg-[#14b8a6]/10 text-[#14b8a6] border-[#14b8a6]/15"
+            : "bg-white/[0.04] text-white/40 border-white/[0.06]"
           }`}>
           {row.parentId ? "Reply" : "Top-level"}
         </span>
@@ -157,7 +166,7 @@ export default function CommentManagementPage() {
       label: "Date",
       sortable: true,
       render: (row: CommentItem) => (
-        <span className="text-[10px] text-white/30 font-medium">{new Date(row.createdAt).toLocaleDateString()}</span>
+        <span className="text-[10px] text-white/30 font-semibold">{new Date(row.createdAt).toLocaleDateString()}</span>
       ),
     },
     {
@@ -177,21 +186,51 @@ export default function CommentManagementPage() {
     },
   ];
 
+  // Dynamic Page Calculations
+  const replyCount = comments.filter(c => c.parentId).length;
+  const topLevelCount = comments.filter(c => !c.parentId).length;
+  const avgUpvotes = comments.length > 0 ? (comments.reduce((acc, c) => acc + c.upvotesCount, 0) / comments.length).toFixed(1) : 0;
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-black text-white tracking-tight">Comment Management</h1>
-        <p className="text-[11px] text-white/30 mt-1">
-          <span className="font-semibold text-white/50">{totalComments.toLocaleString()}</span> community comments
+        <h1 className="text-2xl font-black text-white tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Comment Management</h1>
+        <p className="text-xs text-white/30 mt-1">
+          Reviewing <span className="font-bold text-white/60">{totalComments.toLocaleString()}</span> user comment submissions
         </p>
       </div>
 
+      {/* Dynamic Statistics Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Total Comments" value={totalComments} color="text-indigo-400" icon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+          </svg>
+        } />
+        <StatCard label="Top-Level (Page)" value={topLevelCount} color="text-[#14b8a6]" icon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+          </svg>
+        } />
+        <StatCard label="Replies (Page)" value={replyCount} color="text-[#f97316]" icon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        } />
+        <StatCard label="Avg Upvotes (Page)" value={avgUpvotes} color="text-amber-400" icon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+        } />
+      </div>
+
       {/* Filters bar */}
-      <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-4 space-y-3">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="relative flex-1 min-w-48">
-            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-4 shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-full blur-2xl pointer-events-none" />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -199,16 +238,21 @@ export default function CommentManagementPage() {
               placeholder="Search by comment content..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#f97316]/40 transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#f97316]/40 focus:bg-white/[0.04] rounded-2xl text-xs text-white placeholder-white/20 focus:outline-none transition-all duration-200"
             />
           </div>
-          <input
-            type="text"
-            placeholder="Filter by Post ID..."
-            value={postId}
-            onChange={(e) => { setPostId(e.target.value); setPage(1); }}
-            className="px-3.5 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#f97316]/40 transition-all min-w-48"
-          />
+          <div className="relative">
+            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Filter by Post ID..."
+              value={postId}
+              onChange={(e) => { setPostId(e.target.value); setPage(1); }}
+              className="w-full pl-11 pr-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#f97316]/40 focus:bg-white/[0.04] rounded-2xl text-xs text-white placeholder-white/20 focus:outline-none transition-all duration-200 sm:w-60"
+            />
+          </div>
         </div>
       </div>
 
@@ -224,8 +268,6 @@ export default function CommentManagementPage() {
         onPageChange={setPage}
         emptyMessage="No comments found matching search criteria"
       />
-
-
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal

@@ -7,6 +7,7 @@ import { AdminBadge } from "@/components/admin/AdminBadge";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import Link from "next/link";
 import { toast } from "@/store/useToastStore";
+
 interface PostItem {
   id: string;
   title: string;
@@ -30,6 +31,21 @@ interface PostItem {
   createdAt: string;
 }
 
+function StatCard({ label, value, color, icon }: { label: string; value: string | number; color?: string; icon?: React.ReactNode }) {
+  return (
+    <div className="group relative flex flex-col justify-between p-4 rounded-2xl bg-[#111318] border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.02] transition-all duration-300 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.1em]">{label}</span>
+        {icon && <div className="text-white/20 group-hover:text-white/40 transition-colors duration-300">{icon}</div>}
+      </div>
+      <span className={`text-xl font-black tabular-nums leading-none tracking-tight ${color || "text-white"}`}>
+        {typeof value === "number" ? value.toLocaleString() : value}
+      </span>
+    </div>
+  );
+}
+
 export default function PostManagementPage() {
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,8 +62,6 @@ export default function PostManagementPage() {
   // Modals state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostItem | null>(null);
-  
-
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -74,7 +88,6 @@ export default function PostManagementPage() {
   }, [page, debouncedSearch, category, showDeleted, sort, order]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPosts();
   }, [fetchPosts]);
 
@@ -105,6 +118,7 @@ export default function PostManagementPage() {
         setPosts((prev) =>
           prev.map((p) => (p.id === post.id ? { ...p, isSoftDeleted: res.data.isSoftDeleted } : p))
         );
+        toast.success(`Post ${res.data.isSoftDeleted ? "soft-deleted" : "restored"}`);
       }
     } catch (err: unknown) {
       const errorMsg =
@@ -122,6 +136,7 @@ export default function PostManagementPage() {
       if (res.status === 200) {
         setPosts((prev) => prev.filter((p) => p.id !== selectedPost.id));
         setTotalPosts((prev) => prev - 1);
+        toast.success("Post permanently deleted");
       }
     } catch (err: unknown) {
       const errorMsg =
@@ -132,25 +147,23 @@ export default function PostManagementPage() {
     }
   };
 
-
-
   const columns = [
     {
       key: "title",
       label: "Post Title",
       sortable: true,
       render: (row: PostItem) => (
-        <div className="min-w-0 max-w-xs">
-          <span className="text-xs font-semibold text-white/90 block truncate">{row.title}</span>
-          <span className="text-[10px] text-white/30 block truncate mt-0.5">
+        <div className="min-w-0 max-w-xs space-y-0.5 py-0.5">
+          <span className="text-xs font-bold text-white/90 block truncate">{row.title}</span>
+          <span className="text-[10px] text-white/30 block truncate">
             By{" "}
             {row.author?.username ? (
               <Link href={`/admin/users?search=${row.author.username}`}
-                className="text-[#14b8a6] hover:text-[#2dd4bf] font-semibold transition-colors">
+                className="text-[#14b8a6] hover:text-[#2dd4bf] font-bold transition-colors">
                 @{row.author.username}
               </Link>
             ) : "deleted"}{" "}
-            · {row.community?.name || "General"}
+            · <span className="text-white/40">{row.community?.name || "General"}</span>
           </span>
         </div>
       ),
@@ -159,14 +172,17 @@ export default function PostManagementPage() {
       key: "category",
       label: "Category",
       sortable: true,
+      render: (row: PostItem) => (
+        <span className="text-xs text-white/60 font-semibold">{row.category}</span>
+      ),
     },
     {
       key: "stats",
       label: "Votes/Comments",
       render: (row: PostItem) => (
-        <div className="text-[10px] text-white/40 space-y-0.5">
-          <span className="block">▲ {row.upvotesCount - row.downvotesCount} votes</span>
-          <span className="block">💬 {row.commentCount} replies</span>
+        <div className="text-[10px] text-white/50 space-y-0.5 font-semibold">
+          <span className="block text-orange-400">▲ {row.upvotesCount - row.downvotesCount} votes</span>
+          <span className="block text-stormy-teal">💬 {row.commentCount} comments</span>
         </div>
       ),
     },
@@ -190,7 +206,7 @@ export default function PostManagementPage() {
       label: "Posted Date",
       sortable: true,
       render: (row: PostItem) => (
-        <span className="text-2xs font-semibold text-dust-grey/80">
+        <span className="text-[10px] text-white/30 font-semibold">
           {new Date(row.createdAt).toLocaleDateString()}
         </span>
       ),
@@ -233,20 +249,50 @@ export default function PostManagementPage() {
     },
   ];
 
+  // Dynamic calculated stats (reactive to currently loaded page context)
+  const activeCount = posts.filter(p => !p.isSoftDeleted).length;
+  const deletedCount = posts.filter(p => p.isSoftDeleted).length;
+  const communityOnlyCount = posts.filter(p => p.isCommunityOnly).length;
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-black text-white tracking-tight">Post Management</h1>
-        <p className="text-[11px] text-white/30 mt-1">
-          <span className="font-semibold text-white/50">{totalPosts.toLocaleString()}</span> community posts
+        <h1 className="text-2xl font-black text-white tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Post Management</h1>
+        <p className="text-xs text-white/30 mt-1">
+          Reviewing <span className="font-bold text-white/60">{totalPosts.toLocaleString()}</span> user post submissions
         </p>
       </div>
 
+      {/* Dynamic Statistics Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Total Posts" value={totalPosts} color="text-indigo-400" icon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        } />
+        <StatCard label="Active (Page)" value={activeCount} color="text-[#14b8a6]" icon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        } />
+        <StatCard label="Soft-Deleted (Page)" value={deletedCount} color="text-red-400" icon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        } />
+        <StatCard label="Community Only (Page)" value={communityOnlyCount} color="text-[#f97316]" icon={
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        } />
+      </div>
+
       {/* Filters bar */}
-      <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-4 space-y-3">
+      <div className="rounded-3xl border border-white/[0.06] bg-[#111318] p-4 shadow-lg space-y-3 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] rounded-full blur-2xl pointer-events-none" />
         <div className="relative">
-          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -254,30 +300,45 @@ export default function PostManagementPage() {
             placeholder="Search by title, content, or tags..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#f97316]/40 focus:bg-white/[0.06] transition-all"
+            className="w-full pl-11 pr-4 py-3 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] focus:border-[#f97316]/40 focus:bg-white/[0.04] rounded-2xl text-xs text-white placeholder-white/20 focus:outline-none transition-all duration-200"
           />
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <select
-            value={category}
-            onChange={(e) => { setCategory(e.target.value); setPage(1); }}
-            className="px-3.5 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-xs text-white/60 focus:outline-none focus:border-[#f97316]/40 transition-all"
-          >
-            <option value="">All Categories</option>
-            <option value="General Charcha">General Charcha</option>
-            <option value="Tech Support">Tech Support</option>
-            <option value="Coding Lounge">Coding Lounge</option>
-            <option value="Showcase">Showcase</option>
-          </select>
-          <select
-            value={showDeleted}
-            onChange={(e) => { setShowDeleted(e.target.value); setPage(1); }}
-            className="px-3.5 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-xs text-white/60 focus:outline-none focus:border-[#f97316]/40 transition-all"
-          >
-            <option value="true">Active &amp; Soft-Deleted</option>
-            <option value="false">Active Only</option>
-            <option value="only">Soft-Deleted Only</option>
-          </select>
+          <div className="relative">
+            <select
+              value={category}
+              onChange={(e) => { setCategory(e.target.value); setPage(1); }}
+              className="pl-3.5 pr-8 py-2.5 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-xs text-white/75 focus:outline-none focus:border-[#f97316]/40 transition-all appearance-none cursor-pointer"
+            >
+              <option value="">All Categories</option>
+              <option value="General Charcha">General Charcha</option>
+              <option value="Tech Support">Tech Support</option>
+              <option value="Coding Lounge">Coding Lounge</option>
+              <option value="Showcase">Showcase</option>
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          <div className="relative">
+            <select
+              value={showDeleted}
+              onChange={(e) => { setShowDeleted(e.target.value); setPage(1); }}
+              className="pl-3.5 pr-8 py-2.5 bg-white/[0.02] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-xs text-white/75 focus:outline-none focus:border-[#f97316]/40 transition-all appearance-none cursor-pointer"
+            >
+              <option value="true">Active &amp; Soft-Deleted</option>
+              <option value="false">Active Only</option>
+              <option value="only">Soft-Deleted Only</option>
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -293,8 +354,6 @@ export default function PostManagementPage() {
         onPageChange={setPage}
         emptyMessage="No posts found matching search criteria"
       />
-
-
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal
