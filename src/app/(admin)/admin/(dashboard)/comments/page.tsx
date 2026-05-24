@@ -79,6 +79,7 @@ export default function CommentManagementPage() {
   }, [page, postId, authorId, sort, order, debouncedSearch]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchComments();
   }, [fetchComments]);
 
@@ -195,7 +196,7 @@ export default function CommentManagementPage() {
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-white tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Comment Management</h1>
+        <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Comment Management</h1>
         <p className="text-xs text-white/30 mt-1">
           Reviewing <span className="font-bold text-white/60">{totalComments.toLocaleString()}</span> user comment submissions
         </p>
