@@ -37,6 +37,8 @@ export const ReportSchema = new Schema<Report>({
     }
 }, { timestamps: true });
 
+ReportSchema.index({ status: 1 });
+
 if (mongoose.models && mongoose.models.Report) {
     delete mongoose.models.Report;
 }

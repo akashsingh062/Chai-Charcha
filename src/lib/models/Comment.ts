@@ -41,4 +41,7 @@ export const CommentSchema = new Schema<Comment>({
     }]
 }, { timestamps: true });
 
+CommentSchema.index({ postId: 1, parentId: 1 });
+CommentSchema.index({ author: 1 });
+
 export const Comment = mongoose.models.Comment as Model<Comment> || mongoose.model<Comment>("Comment", CommentSchema);

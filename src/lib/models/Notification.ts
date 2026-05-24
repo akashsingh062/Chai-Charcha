@@ -40,6 +40,8 @@ export const NotificationSchema = new Schema<Notification>({
     }
 }, { timestamps: true });
 
+NotificationSchema.index({ recipient: 1, isRead: 1, createdAt: -1 });
+
 // Clear compiled model cache in development to force re-compilation of updated schema
 if (mongoose.models && mongoose.models.Notification) {
     delete mongoose.models.Notification;

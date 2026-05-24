@@ -36,6 +36,8 @@ export const MessageSchema = new Schema<Message>({
     }
 }, { timestamps: true });
 
+MessageSchema.index({ sender: 1, recipient: 1, createdAt: -1 });
+
 // Clear compiled model cache in development to force re-compilation of updated schema
 if (mongoose.models && mongoose.models.Message) {
     delete mongoose.models.Message;
