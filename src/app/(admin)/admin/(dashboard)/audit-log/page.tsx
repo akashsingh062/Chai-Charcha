@@ -130,30 +130,21 @@ export default function AuditLogPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Title */}
+    <div className="space-y-5">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-floral-white tracking-tight uppercase">
-          Security Audit Log
-        </h1>
-        <p className="text-xs text-dust-grey font-bold uppercase tracking-wider mt-1">
-          Historical log of administrative actions ({totalLogs} entries)
+        <h1 className="text-xl font-black text-white tracking-tight">Audit Log</h1>
+        <p className="text-[11px] text-white/30 mt-1">
+          <span className="font-semibold text-white/50">{totalLogs.toLocaleString()}</span> historical admin actions
         </p>
       </div>
 
       {/* Filters bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 border border-stormy-teal/10 bg-ink-black/30 rounded-2xl">
-        <div>
-          <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
-            Filter by Action Type
-          </label>
+      <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-4 flex items-center gap-3 flex-wrap">
           <select
             value={action}
-            onChange={(e) => {
-              setAction(e.target.value);
-              setPage(1);
-            }}
-            className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine"
+            onChange={(e) => { setAction(e.target.value); setPage(1); }}
+            className="px-3.5 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-xs text-white/60 focus:outline-none focus:border-[#f97316]/40 transition-all"
           >
             <option value="">All Actions</option>
             <option value="ban_user">Ban User</option>
@@ -172,19 +163,10 @@ export default function AuditLogPage() {
             <option value="reject_report">Reject Report</option>
             <option value="broadcast_notification">Broadcast Announcement</option>
           </select>
-        </div>
-
-        <div>
-          <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
-            Filter by Target Entity
-          </label>
           <select
             value={targetType}
-            onChange={(e) => {
-              setTargetType(e.target.value);
-              setPage(1);
-            }}
-            className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine"
+            onChange={(e) => { setTargetType(e.target.value); setPage(1); }}
+            className="px-3.5 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-xs text-white/60 focus:outline-none focus:border-[#f97316]/40 transition-all"
           >
             <option value="">All Entities</option>
             <option value="User">Users</option>
@@ -194,7 +176,6 @@ export default function AuditLogPage() {
             <option value="Report">Reports</option>
             <option value="Notification">Notifications</option>
           </select>
-        </div>
       </div>
 
       {/* Data Table */}
@@ -209,49 +190,40 @@ export default function AuditLogPage() {
 
       {/* Log Details Inspector Modal */}
       {inspectedLog && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-2xl rounded-2xl border border-stormy-teal/20 bg-ink-black p-6 shadow-2xl">
-            <h3 className="text-base font-extrabold text-floral-white uppercase tracking-wider mb-4 border-b border-stormy-teal/10 pb-2 flex justify-between items-center">
-              <span>Inspect Audit Entry Details</span>
-              <span className="text-3xs font-extrabold uppercase tracking-widest text-vivid-tangerine">
-                ID: {inspectedLog.id}
-              </span>
-            </h3>
-
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-              <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-dust-grey/80">
-                <div>
-                  <span className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                    Action executed
-                  </span>
-                  <span className="text-floral-white uppercase font-black">{inspectedLog.action}</span>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-2xl rounded-2xl border border-white/[0.08] bg-[#111318] p-6 shadow-2xl overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#14b8a6]/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-sm font-bold text-white">Audit Entry Details</h3>
+              <div className="flex items-center gap-3">
+                <span className="text-[9px] font-mono text-white/25">ID: {inspectedLog.id}</span>
+                <button
+                  onClick={() => setInspectedLog(null)}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-white hover:bg-white/[0.06] transition-all cursor-pointer"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                  <span className="text-[9px] font-bold text-white/25 uppercase tracking-wider block mb-1">Action</span>
+                  <span className="text-xs font-bold text-white uppercase">{inspectedLog.action}</span>
                 </div>
-                <div>
-                  <span className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                    Admin Operator
-                  </span>
-                  <span className="text-floral-white">{inspectedLog.admin?.name || "System"} (@{inspectedLog.admin?.username || "system"})</span>
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                  <span className="text-[9px] font-bold text-white/25 uppercase tracking-wider block mb-1">Admin</span>
+                  <span className="text-xs text-white">{inspectedLog.admin?.name || "System"} (@{inspectedLog.admin?.username || "system"})</span>
                 </div>
               </div>
-
               <div>
-                <span className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1">
-                  Metadata Payload (Details)
-                </span>
-                <pre className="p-4 bg-black/40 border border-stormy-teal/10 rounded-xl font-mono text-2xs text-green-400 overflow-x-auto whitespace-pre-wrap">
+                <span className="text-[9px] font-bold text-white/25 uppercase tracking-wider block mb-2">Metadata Payload</span>
+                <pre className="p-4 bg-black/40 border border-white/[0.06] rounded-xl font-mono text-[11px] text-green-400 overflow-x-auto whitespace-pre-wrap">
                   {JSON.stringify(inspectedLog.details || {}, null, 2)}
                 </pre>
               </div>
-            </div>
-
-            <div className="flex justify-end gap-3 border-t border-stormy-teal/10 pt-4 mt-6">
-              <button
-                type="button"
-                onClick={() => setInspectedLog(null)}
-                className="px-4 py-2 rounded-xl bg-stormy-teal hover:bg-stormy-teal/80 text-floral-white font-extrabold uppercase tracking-wider text-2xs cursor-pointer"
-              >
-                Dismiss Inspector
-              </button>
             </div>
           </div>
         </div>

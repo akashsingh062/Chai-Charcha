@@ -141,20 +141,16 @@ export default function PostManagementPage() {
       sortable: true,
       render: (row: PostItem) => (
         <div className="min-w-0 max-w-xs">
-          <span className="font-bold text-floral-white block truncate">{row.title}</span>
-          <span className="text-3xs text-dust-grey/60 block truncate">
+          <span className="text-xs font-semibold text-white/90 block truncate">{row.title}</span>
+          <span className="text-[10px] text-white/30 block truncate mt-0.5">
             By{" "}
             {row.author?.username ? (
-              <Link
-                href={`/admin/users?search=${row.author.username}`}
-                className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
-              >
+              <Link href={`/admin/users?search=${row.author.username}`}
+                className="text-[#14b8a6] hover:text-[#2dd4bf] font-semibold transition-colors">
                 @{row.author.username}
               </Link>
-            ) : (
-              "deleted"
-            )}{" "}
-            • in {row.community?.name || "General"}
+            ) : "deleted"}{" "}
+            · {row.community?.name || "General"}
           </span>
         </div>
       ),
@@ -168,9 +164,10 @@ export default function PostManagementPage() {
       key: "stats",
       label: "Votes/Comments",
       render: (row: PostItem) => (
-        <span className="text-2xs font-semibold text-dust-grey/80">
-          ▲{row.upvotesCount - row.downvotesCount} votes • 💬{row.commentCount} replies
-        </span>
+        <div className="text-[10px] text-white/40 space-y-0.5">
+          <span className="block">▲ {row.upvotesCount - row.downvotesCount} votes</span>
+          <span className="block">💬 {row.commentCount} replies</span>
+        </div>
       ),
     },
     {
@@ -178,9 +175,7 @@ export default function PostManagementPage() {
       label: "Score",
       sortable: true,
       render: (row: PostItem) => (
-        <span className="font-extrabold text-vivid-tangerine">
-          {row.trendingScore.toFixed(0)}
-        </span>
+        <span className="text-xs font-bold text-[#f97316] tabular-nums">{row.trendingScore.toFixed(0)}</span>
       ),
     },
     {
@@ -204,25 +199,34 @@ export default function PostManagementPage() {
       key: "actions",
       label: "Actions",
       render: (row: PostItem) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => handleSoftDeleteToggle(row)}
-            className={`px-2.5 py-1 rounded text-3xs font-bold uppercase transition-all border cursor-pointer ${
-              row.isSoftDeleted
-                ? "bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20"
-                : "bg-orange/10 hover:bg-orange/20 text-orange border-orange/20"
-            }`}
+            title={row.isSoftDeleted ? "Restore Post" : "Soft-Delete Post"}
+            className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer
+              ${row.isSoftDeleted
+                ? "bg-green-500/[0.06] border-green-500/20 text-green-400 hover:bg-green-500/[0.12]"
+                : "bg-orange-500/[0.06] border-orange-500/20 text-orange-400 hover:bg-orange-500/[0.12]"
+              }`}
           >
-            {row.isSoftDeleted ? "Restore" : "Soft-Delete"}
+            {row.isSoftDeleted ? (
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            )}
           </button>
           <button
-            onClick={() => {
-              setSelectedPost(row);
-              setDeleteModalOpen(true);
-            }}
-            className="px-2.5 py-1 rounded bg-spicy-paprika/10 hover:bg-spicy-paprika/20 text-spicy-paprika border border-spicy-paprika/20 text-3xs font-bold uppercase transition-all cursor-pointer"
+            onClick={() => { setSelectedPost(row); setDeleteModalOpen(true); }}
+            title="Hard Delete Post"
+            className="w-7 h-7 rounded-lg bg-red-500/[0.06] border border-red-500/20 text-red-400 hover:bg-red-500/[0.12] flex items-center justify-center transition-all cursor-pointer"
           >
-            Hard-Delete
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
           </button>
         </div>
       ),
@@ -230,43 +234,34 @@ export default function PostManagementPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Title */}
+    <div className="space-y-5">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-floral-white tracking-tight uppercase">
-          Post Management
-        </h1>
-        <p className="text-xs text-dust-grey font-bold uppercase tracking-wider mt-1">
-          Moderate community discussions and posts ({totalPosts} total)
+        <h1 className="text-xl font-black text-white tracking-tight">Post Management</h1>
+        <p className="text-[11px] text-white/30 mt-1">
+          <span className="font-semibold text-white/50">{totalPosts.toLocaleString()}</span> community posts
         </p>
       </div>
 
       {/* Filters bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border border-stormy-teal/10 bg-ink-black/30 rounded-2xl">
-        <div>
-          <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
-            Search Content
-          </label>
+      <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-4 space-y-3">
+        <div className="relative">
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
           <input
             type="text"
             placeholder="Search by title, content, or tags..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#f97316]/40 focus:bg-white/[0.06] transition-all"
           />
         </div>
-
-        <div>
-          <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
-            Filter by Category
-          </label>
+        <div className="flex items-center gap-3 flex-wrap">
           <select
             value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              setPage(1);
-            }}
-            className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine"
+            onChange={(e) => { setCategory(e.target.value); setPage(1); }}
+            className="px-3.5 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-xs text-white/60 focus:outline-none focus:border-[#f97316]/40 transition-all"
           >
             <option value="">All Categories</option>
             <option value="General Charcha">General Charcha</option>
@@ -274,21 +269,12 @@ export default function PostManagementPage() {
             <option value="Coding Lounge">Coding Lounge</option>
             <option value="Showcase">Showcase</option>
           </select>
-        </div>
-
-        <div>
-          <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
-            Filter by Status
-          </label>
           <select
             value={showDeleted}
-            onChange={(e) => {
-              setShowDeleted(e.target.value);
-              setPage(1);
-            }}
-            className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine"
+            onChange={(e) => { setShowDeleted(e.target.value); setPage(1); }}
+            className="px-3.5 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-xs text-white/60 focus:outline-none focus:border-[#f97316]/40 transition-all"
           >
-            <option value="true">Show Active & Soft-Deleted</option>
+            <option value="true">Active &amp; Soft-Deleted</option>
             <option value="false">Active Only</option>
             <option value="only">Soft-Deleted Only</option>
           </select>

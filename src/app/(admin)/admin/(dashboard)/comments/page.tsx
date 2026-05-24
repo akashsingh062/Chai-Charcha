@@ -113,22 +113,18 @@ export default function CommentManagementPage() {
       label: "Comment Content",
       render: (row: CommentItem) => (
         <div className="min-w-0 max-w-md">
-          <p className="font-bold text-floral-white line-clamp-2 leading-relaxed">
+          <p className="text-xs font-semibold text-white/80 line-clamp-2 leading-relaxed">
             {row.content}
           </p>
-          <span className="text-3xs text-dust-grey/60 block truncate mt-1">
+          <span className="text-[10px] text-white/30 block mt-1">
             By{" "}
             {row.author?.username ? (
-              <Link
-                href={`/admin/users?search=${row.author.username}`}
-                className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
-              >
+              <Link href={`/admin/users?search=${row.author.username}`}
+                className="text-[#14b8a6] hover:text-[#2dd4bf] font-semibold transition-colors">
                 @{row.author.username}
               </Link>
-            ) : (
-              "deleted"
-            )}{" "}
-            • on post &ldquo;{row.postTitle}&rdquo;
+            ) : "deleted"}{" "}
+            · on &ldquo;{row.postTitle}&rdquo;
           </span>
         </div>
       ),
@@ -137,16 +133,21 @@ export default function CommentManagementPage() {
       key: "stats",
       label: "Stats",
       render: (row: CommentItem) => (
-        <span className="text-2xs font-semibold text-dust-grey/80">
-          ▲{row.upvotesCount} votes • 💬{row.repliesCount} replies
-        </span>
+        <div className="text-[10px] text-white/40 space-y-0.5">
+          <span className="block">▲ {row.upvotesCount} votes</span>
+          <span className="block">💬 {row.repliesCount} replies</span>
+        </div>
       ),
     },
     {
       key: "parentId",
       label: "Type",
       render: (row: CommentItem) => (
-        <span className="text-2xs font-extrabold uppercase tracking-widest text-stormy-teal">
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider
+          ${row.parentId
+            ? "bg-[#14b8a6]/10 text-[#14b8a6] border-[#14b8a6]/20"
+            : "bg-white/[0.06] text-white/50 border-white/[0.08]"
+          }`}>
           {row.parentId ? "Reply" : "Top-level"}
         </span>
       ),
@@ -156,70 +157,57 @@ export default function CommentManagementPage() {
       label: "Date",
       sortable: true,
       render: (row: CommentItem) => (
-        <span className="text-2xs font-semibold text-dust-grey/80">
-          {new Date(row.createdAt).toLocaleDateString()}
-        </span>
+        <span className="text-[10px] text-white/30 font-medium">{new Date(row.createdAt).toLocaleDateString()}</span>
       ),
     },
     {
       key: "actions",
       label: "Actions",
       render: (row: CommentItem) => (
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              setSelectedComment(row);
-              setDeleteModalOpen(true);
-            }}
-            className="px-2.5 py-1 rounded bg-spicy-paprika/10 hover:bg-spicy-paprika/20 text-spicy-paprika border border-spicy-paprika/20 text-3xs font-bold uppercase transition-all cursor-pointer"
-          >
-            Delete
-          </button>
-        </div>
+        <button
+          onClick={() => { setSelectedComment(row); setDeleteModalOpen(true); }}
+          title="Delete Comment"
+          className="w-7 h-7 rounded-lg bg-red-500/[0.06] border border-red-500/20 text-red-400 hover:bg-red-500/[0.12] flex items-center justify-center transition-all cursor-pointer"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
       ),
     },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Title */}
+    <div className="space-y-5">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-floral-white tracking-tight uppercase">
-          Comment Management
-        </h1>
-        <p className="text-xs text-dust-grey font-bold uppercase tracking-wider mt-1">
-          Moderate community comments and replies ({totalComments} total)
+        <h1 className="text-xl font-black text-white tracking-tight">Comment Management</h1>
+        <p className="text-[11px] text-white/30 mt-1">
+          <span className="font-semibold text-white/50">{totalComments.toLocaleString()}</span> community comments
         </p>
       </div>
 
       {/* Filters bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border border-stormy-teal/10 bg-ink-black/30 rounded-2xl">
-        <div className="sm:col-span-2">
-          <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
-            Search Content
-          </label>
+      <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-4 space-y-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative flex-1 min-w-48">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by comment content..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#f97316]/40 transition-all"
+            />
+          </div>
           <input
             type="text"
-            placeholder="Search by comment content..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine"
-          />
-        </div>
-
-        <div>
-          <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
-            Filter by Post ID
-          </label>
-          <input
-            type="text"
-            placeholder="Filter by exact Post ObjectId..."
+            placeholder="Filter by Post ID..."
             value={postId}
-            onChange={(e) => {
-              setPostId(e.target.value);
-              setPage(1);
-            }}
-            className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine"
+            onChange={(e) => { setPostId(e.target.value); setPage(1); }}
+            className="px-3.5 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#f97316]/40 transition-all min-w-48"
           />
         </div>
       </div>

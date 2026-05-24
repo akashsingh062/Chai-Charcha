@@ -154,18 +154,20 @@ export default function CommunityManagementPage() {
       sortable: true,
       render: (row: CommunityItem) => (
         <div className="flex items-center gap-3">
-          <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-stormy-teal/20 bg-stormy-teal/10 shrink-0">
+          <Link href={`/admin/communities/${row.id}`} className="relative w-9 h-9 rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.04] shrink-0 block hover:border-[#14b8a6]/40 transition-all">
             {row.avatar ? (
               <img src={row.avatar} alt={row.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-3xs font-black uppercase text-stormy-teal">
+              <div className="w-full h-full flex items-center justify-center text-[10px] font-black uppercase text-[#14b8a6]">
                 {row.name.substring(0, 2)}
               </div>
             )}
-          </div>
+          </Link>
           <div className="min-w-0">
-            <span className="font-bold text-floral-white block truncate">{row.name}</span>
-            <span className="text-3xs text-dust-grey/60 block truncate">c/{row.slug}</span>
+            <Link href={`/admin/communities/${row.id}`} className="text-xs font-semibold text-white/90 block truncate hover:text-[#14b8a6] transition-colors">
+              {row.name}
+            </Link>
+            <span className="text-[10px] text-white/30 block">c/{row.slug}</span>
           </div>
         </div>
       ),
@@ -174,17 +176,13 @@ export default function CommunityManagementPage() {
       key: "creator",
       label: "Creator",
       render: (row: CommunityItem) => (
-        <span className="text-2xs font-semibold text-dust-grey/80">
+        <span className="text-[11px] text-white/50 font-medium">
           {row.creator?.username ? (
-            <Link
-              href={`/admin/users?search=${row.creator.username}`}
-              className="text-stormy-teal hover:text-vivid-tangerine hover:underline font-bold"
-            >
+            <Link href={`/admin/users?search=${row.creator.username}`}
+              className="text-[#14b8a6] hover:text-[#2dd4bf] font-semibold transition-colors">
               @{row.creator.username}
             </Link>
-          ) : (
-            "deleted"
-          )}
+          ) : "deleted"}
         </span>
       ),
     },
@@ -193,14 +191,14 @@ export default function CommunityManagementPage() {
       label: "Members",
       sortable: true,
       render: (row: CommunityItem) => (
-        <span className="font-extrabold text-floral-white">{row.membersCount} members</span>
+        <span className="text-xs font-bold text-white/80 tabular-nums">{row.membersCount.toLocaleString()}</span>
       ),
     },
     {
       key: "moderatorsCount",
       label: "Moderators",
       render: (row: CommunityItem) => (
-        <span className="text-2xs font-semibold text-stormy-teal">{row.moderatorsCount} moderators</span>
+        <span className="text-[11px] font-semibold text-[#14b8a6] tabular-nums">{row.moderatorsCount}</span>
       ),
     },
     {
@@ -219,40 +217,51 @@ export default function CommunityManagementPage() {
       label: "Created Date",
       sortable: true,
       render: (row: CommunityItem) => (
-        <span className="text-2xs font-semibold text-dust-grey/80">
-          {new Date(row.createdAt).toLocaleDateString()}
-        </span>
+        <span className="text-[10px] text-white/30 font-medium">{new Date(row.createdAt).toLocaleDateString()}</span>
       ),
     },
     {
       key: "actions",
       label: "Actions",
       render: (row: CommunityItem) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Link
             href={`/admin/communities/${row.id}`}
-            className="px-2.5 py-1 rounded bg-stormy-teal/10 hover:bg-stormy-teal/20 text-stormy-teal border border-stormy-teal/20 text-3xs font-bold uppercase transition-all"
+            title="Inspect Community"
+            className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white/40 hover:text-[#14b8a6] hover:border-[#14b8a6]/30 hover:bg-[#14b8a6]/[0.06] flex items-center justify-center transition-all"
           >
-            Inspect
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
           </Link>
           <button
             onClick={() => handleBanClick(row)}
-            className={`px-2.5 py-1 rounded text-3xs font-bold uppercase transition-all border cursor-pointer ${
-              row.isBanned
-                ? "bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/20"
-                : "bg-orange/10 hover:bg-orange/20 text-orange border-orange/20"
-            }`}
+            title={row.isBanned ? "Unban Community" : "Ban Community"}
+            className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all cursor-pointer
+              ${row.isBanned
+                ? "bg-green-500/[0.06] border-green-500/20 text-green-400 hover:bg-green-500/[0.12]"
+                : "bg-orange-500/[0.06] border-orange-500/20 text-orange-400 hover:bg-orange-500/[0.12]"
+              }`}
           >
-            {row.isBanned ? "Unban" : "Ban"}
+            {row.isBanned ? (
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+            )}
           </button>
           <button
-            onClick={() => {
-              setSelectedCommunity(row);
-              setDeleteModalOpen(true);
-            }}
-            className="px-2.5 py-1 rounded bg-spicy-paprika/10 hover:bg-spicy-paprika/20 text-spicy-paprika border border-spicy-paprika/20 text-3xs font-bold uppercase transition-all cursor-pointer"
+            onClick={() => { setSelectedCommunity(row); setDeleteModalOpen(true); }}
+            title="Delete Community"
+            className="w-7 h-7 rounded-lg bg-red-500/[0.06] border border-red-500/20 text-red-400 hover:bg-red-500/[0.12] flex items-center justify-center transition-all cursor-pointer"
           >
-            Delete
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
           </button>
         </div>
       ),
@@ -260,29 +269,29 @@ export default function CommunityManagementPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Title */}
+    <div className="space-y-5">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-floral-white tracking-tight uppercase">
-          Community Management
-        </h1>
-        <p className="text-xs text-dust-grey font-bold uppercase tracking-wider mt-1">
-          Manage sub-charcha channels ({totalCommunities} total)
+        <h1 className="text-xl font-black text-white tracking-tight">Community Management</h1>
+        <p className="text-[11px] text-white/30 mt-1">
+          <span className="font-semibold text-white/50">{totalCommunities.toLocaleString()}</span> sub-charcha channels
         </p>
       </div>
 
       {/* Filters bar */}
-      <div className="p-4 border border-stormy-teal/10 bg-ink-black/30 rounded-2xl">
-        <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
-          Search Communities
-        </label>
-        <input
-          type="text"
-          placeholder="Search by community name, description, or slug..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-3.5 py-2.5 bg-white/5 border border-stormy-teal/20 rounded-xl text-xs placeholder-dust-grey/50 text-floral-white focus:outline-none focus:border-vivid-tangerine"
-        />
+      <div className="rounded-2xl border border-white/[0.07] bg-[#111318] p-4">
+        <div className="relative">
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by community name, slug, or description..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#f97316]/40 transition-all"
+          />
+        </div>
       </div>
 
       {/* Data Table */}
@@ -300,43 +309,44 @@ export default function CommunityManagementPage() {
 
       {/* Ban Duration Modal */}
       {banModalOpen && selectedCommunity && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl border border-stormy-teal/20 bg-ink-black p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-extrabold text-floral-white uppercase tracking-wider border-b border-stormy-teal/10 pb-2">
-              Ban Community: c/{selectedCommunity.slug}
-            </h3>
-            
-            <div>
-              <label className="text-3xs font-extrabold uppercase tracking-widest text-stormy-teal block mb-1.5">
-                Suspension Duration
-              </label>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+          <div className="relative w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#111318] p-6 shadow-2xl overflow-hidden">
+            <div className="absolute -top-12 -right-12 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center shrink-0">
+                <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white">Ban Community</h3>
+                <p className="text-[10px] text-white/30">c/{selectedCommunity.slug}</p>
+              </div>
+            </div>
+            <div className="space-y-1.5 mb-5">
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">Duration</label>
               <select
                 value={banDuration}
                 onChange={(e) => setBanDuration(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-ink-black border border-stormy-teal/20 rounded-xl text-xs text-dust-grey focus:outline-none focus:border-vivid-tangerine"
+                className="w-full px-3.5 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white/80 focus:outline-none focus:border-[#f97316]/40 transition-all"
               >
                 <option value="0">Permanent Ban</option>
-                <option value="1">1 Hour Suspension</option>
-                <option value="24">1 Day Suspension</option>
-                <option value="168">1 Week Suspension</option>
-                <option value="720">30 Days Suspension</option>
+                <option value="1">1 Hour</option>
+                <option value="24">1 Day</option>
+                <option value="168">1 Week</option>
+                <option value="720">30 Days</option>
               </select>
             </div>
-
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex gap-2.5">
               <button
-                type="button"
-                onClick={() => {
-                  setBanModalOpen(false);
-                  setSelectedCommunity(null);
-                }}
-                className="px-4 py-2 rounded-xl text-2xs font-extrabold uppercase tracking-wider text-dust-grey hover:bg-white/5 cursor-pointer"
+                onClick={() => { setBanModalOpen(false); setSelectedCommunity(null); }}
+                className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-white/50 hover:bg-white/[0.06] hover:text-white transition-all cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmBan}
-                className="px-4 py-2 rounded-xl bg-orange hover:bg-orange/80 text-ink-black font-extrabold uppercase tracking-wider text-2xs cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all cursor-pointer shadow-lg shadow-orange-500/20"
               >
                 Confirm Ban
               </button>
