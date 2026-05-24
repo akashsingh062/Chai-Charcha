@@ -102,6 +102,7 @@ export default function CommunityDetailPage() {
 
   useEffect(() => {
     if (communityId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchCommunityDetails();
     }
   }, [communityId, fetchCommunityDetails]);
@@ -207,7 +208,7 @@ export default function CommunityDetailPage() {
             Back to Communities
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-black text-white tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">{community.name}</h1>
+            <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">{community.name}</h1>
             <div className="flex items-center gap-2">
               {community.isBanned ? <AdminBadge type="banned" /> : <AdminBadge type={community.isPrivate ? "rejected" : "active"} />}
             </div>
