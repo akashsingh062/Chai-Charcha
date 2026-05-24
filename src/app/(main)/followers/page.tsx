@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axios";
@@ -20,7 +20,6 @@ interface FollowedUser {
 function FollowersPageContent() {
   const { user: isLoggedIn, userData } = useAuth();
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const userIdParam = searchParams.get("userId") || "";
   const usernameParam = searchParams.get("username") || "";
@@ -69,7 +68,7 @@ function FollowersPageContent() {
             username: profileRes.data.user.username
           });
         } else if (profileRes.data?.users && userIdParam) {
-          const matched = profileRes.data.users.find((u: any) => u._id === userIdParam);
+          const matched = profileRes.data.users.find((u: { _id: string; name: string; username: string }) => u._id === userIdParam);
           if (matched) {
             setTargetUser({
               name: matched.name,
@@ -83,9 +82,10 @@ function FollowersPageContent() {
           username: userData.email.split("@")[0] // Fallback username prefix
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error loading follow list:", err);
-      setError(err.response?.data?.error || "Failed to load developer profiles list");
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      setError(axiosErr.response?.data?.error || "Failed to load developer profiles list");
     } finally {
       setIsLoading(false);
     }
@@ -105,8 +105,11 @@ function FollowersPageContent() {
   }, [isLoggedIn, userData]);
 
   useEffect(() => {
-    fetchFollowList();
-    fetchMyFollowing();
+    const timer = setTimeout(() => {
+      fetchFollowList();
+      fetchMyFollowing();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchFollowList, fetchMyFollowing]);
 
   // Handle follow/unfollow toggle on the card
