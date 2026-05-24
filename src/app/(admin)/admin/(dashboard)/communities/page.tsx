@@ -83,6 +83,7 @@ export default function CommunityManagementPage() {
   }, [page, debouncedSearch, sort, order]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCommunities();
   }, [fetchCommunities]);
 
@@ -107,7 +108,7 @@ export default function CommunityManagementPage() {
           );
           toast.success("Community unbanned successfully");
         }
-      } catch (err: unknown) {
+      } catch {
         toast.error("Failed to unban community");
       }
     } else {
@@ -130,7 +131,7 @@ export default function CommunityManagementPage() {
       }
       setBanModalOpen(false);
       setSelectedCommunity(null);
-    } catch (err: unknown) {
+    } catch {
       toast.error("Failed to ban community");
     }
   };
@@ -293,7 +294,7 @@ export default function CommunityManagementPage() {
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-white tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Community Channels</h1>
+        <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Community Channels</h1>
         <p className="text-xs text-white/30 mt-1">
           Managing <span className="font-bold text-white/60">{totalCommunities.toLocaleString()}</span> sub-charcha forum channels
         </p>
