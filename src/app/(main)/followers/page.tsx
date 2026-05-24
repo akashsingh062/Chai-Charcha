@@ -34,16 +34,6 @@ function FollowersPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Redirection guard for logged-out users if no target user specified
-  useEffect(() => {
-    if (!userIdParam && !usernameParam) {
-      const checkUser = localStorage.getItem("isLoggedIn");
-      if (checkUser === "false" || (!isLoggedIn && checkUser !== "true")) {
-        router.push("/auth/signin");
-      }
-    }
-  }, [isLoggedIn, userIdParam, usernameParam, router]);
-
   // Load followers/following list
   const fetchFollowList = useCallback(async () => {
     try {
@@ -121,7 +111,7 @@ function FollowersPageContent() {
 
   // Handle follow/unfollow toggle on the card
   const handleFollowToggle = async (targetId: string) => {
-    if (!isLoggedIn) {
+    if (!userData) {
       toast.warning("Please Log In to follow other developers!");
       return;
     }

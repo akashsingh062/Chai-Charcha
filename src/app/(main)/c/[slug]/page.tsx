@@ -398,7 +398,7 @@ function CommunityPageContent() {
 
   // Join / Leave Actions
   const handleJoinLeave = async () => {
-    if (!isLoggedIn) {
+    if (!userData) {
       toast.warning("Please pull up a chair and Log In to join this community!");
       return;
     }
@@ -433,7 +433,7 @@ function CommunityPageContent() {
 
   // Upvote/Downvote actions
   const handleVote = async (id: string, type: "up" | "down") => {
-    if (!isLoggedIn) {
+    if (!userData) {
       toast.warning("Please pull up a chair and Log In to vote!");
       return;
     }
@@ -465,6 +465,10 @@ function CommunityPageContent() {
 
   // Add Comment Flow
   const handleAddComment = async (threadId: string, text: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/comments", {
         postId: threadId,
@@ -492,6 +496,10 @@ function CommunityPageContent() {
 
   // Add Reply Flow
   const handleAddReply = async (threadId: string, commentId: string, text: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/comments", {
         postId: threadId,
@@ -585,6 +593,10 @@ function CommunityPageContent() {
 
   // Comment Vote Flow
   const handleCommentVote = async (threadId: string, commentId: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/votes", {
         targetId: commentId,

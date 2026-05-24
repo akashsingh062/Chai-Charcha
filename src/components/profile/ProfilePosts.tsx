@@ -4,6 +4,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Thread } from "@/app/(main)/post/postData";
 import { ThreadCard } from "@/components/home/ThreadCard";
 import axiosInstance from "@/lib/axios";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/store/useToastStore";
 import { 
   insertReply, 
   updateComment, 
@@ -24,6 +26,7 @@ interface ProfilePostsProps {
 }
 
 export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountChange }) => {
+  const { userData } = useAuth();
   const [posts, setPosts] = useState<Thread[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +72,10 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
 
   // Handle post upvoting / downvoting
   const handleVote = async (id: string, type: "up" | "down") => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/votes", {
         targetId: id,
@@ -97,6 +104,10 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
 
   // Add Comment callback
   const handleAddComment = async (threadId: string, text: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/comments", {
         postId: threadId,
@@ -122,6 +133,10 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
 
   // Add nested reply callback
   const handleAddReply = async (threadId: string, commentId: string, text: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/comments", {
         postId: threadId,
@@ -204,6 +219,10 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
 
   // Comment Vote callback
   const handleCommentVote = async (threadId: string, commentId: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/votes", {
         targetId: commentId,

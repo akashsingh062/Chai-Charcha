@@ -56,13 +56,7 @@ function MessagesPageContent() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Redirection guard for logged-out users
-  useEffect(() => {
-    const checkUser = localStorage.getItem("isLoggedIn");
-    if (checkUser === "false" || (!isLoggedIn && checkUser !== "true")) {
-      router.push("/auth/signin");
-    }
-  }, [isLoggedIn, router]);
+
 
   // Scroll to bottom helper
   const scrollToBottom = () => {

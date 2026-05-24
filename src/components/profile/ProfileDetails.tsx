@@ -86,7 +86,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   }, [isOwnProfile, user, isLoggedIn]);
 
   const handleFollowToggle = async () => {
-    if (!isLoggedIn) {
+    if (!userData) {
       toast.warning("Please Log In to follow other developers!");
       router.push("/auth/signin");
       return;

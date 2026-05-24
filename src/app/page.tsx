@@ -79,7 +79,7 @@ export default function Home() {
 
   // Handle Dynamic Upvote/Downvote actions
   const handleVote = async (id: string, type: "up" | "down") => {
-    if (!user) {
+    if (!userData) {
       toast.warning("Please pull up a chair and Log In to vote!");
       return;
     }
@@ -110,6 +110,10 @@ export default function Home() {
   };
 
   const handleAddComment = async (threadId: string, text: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/comments", {
         postId: threadId,
@@ -135,6 +139,10 @@ export default function Home() {
   };
 
   const handleAddReply = async (threadId: string, commentId: string, text: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/comments", {
         postId: threadId,
@@ -217,6 +225,10 @@ export default function Home() {
   };
 
   const handleCommentVote = async (threadId: string, commentId: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/votes", {
         targetId: commentId,

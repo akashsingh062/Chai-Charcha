@@ -44,7 +44,7 @@ const Navbar = () => {
 
   // Poll notifications count
   useEffect(() => {
-    if (!user) {
+    if (!userData) {
       if (unreadCount !== 0) {
         const timer = setTimeout(() => {
           setUnreadCount(0);

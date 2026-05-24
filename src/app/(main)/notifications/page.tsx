@@ -32,13 +32,7 @@ export default function NotificationsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Redirection guard for logged-out users
-  useEffect(() => {
-    const checkUser = localStorage.getItem("isLoggedIn");
-    if (checkUser === "false" || (!isLoggedIn && checkUser !== "true")) {
-      router.push("/auth/signin");
-    }
-  }, [isLoggedIn, router]);
+
 
   const fetchNotifications = useCallback(async () => {
     try {

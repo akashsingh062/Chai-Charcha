@@ -47,7 +47,7 @@ interface CommunitySearchInfo {
 }
 
 function SearchPageContent() {
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryParam = searchParams.get("q") || "";
@@ -231,7 +231,7 @@ function SearchPageContent() {
 
   // Handle Voting
   const handleVote = async (id: string, type: "up" | "down") => {
-    if (!user) {
+    if (!userData) {
       toast.warning("Please pull up a chair and Log In to vote!");
       return;
     }
@@ -262,6 +262,10 @@ function SearchPageContent() {
 
   // Comments handlers (to keep ThreadCard completely functional!)
   const handleAddComment = async (threadId: string, text: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/comments", {
         postId: threadId,
@@ -286,6 +290,10 @@ function SearchPageContent() {
   };
 
   const handleAddReply = async (threadId: string, commentId: string, text: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/comments", {
         postId: threadId,
@@ -365,6 +373,10 @@ function SearchPageContent() {
   };
 
   const handleCommentVote = async (threadId: string, commentId: string) => {
+    if (!userData) {
+      toast.warning("Please log in first to do that!");
+      return;
+    }
     try {
       const res = await axiosInstance.post("/api/votes", {
         targetId: commentId,
@@ -454,7 +466,7 @@ function SearchPageContent() {
 
   // Join/leave communities directly from search results
   const handleCommunityJoinLeave = async (comm: CommunitySearchInfo) => {
-    if (!user) {
+    if (!userData) {
       toast.warning("Please pull up a chair and Log In to join this community!");
       return;
     }
