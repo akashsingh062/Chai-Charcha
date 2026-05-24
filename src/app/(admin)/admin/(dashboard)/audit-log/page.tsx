@@ -22,10 +22,10 @@ interface AuditLogItem {
 
 function StatCard({ label, value, color, icon }: { label: string; value: string | number; color?: string; icon?: React.ReactNode }) {
   return (
-    <div className="group relative flex flex-col justify-between p-4 rounded-2xl bg-[#111318] border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.02] transition-all duration-300 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <div className="group relative flex flex-col justify-between p-4 rounded-2xl bg-[#111318] border border-white/6 hover:border-white/12 hover:bg-white/2 transition-all duration-300 overflow-hidden">
+      <div className="absolute inset-0 bg-linear-to-br from-white/2 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       <div className="flex items-center justify-between gap-3 mb-2">
-        <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.1em]">{label}</span>
+        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{label}</span>
         {icon && <div className="text-white/20 group-hover:text-white/40 transition-colors duration-300">{icon}</div>}
       </div>
       <span className={`text-xl font-black tabular-nums leading-none tracking-tight ${color || "text-white"}`}>
