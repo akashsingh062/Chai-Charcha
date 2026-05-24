@@ -18,13 +18,49 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chai Charcha - General Discussion & Charcha Forum",
+  metadataBase: new URL("https://chai-charcha.vercel.app"),
+  title: {
+    default: "Chai Charcha - General Discussion & Charcha Forum",
+    template: "%s | Chai Charcha",
+  },
   description:
     "The premier community-driven hub for all topics. Join nested discussions, evaluate career growth, and share advice over hot chai and charcha.",
+  keywords: [
+    "chai charcha",
+    "developer community",
+    "career advice",
+    "technical forum",
+    "system design",
+    "programming discussions",
+    "nesting discussions",
+    "developer debates",
+  ],
   icons: {
     icon: "/chai.svg",
     shortcut: "/chai.svg",
     apple: "/chai.svg",
+  },
+  openGraph: {
+    title: "Chai Charcha - General Discussion & Charcha Forum",
+    description: "The premier community-driven hub for all topics. Join nested discussions, evaluate career growth, and share advice over hot chai and charcha.",
+    url: "https://chai-charcha.vercel.app",
+    siteName: "Chai Charcha",
+    images: [
+      {
+        url: "/chai.svg",
+        width: 1200,
+        height: 630,
+        alt: "Chai Charcha Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Chai Charcha - General Discussion & Charcha Forum",
+    description: "The premier community-driven hub for all topics. Join nested discussions, evaluate career growth, and share advice over hot chai and charcha.",
+    images: ["/chai.svg"],
   },
 };
 
@@ -33,6 +69,22 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Chai Charcha",
+    "url": "https://chai-charcha.vercel.app",
+    "logo": "https://chai-charcha.vercel.app/chai.svg",
+    "sameAs": [
+      "https://github.com/akashsingh062/coderun"
+    ],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://chai-charcha.vercel.app/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <html
       lang="en"
@@ -40,6 +92,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(orgJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
