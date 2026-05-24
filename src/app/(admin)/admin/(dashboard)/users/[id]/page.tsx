@@ -114,6 +114,7 @@ export default function UserDetailPage() {
 
   useEffect(() => {
     if (userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchUserDetails();
     }
   }, [userId, fetchUserDetails]);
@@ -246,7 +247,7 @@ export default function UserDetailPage() {
             Back to Users
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-black text-white tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">{user.name}</h1>
+            <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">{user.name}</h1>
             <div className="flex items-center gap-2">
               <AdminBadge type={user.isBanned ? "banned" : user.role} />
               {user.isMuted && (
