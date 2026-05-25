@@ -1,14 +1,16 @@
 import { SearchItem } from "@/types/search";
 
 export const TRENDING_SEARCHES = [
-  "React tutorial",
-  "Next.js auth",
-  "MongoDB aggregation",
-  "Express API",
-  "TypeScript interview",
-  "System design",
-  "Better-Auth",
-  "Tailwind v4",
+  "startup advice",
+  "remote work",
+  "career growth",
+  "resume review",
+  "time management",
+  "creative design",
+  "side hustle",
+  "personal finance",
+  "health & wellness",
+  "general charcha",
 ];
 
 export interface RawPostInput {

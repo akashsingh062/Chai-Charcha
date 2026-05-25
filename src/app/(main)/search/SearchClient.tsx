@@ -185,7 +185,7 @@ function SearchPageContent() {
     }
   }, []);
 
-  // Fetch all developer profiles from API
+  // Fetch all member profiles from API
   const loadUsers = useCallback(async () => {
     try {
       setIsLoadingUsers(true);
@@ -194,7 +194,7 @@ function SearchPageContent() {
         setUsers(res.data.users);
       }
     } catch (err) {
-      console.error("Error loading developer profiles for search:", err);
+      console.error("Error loading member profiles for search:", err);
     } finally {
       setIsLoadingUsers(false);
     }
@@ -575,7 +575,7 @@ function SearchPageContent() {
             </span>
           </h1>
           <p className="text-xs text-dust-grey font-semibold">
-            Found {filteredThreads.length} discussions, {searchedCommunities.length} communities, and {searchedUsers.length} developer profiles.
+            Found {filteredThreads.length} discussions, {searchedCommunities.length} communities, and {searchedUsers.length} member profiles.
           </p>
         </div>
 
@@ -944,9 +944,9 @@ function SearchPageContent() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 018.625 21c-2.331 0-4.512-.645-6.374-1.766v-.109A12.318 12.318 0 018.625 18c1.63 0 3.197.315 4.63.888m-1.155-12.012a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM20.25 8.582a3.001 3.001 0 11-4.708 3.697 3.003 3.003 0 002.327-.999 3.003 3.003 0 002.381-2.698z" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-bold text-(--foreground)">No developer profiles match</h3>
+                    <h3 className="text-lg font-bold text-(--foreground)">No member profiles match</h3>
                     <p className="text-xs text-dust-grey mt-1.5 max-w-sm">
-                      We could not find any active developers matching your search keyword.
+                      We could not find any active members matching your search keyword.
                     </p>
                   </div>
                 ) : (
@@ -1002,7 +1002,7 @@ function SearchPageContent() {
                             </p>
                           ) : (
                             <p className="text-xs italic text-dust-grey mb-4">
-                              This developer is still brewing a bio.
+                              This user is still brewing a bio.
                             </p>
                           )}
                         </Link>

@@ -13,33 +13,33 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   if (query) {
     return {
       title: `Search: "${query}" | Chai Charcha`,
-      description: `Browse discussions, communities, and developer profiles matching "${query}" on Chai Charcha — India's premier developer forum.`,
+      description: `Browse discussions, communities, and member profiles matching "${query}" on Chai Charcha — India's premier discussion forum.`,
       alternates: {
         canonical: `${baseUrl}/search?q=${encodeURIComponent(query)}`,
       },
       openGraph: {
         title: `Search: "${query}" | Chai Charcha`,
-        description: `Browse discussions, communities, and developer profiles matching "${query}" on Chai Charcha.`,
+        description: `Browse discussions, communities, and member profiles matching "${query}" on Chai Charcha.`,
         url: `${baseUrl}/search?q=${encodeURIComponent(query)}`,
         images: ["/chai.svg"],
       },
       twitter: {
         card: "summary",
         title: `Search: "${query}" | Chai Charcha`,
-        description: `Browse discussions, communities, and developer profiles matching "${query}" on Chai Charcha.`,
+        description: `Browse discussions, communities, and member profiles matching "${query}" on Chai Charcha.`,
       },
     };
   }
 
   return {
     title: "Search Discussions, Communities & Profiles | Chai Charcha",
-    description: "Search across all discussions, communities, and developer profiles on Chai Charcha — India's premier developer forum for chai and charcha.",
+    description: "Search across all discussions, communities, and member profiles on Chai Charcha — India's premier discussion forum for chai and charcha.",
     alternates: {
       canonical: `${baseUrl}/search`,
     },
     openGraph: {
       title: "Search | Chai Charcha",
-      description: "Search across all discussions, communities, and developer profiles on Chai Charcha.",
+      description: "Search across all discussions, communities, and member profiles on Chai Charcha.",
       url: `${baseUrl}/search`,
       images: ["/chai.svg"],
     },

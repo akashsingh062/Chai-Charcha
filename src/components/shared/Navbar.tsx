@@ -186,7 +186,7 @@ const Navbar = () => {
                         userData?.name ? userData.name.substring(0, 2).toUpperCase() : "JD"
                       )}
                     </div>
-                    <span className="text-xs font-semibold text-(--text-role)">{userData?.name || "Developer"}</span>
+                    <span className="text-xs font-semibold text-(--text-role)">{userData?.name || "Member"}</span>
                     <svg className={`h-3 w-3 text-(--btn-icon-text) transition-transform duration-200 ${profileMenuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                     </svg>

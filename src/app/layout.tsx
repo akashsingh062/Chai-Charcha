@@ -27,13 +27,13 @@ export const metadata: Metadata = {
     "The premier community-driven hub for all topics. Join nested discussions, evaluate career growth, and share advice over hot chai and charcha.",
   keywords: [
     "chai charcha",
-    "developer community",
+    "discussion community",
     "career advice",
-    "technical forum",
-    "system design",
-    "programming discussions",
+    "discussion forum",
+    "creative solutions",
+    "diverse discussions",
     "nesting discussions",
-    "developer debates",
+    "open debates",
   ],
   icons: {
     icon: "/chai.svg",

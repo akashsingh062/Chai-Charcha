@@ -16,7 +16,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   if (!username) {
     return {
       title: "My Profile",
-      description: "Manage your personal developer profile, joined communities, and discussion charchas.",
+      description: "Manage your personal profile, joined communities, and discussion charchas.",
     };
   }
 
@@ -35,7 +35,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     }
 
     const title = `${user.name} (@${user.username})`;
-    const description = `Explore ${user.name}'s developer profile on Chai Charcha. ${user.bio || "Joined discussions and system design charchas."} Active member with ${user.karma || 0} karma.`;
+    const description = `Explore ${user.name}'s profile on Chai Charcha. ${user.bio || "Joined discussions and community charchas."} Active member with ${user.karma || 0} karma.`;
 
     return {
       title,

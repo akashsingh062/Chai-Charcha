@@ -102,7 +102,7 @@ export const PreferencesTab: React.FC<PreferencesTabProps> = ({
                 Email Notifications
               </span>
               <span className="text-xs text-dust-grey block leading-relaxed">
-                Receive real-time alerts when other developers reply to your charchas or upvote your replies.
+                Receive real-time alerts when other members reply to your charchas or upvote your replies.
               </span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer shrink-0">
@@ -123,7 +123,7 @@ export const PreferencesTab: React.FC<PreferencesTabProps> = ({
                 Weekly Digest Newsletter
               </span>
               <span className="text-xs text-dust-grey block leading-relaxed">
-                Receive a weekly roundup of trending system design discussions and local off-line meetups.
+                Receive a weekly roundup of trending community discussions and local off-line meetups.
               </span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer shrink-0">
@@ -144,7 +144,7 @@ export const PreferencesTab: React.FC<PreferencesTabProps> = ({
                 Public Profile Visibility
               </span>
               <span className="text-xs text-dust-grey block leading-relaxed">
-                Allow search engines and non-registered guests to view your developer statistics and charchas.
+                Allow search engines and non-registered guests to view your statistics and charchas.
               </span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer shrink-0">

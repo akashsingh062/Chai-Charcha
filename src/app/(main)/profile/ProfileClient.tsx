@@ -94,7 +94,7 @@ function ProfilePageContent() {
             <div className="flex items-center justify-between border-b border-(--divider-color) pb-3.5">
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-(--foreground)">
-                  Technical Discussions
+                  Discussions
                 </h2>
                 {user && (
                   <span className="rounded-full bg-(--profile-bg) border border-(--profile-border) px-2 py-0.5 text-2xs text-(--text-role) font-semibold">

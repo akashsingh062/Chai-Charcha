@@ -313,9 +313,10 @@ export default function PostManagementPage() {
             >
               <option value="">All Categories</option>
               <option value="General Charcha">General Charcha</option>
-              <option value="Tech Support">Tech Support</option>
-              <option value="Coding Lounge">Coding Lounge</option>
-              <option value="Showcase">Showcase</option>
+              <option value="Tech & Code">Tech & Code</option>
+              <option value="Startups & Business">Startups & Business</option>
+              <option value="Career & Salary">Career & Salary</option>
+              <option value="Showcase & Projects">Showcase & Projects</option>
             </select>
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

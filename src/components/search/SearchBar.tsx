@@ -173,7 +173,7 @@ const SearchBarInner: React.FC = () => {
           }}
           onFocus={() => setDropdownOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search threads, tags, categories, or developer profiles..."
+          placeholder="Search threads, tags, categories, or member profiles..."
           className="w-full h-full bg-transparent border-none outline-none text-sm text-(--foreground) placeholder-dust-grey/70 pr-2"
           role="combobox"
           aria-expanded={dropdownOpen}

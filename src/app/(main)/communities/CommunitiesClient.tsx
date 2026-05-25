@@ -146,7 +146,7 @@ export default function CommunitiesClient() {
               <span>Explore Communities</span>
             </h1>
             <p className="text-sm text-dust-grey font-medium leading-relaxed">
-              Discover active developer circles, follow custom topics, ask questions, and share experiences. Join existing forums or build a brand-new space for your squad.
+              Discover active community circles, follow custom topics, ask questions, and share experiences. Join existing forums or build a brand-new space for your squad.
             </p>
           </div>
           <div className="relative z-10 shrink-0">
@@ -234,7 +234,7 @@ export default function CommunitiesClient() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
-            <span className="text-xs font-mono tracking-wider animate-pulse">Brewing active developer hubs...</span>
+            <span className="text-xs font-mono tracking-wider animate-pulse">Brewing active community hubs...</span>
           </div>
         ) : filteredCommunities.length === 0 ? (
           <div className="text-center py-20 rounded-3xl border border-dashed border-(--card-border) bg-(--card-background)/40 backdrop-blur-xs flex flex-col items-center justify-center p-8 shadow-sm">
@@ -248,7 +248,7 @@ export default function CommunitiesClient() {
             </h3>
             <p className="text-xs text-dust-grey mt-2 max-w-sm leading-relaxed">
               {activeTab === "joined"
-                ? "Explore communities below to browse and join active developer forums!"
+                ? "Explore communities below to browse and join active discussion circles!"
                 : `We couldn't find any community matching "${searchQuery}". You can create a new one to start the conversation!`
               }
             </p>

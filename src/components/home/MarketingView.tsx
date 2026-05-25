@@ -111,7 +111,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
               </div>
               <h3 className="text-lg font-bold text-(--foreground)">City Guilds & AMAs</h3>
               <p className="mt-2 text-sm text-(--text-secondary) leading-relaxed">
-                Coordinate with local circles in Bengaluru, Delhi-NCR, Pune, Hyderabad, or Mumbai. Participate in live online AMAs with staff engineers.
+                Coordinate with local circles in Bengaluru, Delhi-NCR, Pune, Hyderabad, or Mumbai. Participate in live online AMAs with industry experts and leaders.
               </p>
             </div>
           </div>
@@ -137,7 +137,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
               </div>
               <h3 className="text-xl font-bold mt-2 text-(--foreground)">Join the Discussion</h3>
               <p className="mt-2 text-xs sm:text-sm text-(--text-secondary) leading-relaxed">
-                Ready to share your experiences, upvote great ideas, or ask your own burning dev questions? Log in instantly.
+                Ready to share your experiences, upvote great ideas, or ask your own burning questions? Log in instantly.
               </p>
               <button
                 onClick={login}
@@ -151,7 +151,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
           {/* Blurred Thread 1 */}
           <div className="mb-6 border-b border-(--divider-color) pb-6 blur-xs select-none pointer-events-none opacity-50">
             <span className="rounded-full bg-orange/10 text-orange border border-orange/20 px-2 py-0.5 text-xs font-semibold">Career & Salary</span>
-            <h3 className="text-lg font-bold mt-2 text-(--foreground)">Is there a real hiring slowdown in Bangalore for remote developers?</h3>
+            <h3 className="text-lg font-bold mt-2 text-(--foreground)">Is there a real hiring slowdown in Bangalore for remote roles?</h3>
             <p className="mt-2 text-sm text-(--text-secondary)">Local Indian startups are offering roughly 30-40% lower compensation packages...</p>
           </div>
 

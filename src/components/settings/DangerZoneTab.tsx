@@ -66,7 +66,7 @@ export const DangerZoneTab: React.FC<DangerZoneTabProps> = ({
                 Permanently Delete Account
               </span>
               <span className="text-xs text-dust-grey block max-w-md leading-relaxed">
-                This is a critical action. It will permanently delete your developer credentials, reputation score, and sign you out.
+                This is a critical action. It will permanently delete your credentials, reputation score, and sign you out.
               </span>
             </div>
             <button

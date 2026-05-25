@@ -13,37 +13,37 @@ import HomeClient from "./HomeClient";
  */
 
 export const metadata: Metadata = {
-  title: "Chai Charcha — India's Developer Discussion & Charcha Forum",
+  title: "Chai Charcha — India's Open Discussion & Charcha Forum",
   description:
-    "Join India's premier developer community. Discuss tech, career growth, startups, lifestyle, and more over virtual chai. Community-driven discussions, nested charcha threads, and honest conversations.",
+    "Join India's premier open discussion community. Discuss career growth, startups, lifestyle, ideas, and more over virtual chai. Community-driven discussions, nested charcha threads, and honest conversations.",
   alternates: {
     canonical: "https://chai-charcha.vercel.app",
   },
   keywords: [
     "chai charcha",
-    "developer forum india",
-    "indian developer community",
-    "career advice developers",
-    "tech discussion forum",
+    "discussion forum india",
+    "indian community board",
+    "career advice and guidance",
+    "open discussion forum",
     "startup discussions india",
-    "software engineer community",
-    "programming forum hindi",
-    "developer charcha",
-    "bangalore developer community",
+    "general discussions community",
+    "ideas forum hindi",
+    "open charcha",
+    "bangalore community group",
   ],
   openGraph: {
-    title: "Chai Charcha — India's Developer Discussion Forum",
+    title: "Chai Charcha — India's Open Discussion Forum",
     description:
-      "Join India's premier developer community. Discuss tech, career growth, startups, and lifestyle over virtual chai.",
+      "Join India's premier community. Discuss career growth, startups, lifestyle, and ideas over virtual chai.",
     url: "https://chai-charcha.vercel.app",
     images: ["/chai.svg"],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Chai Charcha — India's Developer Discussion Forum",
+    title: "Chai Charcha — India's Open Discussion Forum",
     description:
-      "Join India's premier developer community for tech, career, and lifestyle discussions.",
+      "Join India's premier community for career, lifestyle, and general discussions.",
     images: ["/chai.svg"],
   },
 };

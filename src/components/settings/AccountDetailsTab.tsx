@@ -92,7 +92,7 @@ export const AccountDetailsTab: React.FC<AccountDetailsTabProps> = ({ user }) =>
             </span>
           </div>
           <span className="text-xs bg-orange/15 text-orange px-3 py-1.5 rounded-full border border-orange/20 font-bold">
-            Developer Basic
+            Chai Member
           </span>
         </div>
       </div>

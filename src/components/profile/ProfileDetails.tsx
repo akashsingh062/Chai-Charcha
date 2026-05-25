@@ -87,7 +87,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
 
   const handleFollowToggle = async () => {
     if (!userData) {
-      toast.warning("Please Log In to follow other developers!");
+      toast.warning("Please Log In to follow other users!");
       router.push("/auth/signin");
       return;
     }
@@ -275,7 +275,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
               </p>
             ) : (
               <p className="text-sm italic text-dust-grey bg-(--profile-bg)/20 p-4 rounded-2xl border border-dashed border-(--card-border)">
-                &quot;This developer hasn&apos;t brewed a bio yet.&quot;
+                &quot;This user hasn&apos;t brewed a bio yet.&quot;
               </p>
             )}
 

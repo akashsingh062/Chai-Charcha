@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const title = `c/${community.slug} - ${community.name}`;
-    const description = `Join the c/${community.slug} developer community on Chai Charcha: ${community.description || "Share insights over hot chai and charcha."} Active discussion circle with ${community.membersCount || 0} members.`;
+    const description = `Join the c/${community.slug} community on Chai Charcha: ${community.description || "Share insights over hot chai and charcha."} Active discussion circle with ${community.membersCount || 0} members.`;
 
     return {
       title,

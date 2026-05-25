@@ -85,7 +85,7 @@ function FollowersPageContent() {
     } catch (err: unknown) {
       console.error("Error loading follow list:", err);
       const axiosErr = err as { response?: { data?: { error?: string } } };
-      setError(axiosErr.response?.data?.error || "Failed to load developer profiles list");
+      setError(axiosErr.response?.data?.error || "Failed to load member profiles list");
     } finally {
       setIsLoading(false);
     }
@@ -115,14 +115,14 @@ function FollowersPageContent() {
   // Handle follow/unfollow toggle on the card
   const handleFollowToggle = async (targetId: string) => {
     if (!userData) {
-      toast.warning("Please Log In to follow other developers!");
+      toast.warning("Please Log In to follow other users!");
       return;
     }
     try {
       const res = await axiosInstance.post("/api/follow", { targetUserId: targetId });
       if (res.data?.success) {
         const following = res.data.following;
-        toast.success(following ? "Developer followed!" : "Developer unfollowed!");
+        toast.success(following ? "User followed!" : "User unfollowed!");
         setMyFollowingIds((prev) =>
           following ? [...prev, targetId] : prev.filter((id) => id !== targetId)
         );
@@ -147,13 +147,13 @@ function FollowersPageContent() {
             <span>
               {targetUser
                 ? `${targetUser.name}'s Connection Network`
-                : "Developer Network"}
+                : "Member Network"}
             </span>
           </h1>
           <p className="text-xs text-dust-grey mt-1.5 font-medium">
             {targetUser
               ? `Browse who @${targetUser.username} follows and their community network.`
-              : "Discover developer profiles, connections, and followers."}
+              : "Discover member profiles, connections, and followers."}
           </p>
         </div>
 

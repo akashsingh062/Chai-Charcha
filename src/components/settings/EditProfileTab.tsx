@@ -373,7 +373,7 @@ export const EditProfileTab: React.FC<EditProfileTabProps> = ({
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            placeholder="Brief developer introduction..."
+            placeholder="Brief introduction about yourself..."
             rows={4}
             maxLength={160}
             className={`w-full px-4 py-3 bg-(--input-bg) border ${errors.bio ? "border-red-500" : "border-(--input-border)"} rounded-xl text-sm text-(--foreground) focus:outline-none focus:border-(--input-focus-border) focus:ring-1 focus:ring-(--input-focus-ring) transition-all resize-none`}

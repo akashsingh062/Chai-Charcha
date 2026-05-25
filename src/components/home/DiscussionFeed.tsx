@@ -160,7 +160,7 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
               </svg>
             </div>
             <h3 className="text-base font-bold mt-1 text-(--foreground)">No charchas found</h3>
-            <p className="text-xs text-dust-grey mt-1">Be the first to ignite a technical discussion!</p>
+            <p className="text-xs text-dust-grey mt-1">Be the first to ignite a discussion!</p>
           </div>
         ) : (
           filteredThreads.map((thread) => (

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Chai Charcha",
-  description: "Read the Terms of Service for Chai Charcha. Understand your rights and responsibilities as a member of our developer discussion community.",
+  description: "Read the Terms of Service for Chai Charcha. Understand your rights and responsibilities as a member of our discussion community.",
   alternates: { canonical: "https://chai-charcha.vercel.app/terms" },
 };
 

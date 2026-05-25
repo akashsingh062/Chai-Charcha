@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -53,6 +53,8 @@ function MessagesPageContent() {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState("");
   const [currentTime, setCurrentTime] = useState<number>(0);
+  const [connections, setConnections] = useState<UserInfo[]>([]);
+  const [isLoadingConnections, setIsLoadingConnections] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -78,6 +80,45 @@ function MessagesPageContent() {
       setIsLoadingThreads(false);
     }
   }, []);
+
+  // Fetch followers and following connections
+  const fetchConnections = useCallback(async (showLoading = false) => {
+    if (!userData?.id) return;
+    try {
+      if (showLoading) {
+        setIsLoadingConnections(true);
+      }
+      const [followingRes, followersRes] = await Promise.all([
+        axiosInstance.get(`/api/follow/list?userId=${userData.id}&type=following`),
+        axiosInstance.get(`/api/follow/list?userId=${userData.id}&type=followers`)
+      ]);
+
+      const followingList = followingRes.data?.list || [];
+      const followersList = followersRes.data?.list || [];
+
+      // Combine both lists and remove duplicates (and yourself)
+      const combined = [...followingList, ...followersList];
+      const uniqueMap = new Map<string, UserInfo>();
+      combined.forEach((u: UserInfo) => {
+        if (u && u._id && u._id !== userData.id) {
+          uniqueMap.set(u._id, {
+            _id: u._id,
+            name: u.name || "",
+            username: u.username || "",
+            avatar: u.avatar
+          });
+        }
+      });
+
+      setConnections(Array.from(uniqueMap.values()));
+    } catch (err) {
+      console.error("Error fetching connections for messages:", err);
+    } finally {
+      if (showLoading) {
+        setIsLoadingConnections(false);
+      }
+    }
+  }, [userData]);
 
   // Fetch history for active conversation
   const fetchMessages = useCallback(async (targetId: string, showLoading = false) => {
@@ -105,13 +146,23 @@ function MessagesPageContent() {
     }
   }, []);
 
-  // Initial mount load
+  // Initial mount load for threads
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchThreads();
     }, 0);
     return () => clearTimeout(timer);
   }, [fetchThreads]);
+
+  // Fetch connections once user info is ready
+  useEffect(() => {
+    if (userData?.id) {
+      const timer = setTimeout(() => {
+        fetchConnections(true);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [userData?.id, fetchConnections]);
 
   // Keep a ref of active user ID to prevent stale closures in polling interval
   const activeUserIdRef = useRef<string | null>(null);
@@ -198,7 +249,7 @@ function MessagesPageContent() {
     return () => clearTimeout(timer);
   }, []);
 
-  // 3-second polling loop for messages and threads updates
+  // 3-second polling loop for messages, threads, and connections updates
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(Date.now());
@@ -212,10 +263,13 @@ function MessagesPageContent() {
           setThreads(res.data.threads);
         }
       }).catch(err => console.error(err));
+
+      // Update connections list in background
+      fetchConnections(false);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [fetchMessages]);
+  }, [fetchMessages, fetchConnections]);
 
   // Send Message
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -338,6 +392,22 @@ function MessagesPageContent() {
     );
   });
 
+  // Filter connections (exclude if there is already an active thread)
+  const filteredConnections = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    const activeThreadUserIds = new Set(threads.map((t) => t.user._id));
+    return connections.filter((c) => {
+      if (!c || !c._id) return false;
+      const isNotActive = !activeThreadUserIds.has(c._id);
+      if (!q) return isNotActive;
+      return (
+        isNotActive &&
+        ((c.name && c.name.toLowerCase().includes(q)) ||
+          (c.username && c.username.toLowerCase().includes(q)))
+      );
+    });
+  }, [connections, threads, searchQuery]);
+
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden bg-(--background) font-sans text-(--foreground) transition-all duration-300 min-h-0">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex-1 flex flex-col min-h-0 h-full overflow-hidden">
@@ -362,7 +432,7 @@ function MessagesPageContent() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search developers..."
+                  placeholder="Search members..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full rounded-xl border border-(--input-border) bg-(--input-bg) py-2 pl-9 pr-4 text-xs font-semibold text-(--foreground) placeholder-dust-grey focus:border-orange focus:outline-hidden"
@@ -375,75 +445,141 @@ function MessagesPageContent() {
 
             {/* List area */}
             <div className="flex-1 overflow-y-auto divide-y divide-(--divider-color)/30">
-              {isLoadingThreads ? (
+              {isLoadingThreads || isLoadingConnections ? (
                 <div className="p-6 text-center text-xs text-dust-grey font-mono animate-pulse">
                   Loading chats...
                 </div>
-              ) : filteredThreads.length === 0 ? (
+              ) : filteredThreads.length === 0 && filteredConnections.length === 0 ? (
                 <div className="p-6 text-center text-xs text-dust-grey italic">
-                  No active conversations.
+                  {searchQuery.trim() ? "No members found." : "No active conversations or connections found."}
                 </div>
               ) : (
-                filteredThreads.map((thread) => {
-                  const isActive = activeUser?._id === thread.user._id;
-                  const formattedDate = new Date(thread.lastMessage.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric"
-                  });
+                <div className="divide-y-0">
+                  {/* Active Chats Section */}
+                  {filteredThreads.length > 0 && (
+                    <div>
+                      <div className="px-4 py-2 bg-(--card-background)/30 text-[10px] font-bold text-dust-grey uppercase tracking-wider border-b border-(--divider-color)/20">
+                        Active Chats
+                      </div>
+                      {filteredThreads.map((thread) => {
+                        const isActive = activeUser?._id === thread.user._id;
+                        const formattedDate = new Date(thread.lastMessage.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric"
+                        });
 
-                  return (
-                    <div
-                      key={thread.user._id}
-                      onClick={() => {
-                        setActiveUser(thread.user);
-                        router.push(`/messages?chatWith=${thread.user._id}`);
-                      }}
-                      className={`flex items-start gap-3 p-4 transition-all duration-200 cursor-pointer ${
-                        isActive
-                          ? "bg-spicy-paprika/10 text-spicy-paprika border-l-4 border-spicy-paprika"
-                          : "hover:bg-(--btn-icon-hover-bg) text-(--text-secondary) hover:text-(--foreground)"
-                      }`}
-                    >
-                      {/* Avatar */}
-                      <div className="w-10 h-10 rounded-full bg-(--profile-avatar-bg) border border-(--profile-border) flex items-center justify-center overflow-hidden shrink-0">
-                        {thread.user.avatar ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={thread.user.avatar}
-                            alt={thread.user.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = `https://avatar.iran.liara.run/public/boy?username=${thread.user.username}`;
+                        return (
+                          <div
+                            key={thread.user._id}
+                            onClick={() => {
+                              setActiveUser(thread.user);
+                              router.push(`/messages?chatWith=${thread.user._id}`);
                             }}
-                          />
-                        ) : (
-                          <span className="text-xs font-extrabold text-(--profile-avatar-text)">
-                            {thread.user.name.substring(0, 2).toUpperCase()}
-                          </span>
-                        )}
-                      </div>
+                            className={`flex items-start gap-3 p-4 transition-all duration-200 cursor-pointer ${
+                              isActive
+                                ? "bg-spicy-paprika/10 text-spicy-paprika border-l-4 border-spicy-paprika"
+                                : "hover:bg-(--btn-icon-hover-bg) text-(--text-secondary) hover:text-(--foreground)"
+                            }`}
+                          >
+                            {/* Avatar */}
+                            <div className="w-10 h-10 rounded-full bg-(--profile-avatar-bg) border border-(--profile-border) flex items-center justify-center overflow-hidden shrink-0">
+                              {thread.user.avatar ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={thread.user.avatar}
+                                  alt={thread.user.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = `https://avatar.iran.liara.run/public/boy?username=${thread.user.username}`;
+                                  }}
+                                />
+                              ) : (
+                                <span className="text-xs font-extrabold text-(--profile-avatar-text)">
+                                  {thread.user.name.substring(0, 2).toUpperCase()}
+                                </span>
+                              )}
+                            </div>
 
-                      {/* Info snippet */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs font-bold truncate pr-1 text-(--foreground)">{thread.user.name}</span>
-                          <span className="text-[10px] text-dust-grey shrink-0">{formattedDate}</span>
-                        </div>
-                        <p className="text-xs text-dust-grey truncate pr-4">
-                          {thread.lastMessage.sender._id === userData?.id ? "You: " : ""}
-                          {thread.lastMessage.content}
-                        </p>
-                      </div>
+                            {/* Info snippet */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs font-bold truncate pr-1 text-(--foreground)">{thread.user.name}</span>
+                                <span className="text-[10px] text-dust-grey shrink-0">{formattedDate}</span>
+                              </div>
+                              <p className="text-xs text-dust-grey truncate pr-4">
+                                {thread.lastMessage.sender._id === userData?.id ? "You: " : ""}
+                                {thread.lastMessage.content}
+                              </p>
+                            </div>
 
-                      {/* Unread dot */}
-                      {thread.unreadCount > 0 && (
-                        <span className="w-5 h-5 rounded-full bg-spicy-paprika text-floral-white flex items-center justify-center text-[9px] font-black font-mono shrink-0">
-                          {thread.unreadCount}
-                        </span>
-                      )}
+                            {/* Unread dot */}
+                            {thread.unreadCount > 0 && (
+                              <span className="w-5 h-5 rounded-full bg-spicy-paprika text-floral-white flex items-center justify-center text-[9px] font-black font-mono shrink-0">
+                                {thread.unreadCount}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })
+                  )}
+
+                  {/* Connections Section */}
+                  {filteredConnections.length > 0 && (
+                    <div className={filteredThreads.length > 0 ? "mt-2" : ""}>
+                      <div className="px-4 py-2 bg-(--card-background)/30 text-[10px] font-bold text-dust-grey uppercase tracking-wider border-b border-(--divider-color)/20">
+                        Connections (Followers/Following)
+                      </div>
+                      {filteredConnections.map((user) => {
+                        const isActive = activeUser?._id === user._id;
+
+                        return (
+                          <div
+                            key={user._id}
+                            onClick={() => {
+                              setActiveUser(user);
+                              router.push(`/messages?chatWith=${user._id}`);
+                            }}
+                            className={`flex items-start gap-3 p-4 transition-all duration-200 cursor-pointer ${
+                              isActive
+                                ? "bg-spicy-paprika/10 text-spicy-paprika border-l-4 border-spicy-paprika"
+                                : "hover:bg-(--btn-icon-hover-bg) text-(--text-secondary) hover:text-(--foreground)"
+                            }`}
+                          >
+                            {/* Avatar */}
+                            <div className="w-10 h-10 rounded-full bg-(--profile-avatar-bg) border border-(--profile-border) flex items-center justify-center overflow-hidden shrink-0">
+                              {user.avatar ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={user.avatar}
+                                  alt={user.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = `https://avatar.iran.liara.run/public/boy?username=${user.username}`;
+                                  }}
+                                />
+                              ) : (
+                                <span className="text-xs font-extrabold text-(--profile-avatar-text)">
+                                  {user.name.substring(0, 2).toUpperCase()}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Info snippet */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs font-bold truncate pr-1 text-(--foreground)">{user.name}</span>
+                              </div>
+                              <p className="text-xs text-dust-grey truncate pr-4">
+                                @{user.username}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </aside>
@@ -660,7 +796,7 @@ function MessagesPageContent() {
                 </div>
                 <h3 className="text-base font-bold text-(--foreground)">Your Inbox</h3>
                 <p className="text-xs max-w-sm mt-2 leading-relaxed">
-                  Select a developer from your conversations list, or explore public developer profiles to start a new charcha conversation!
+                  Select a member from your conversations list, or explore public profiles to start a new charcha conversation!
                 </p>
               </div>
             )}

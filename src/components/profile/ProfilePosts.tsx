@@ -317,7 +317,7 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
         </div>
         <h3 className="text-base font-bold mt-2 text-(--foreground)">No charchas yet</h3>
         <p className="text-xs text-dust-grey mt-2 max-w-xs mx-auto leading-relaxed">
-          This user hasn&apos;t started any technical discussions yet.
+          This user hasn&apos;t started any discussions yet.
         </p>
       </div>
     );

@@ -304,7 +304,7 @@ const MyPostPage = () => {
             My Charchas
           </h1>
           <p className="mt-3 text-sm text-(--text-secondary) max-w-lg mx-auto leading-relaxed">
-            Your ignited technical discussions, developer debates, and shared system design guides.
+            Your ignited discussions, debates, and shared guides.
           </p>
 
           <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto mt-8">
