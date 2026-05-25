@@ -15,9 +15,11 @@ import {
   removeComment,
   updateCommentVote,
 } from "@/components/post/commentHelpers";
+import { useRouter } from "next/navigation";
 
 export default function HomeClient() {
   const { user, userData, setIsCreatePostOpen } = useAuth();
+  const router = useRouter();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery] = useState<string>("");
@@ -46,10 +48,9 @@ export default function HomeClient() {
   }, [sortBy, feedTab]);
 
   useEffect(() => {
-    if (!user) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadPosts();
-  }, [user, loadPosts]);
+  }, [loadPosts]);
 
   useEffect(() => {
     const handleNewPost = () => {
@@ -89,6 +90,7 @@ export default function HomeClient() {
   const handleVote = async (id: string, type: "up" | "down") => {
     if (!userData) {
       toast.warning("Please pull up a chair and Log In to vote!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
 
@@ -120,6 +122,7 @@ export default function HomeClient() {
   const handleAddComment = async (threadId: string, text: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     try {
@@ -153,6 +156,7 @@ export default function HomeClient() {
   ) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     try {
@@ -253,6 +257,7 @@ export default function HomeClient() {
   const handleCommentVote = async (threadId: string, commentId: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     try {
@@ -381,52 +386,52 @@ export default function HomeClient() {
 
   return (
     <div className="flex flex-col flex-1 bg-(--background) font-sans text-(--foreground) transition-all duration-300">
-      {/* 1. LOGGED-OUT MARKETING VIEW */}
-      {!user ? (
-        <MarketingView />
-      ) : (
-        /* 2. LOGGED-IN DEVELOPER FEED DASHBOARD */
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* LEFT COLUMN: NAVIGATION SIDEBAR (3 Cols on large) */}
-            <FeedSidebar
-              activeCategory={activeCategory}
-              setActiveCategory={setActiveCategory}
-              selectedTag={selectedTag}
-              setSelectedTag={setSelectedTag}
-              categories={categoriesList}
-              categoryCounts={categoryCounts}
-              tagCounts={tagCounts}
-            />
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* LEFT COLUMN: NAVIGATION SIDEBAR (3 Cols on large) */}
+          <FeedSidebar
+            activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory}
+            selectedTag={selectedTag}
+            setSelectedTag={setSelectedTag}
+            categories={categoriesList}
+            categoryCounts={categoryCounts}
+            tagCounts={tagCounts}
+          />
 
-            {/* CENTER COLUMN: MAIN FEED (6 Cols on large) */}
-            <DiscussionFeed
-              filteredThreads={filteredThreads.slice(0, visibleCount)}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              onVote={handleVote}
-              onTagClick={(tag) => setSelectedTag(tag)}
-              onStartCharcha={() => setIsCreatePostOpen(true)}
-              userData={userData}
-              onAddComment={handleAddComment}
-              onAddReply={handleAddReply}
-              onEditSubmit={handleEditSubmit}
-              onDeleteComment={handleDeleteComment}
-              onCommentVote={handleCommentVote}
-              onUpdateThread={handleUpdateThread}
-              onDeletePost={handleDeletePost}
-              onRefresh={loadPosts}
-              isLoading={isLoading}
-              hasMore={visibleCount < filteredThreads.length}
-              feedTab={feedTab}
-              setFeedTab={setFeedTab}
-            />
+          {/* CENTER COLUMN: MAIN FEED (6 Cols on large) */}
+          <DiscussionFeed
+            filteredThreads={filteredThreads.slice(0, visibleCount)}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            onVote={handleVote}
+            onTagClick={(tag) => setSelectedTag(tag)}
+            onStartCharcha={() => {
+              if (!userData) {
+                router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+              } else {
+                setIsCreatePostOpen(true);
+              }
+            }}
+            userData={userData}
+            onAddComment={handleAddComment}
+            onAddReply={handleAddReply}
+            onEditSubmit={handleEditSubmit}
+            onDeleteComment={handleDeleteComment}
+            onCommentVote={handleCommentVote}
+            onUpdateThread={handleUpdateThread}
+            onDeletePost={handleDeletePost}
+            onRefresh={loadPosts}
+            isLoading={isLoading}
+            hasMore={visibleCount < filteredThreads.length}
+            feedTab={user ? feedTab : undefined}
+            setFeedTab={user ? setFeedTab : undefined}
+          />
 
-            {/* RIGHT COLUMN: SIDEBAR WIDGETS (3 Cols on large) */}
-            <FeedRightSidebar />
-          </div>
+          {/* RIGHT COLUMN: SIDEBAR WIDGETS (3 Cols on large) */}
+          <FeedRightSidebar />
         </div>
-      )}
+      </div>
     </div>
   );
 }
