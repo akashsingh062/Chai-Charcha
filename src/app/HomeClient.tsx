@@ -17,7 +17,7 @@ import {
 } from "@/components/post/commentHelpers";
 
 export default function HomeClient() {
-  const { user, login, userData, setIsCreatePostOpen } = useAuth();
+  const { user, userData, setIsCreatePostOpen } = useAuth();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery] = useState<string>("");
@@ -383,7 +383,7 @@ export default function HomeClient() {
     <div className="flex flex-col flex-1 bg-(--background) font-sans text-(--foreground) transition-all duration-300">
       {/* 1. LOGGED-OUT MARKETING VIEW */}
       {!user ? (
-        <MarketingView login={login} />
+        <MarketingView />
       ) : (
         /* 2. LOGGED-IN DEVELOPER FEED DASHBOARD */
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

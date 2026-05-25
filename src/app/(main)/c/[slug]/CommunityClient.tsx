@@ -199,6 +199,7 @@ export default function CommunityClient({
   const handleJoinLeave = async () => {
     if (!userData) {
       toast.warning("Please pull up a chair and Log In to join this community!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     if (isJoinActionLoading || !community) return;
@@ -234,6 +235,7 @@ export default function CommunityClient({
   const handleVote = async (id: string, type: "up" | "down") => {
     if (!userData) {
       toast.warning("Please pull up a chair and Log In to vote!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
 
@@ -266,6 +268,7 @@ export default function CommunityClient({
   const handleAddComment = async (threadId: string, text: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     try {
@@ -297,6 +300,7 @@ export default function CommunityClient({
   const handleAddReply = async (threadId: string, commentId: string, text: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     try {
@@ -394,6 +398,7 @@ export default function CommunityClient({
   const handleCommentVote = async (threadId: string, commentId: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     try {
@@ -610,7 +615,13 @@ export default function CommunityClient({
             setSortBy={setSortBy}
             onVote={handleVote}
             onTagClick={(tag) => setSelectedTag(tag)}
-            onStartCharcha={() => setIsCreatePostOpen(true)}
+            onStartCharcha={() => {
+              if (!userData) {
+                router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+              } else {
+                setIsCreatePostOpen(true);
+              }
+            }}
             userData={userData}
             onAddComment={handleAddComment}
             onAddReply={handleAddReply}

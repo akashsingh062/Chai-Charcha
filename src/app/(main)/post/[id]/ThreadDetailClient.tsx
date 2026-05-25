@@ -28,6 +28,7 @@ export const ThreadDetailClient: React.FC<ThreadDetailClientProps> = ({ initialT
   const handleVote = async (id: string, type: "up" | "down") => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     try {
@@ -54,6 +55,7 @@ export const ThreadDetailClient: React.FC<ThreadDetailClientProps> = ({ initialT
   const handleAddComment = async (threadId: string, text: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     try {
@@ -80,6 +82,7 @@ export const ThreadDetailClient: React.FC<ThreadDetailClientProps> = ({ initialT
   const handleAddReply = async (threadId: string, commentId: string, text: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     try {
@@ -168,6 +171,7 @@ export const ThreadDetailClient: React.FC<ThreadDetailClientProps> = ({ initialT
   const handleCommentVote = async (threadId: string, commentId: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     try {

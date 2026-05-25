@@ -1,11 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-interface MarketingViewProps {
-  login: () => void;
-}
-
-export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
+export const MarketingView: React.FC = () => {
   return (
     <div className="flex flex-col items-center">
       {/* Hero Section */}
@@ -36,15 +32,15 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
 
         {/* CTAs */}
         <div className="mt-10 flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 justify-center">
-          <button
-            onClick={login}
+          <Link
+            href="/auth/signin"
             className="flex items-center justify-center gap-2 rounded-full bg-spicy-paprika hover:bg-spicy-paprika-600 px-8 py-4 text-base font-bold text-floral-white shadow-xl shadow-spicy-paprika/20 active:scale-95 transition-all duration-200 cursor-pointer"
           >
             <span>Pull Up a Chair</span>
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
-          </button>
+          </Link>
           
           <Link
             href="#public-preview"
@@ -139,12 +135,12 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ login }) => {
               <p className="mt-2 text-xs sm:text-sm text-(--text-secondary) leading-relaxed">
                 Ready to share your experiences, upvote great ideas, or ask your own burning questions? Log in instantly.
               </p>
-              <button
-                onClick={login}
-                className="w-full mt-6 rounded-full bg-spicy-paprika px-5 py-3 text-sm font-bold text-floral-white shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              <Link
+                href="/auth/signin"
+                className="w-full mt-6 rounded-full bg-spicy-paprika px-5 py-3 text-sm font-bold text-floral-white shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer text-center block"
               >
                 Enter Chai Charcha
-              </button>
+              </Link>
             </div>
           </div>
 

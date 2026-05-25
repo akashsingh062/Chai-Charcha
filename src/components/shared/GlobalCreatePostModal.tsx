@@ -1,15 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { CreatePostModal } from "@/components/home/CreatePostModal";
 import axiosInstance from "@/lib/axios";
 import { toast } from "@/store/useToastStore";
+import { useRouter } from "next/navigation";
 
 export const GlobalCreatePostModal = () => {
-  const { isCreatePostOpen, setIsCreatePostOpen } = useAuth();
+  const { isCreatePostOpen, setIsCreatePostOpen, userData } = useAuth();
+  const router = useRouter();
 
-  if (!isCreatePostOpen) return null;
+  useEffect(() => {
+    if (isCreatePostOpen && !userData) {
+      setIsCreatePostOpen(false);
+      const currentPath = window.location.pathname + window.location.search;
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(currentPath)}`);
+    }
+  }, [isCreatePostOpen, userData, setIsCreatePostOpen, router]);
+
+  if (!isCreatePostOpen || !userData) return null;
 
   const handleSubmit = async (post: { title: string; excerpt: string; category: string; tagsStr: string; communityId: string | null; isCommunityOnly?: boolean }) => {
     const tagsArray = post.tagsStr
