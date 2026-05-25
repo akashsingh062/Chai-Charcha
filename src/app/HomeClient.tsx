@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Thread } from "@/types/post";
-import { MarketingView } from "@/components/home/MarketingView";
 import { FeedSidebar } from "@/components/home/FeedSidebar";
 import { FeedRightSidebar } from "@/components/home/FeedRightSidebar";
 import { DiscussionFeed } from "@/components/home/DiscussionFeed";
