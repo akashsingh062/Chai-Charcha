@@ -23,6 +23,7 @@ interface ThreadCardProps {
   onDeletePost?: (id: string) => void;
   isCommunityMod?: boolean;
   defaultExpanded?: boolean;
+  isTitleH1?: boolean;
 }
 
 export const ThreadCard: React.FC<ThreadCardProps> = ({
@@ -38,8 +39,10 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   onDeletePost,
   isCommunityMod = false,
   defaultExpanded = false,
+  isTitleH1 = false,
 }) => {
   const { userData } = useAuth();
+  const HeadingTag = isTitleH1 ? "h1" : "h3";
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [isSoftDeletingLoading, setIsSoftDeletingLoading] = useState(false);
 
@@ -483,9 +486,9 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
       </div>
 
       {/* Title & Excerpt */}
-      <h3 className="text-base sm:text-lg font-extrabold mt-3.5 tracking-tight text-(--foreground) leading-snug">
+      <HeadingTag className="text-base sm:text-lg font-extrabold mt-3.5 tracking-tight text-(--foreground) leading-snug">
         {thread.title}
-      </h3>
+      </HeadingTag>
       <p className="mt-2 text-xs sm:text-sm text-(--text-secondary) leading-relaxed line-clamp-3">
         {thread.excerpt}
       </p>

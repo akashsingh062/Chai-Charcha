@@ -247,6 +247,7 @@ export const ThreadDetailClient: React.FC<ThreadDetailClientProps> = ({ initialT
             onDeletePost={handleDeletePost}
             isCommunityMod={userData?.role === "admin"}
             defaultExpanded={true}
+            isTitleH1={true}
           />
         </main>
       </div>
