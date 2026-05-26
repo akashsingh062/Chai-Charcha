@@ -1,9 +1,14 @@
 import React from "react";
 import Link from "next/link";
 
-export const MarketingView: React.FC = () => {
+interface MarketingViewProps {
+  posts?: any[];
+  communities?: any[];
+}
+
+export const MarketingView: React.FC<MarketingViewProps> = ({ posts = [], communities = [] }) => {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full">
       {/* Hero Section */}
       <section className="relative w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-20 md:py-28 flex flex-col items-center text-center overflow-hidden">
         {/* Background Blur Accents */}
@@ -19,9 +24,9 @@ export const MarketingView: React.FC = () => {
           <span>India&apos;s Ultimate Chai Charcha Club</span>
         </div>
 
-        {/* Main Headline */}
+        {/* Main Headline (Descriptive H1) */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.15] max-w-4xl text-(--foreground)">
-          Where People Gather <br />
+          India&apos;s Open Discussion Forum <br />
           Over <span className="bg-linear-to-r from-spicy-paprika to-orange bg-clip-text text-transparent">Chai & Charcha</span>
         </h1>
 
@@ -50,13 +55,29 @@ export const MarketingView: React.FC = () => {
           </Link>
         </div>
 
-        {/* Tech badging grid */}
+        {/* Dynamic Communities badges (Crawlable internal links) */}
         <div className="mt-16 flex flex-wrap justify-center gap-2.5 max-w-2xl">
-          {["#startups", "#career-advice", "#lifestyle", "#gaming", "#learning", "#fitness", "#tech-code", "#general-charcha"].map((tag) => (
-            <span key={tag} className="rounded-full border border-(--card-border) bg-(--card-background) px-4 py-1.5 text-xs font-medium text-(--text-secondary) shadow-sm hover:border-orange transition-all duration-200 cursor-default">
-              {tag}
-            </span>
-          ))}
+          {communities && communities.length > 0 ? (
+            communities.map((comm) => (
+              <Link
+                key={comm.slug}
+                href={`/c/${comm.slug}`}
+                className="rounded-full border border-(--card-border) bg-(--card-background) px-4 py-1.5 text-xs font-semibold text-(--text-secondary) shadow-sm hover:border-orange hover:text-orange transition-all duration-200"
+              >
+                c/{comm.name}
+              </Link>
+            ))
+          ) : (
+            ["#startups", "#career-advice", "#lifestyle", "#gaming", "#learning", "#fitness", "#tech-code", "#general-charcha"].map((tag) => (
+              <Link
+                key={tag}
+                href={`/search?q=${encodeURIComponent(tag.replace('#', ''))}`}
+                className="rounded-full border border-(--card-border) bg-(--card-background) px-4 py-1.5 text-xs font-semibold text-(--text-secondary) shadow-sm hover:border-orange hover:text-orange transition-all duration-200"
+              >
+                {tag}
+              </Link>
+            ))
+          )}
         </div>
       </section>
 
@@ -122,7 +143,7 @@ export const MarketingView: React.FC = () => {
         </div>
 
         {/* Blurred Preview Feed */}
-        <div className="relative rounded-2xl border border-(--card-border) bg-(--card-background) p-4 sm:p-6 overflow-hidden">
+        <div className="relative rounded-2xl border border-(--card-border) bg-(--card-background) p-4 sm:p-6 overflow-hidden min-h-[300px]">
           {/* Overlay Prompt */}
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-linear-to-t from-(--card-background) via-(--card-background)/90 to-(--card-background)/50 p-6 text-center">
             <div className="rounded-2xl border border-(--nav-border) bg-(--nav-bg) p-8 max-w-md shadow-2xl backdrop-blur-md flex flex-col items-center">
@@ -144,18 +165,55 @@ export const MarketingView: React.FC = () => {
             </div>
           </div>
 
-          {/* Blurred Thread 1 */}
-          <div className="mb-6 border-b border-(--divider-color) pb-6 blur-xs select-none pointer-events-none opacity-50">
-            <span className="rounded-full bg-orange/10 text-orange border border-orange/20 px-2 py-0.5 text-xs font-semibold">Career & Salary</span>
-            <h3 className="text-lg font-bold mt-2 text-(--foreground)">Is there a real hiring slowdown in Bangalore for remote roles?</h3>
-            <p className="mt-2 text-sm text-(--text-secondary)">Local Indian startups are offering roughly 30-40% lower compensation packages...</p>
-          </div>
+          {/* Under-the-hood Previews for Search Indexing (Crawlable & unblurred elements for crawlers) */}
+          <div className="space-y-6 opacity-30 select-none pointer-events-none filter blur-xs">
+            {posts && posts.length > 0 ? (
+              posts.map((post) => (
+                <div key={post._id} className="border-b border-(--divider-color) pb-6 last:border-0 last:pb-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <span className="rounded-full bg-orange/10 text-orange border border-orange/20 px-2 py-0.5 text-xs font-semibold">
+                      {post.category || "General Charcha"}
+                    </span>
+                    {post.author && (
+                      <Link 
+                        href={`/profile?username=${encodeURIComponent(post.author.username)}`}
+                        className="text-xs text-dust-grey hover:text-spicy-paprika transition-colors pointer-events-auto"
+                      >
+                        by @{post.author.username}
+                      </Link>
+                    )}
+                  </div>
+                  <Link 
+                    href={`/post/${post._id}`}
+                    className="text-lg font-bold mt-2 text-(--foreground) hover:text-orange transition-colors block pointer-events-auto"
+                  >
+                    {post.title}
+                  </Link>
+                  <p className="mt-2 text-sm text-(--text-secondary) line-clamp-2">
+                    {post.content ? (post.content.length > 180 ? post.content.substring(0, 180) + "..." : post.content) : ""}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <>
+                {/* Fallback Static Threads */}
+                <div className="mb-6 border-b border-(--divider-color) pb-6">
+                  <span className="rounded-full bg-orange/10 text-orange border border-orange/20 px-2 py-0.5 text-xs font-semibold">Career & Salary</span>
+                  <Link href="/search?q=career" className="text-lg font-bold mt-2 text-(--foreground) block pointer-events-auto">
+                    Is there a real hiring slowdown in Bangalore for remote roles?
+                  </Link>
+                  <p className="mt-2 text-sm text-(--text-secondary)">Local Indian startups are offering roughly 30-40% lower compensation packages...</p>
+                </div>
 
-          {/* Blurred Thread 2 */}
-          <div className="blur-xs select-none pointer-events-none opacity-30">
-            <span className="rounded-full bg-stormy-teal/10 text-stormy-teal border border-stormy-teal/20 px-2 py-0.5 text-xs font-semibold">Tech & Code</span>
-            <h3 className="text-lg font-bold mt-2 text-(--foreground)">Why we migrated our Next.js 15 site back to native CSS variables...</h3>
-            <p className="mt-2 text-sm text-(--text-secondary)">Tailwind v4 is fantastic for core design systems, but we hit complex specificity overrides...</p>
+                <div className="pb-6">
+                  <span className="rounded-full bg-stormy-teal/10 text-stormy-teal border border-stormy-teal/20 px-2 py-0.5 text-xs font-semibold">Tech & Code</span>
+                  <Link href="/search?q=tech" className="text-lg font-bold mt-2 text-(--foreground) block pointer-events-auto">
+                    Why we migrated our Next.js 15 site back to native CSS variables...
+                  </Link>
+                  <p className="mt-2 text-sm text-(--text-secondary)">Tailwind v4 is fantastic for core design systems, but we hit complex specificity overrides...</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

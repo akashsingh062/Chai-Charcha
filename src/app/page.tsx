@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import HomeClient from "./HomeClient";
+import connectDB from "@/lib/connectDB";
+import { Post } from "@/lib/models/Post";
+import { Community } from "@/lib/models/Community";
+import "@/lib/models/User"; // Ensure the User model is registered for populate
 
 /**
  * Homepage — Server Component
@@ -15,7 +19,7 @@ import HomeClient from "./HomeClient";
 export const metadata: Metadata = {
   title: "Chai Charcha — India's Open Discussion & Charcha Forum",
   description:
-    "Join India's premier open discussion community. Discuss career growth, startups, lifestyle, ideas, and more over virtual chai. Community-driven discussions, nested charcha threads, and honest conversations.",
+    "Join India's Open Discussion Forum, Chai Charcha, for vibrant conversations on career, startups, lifestyle & ideas. Engage in nested threads & honest discussions.",
   alternates: {
     canonical: "https://chai-charcha.vercel.app",
   },
@@ -48,6 +52,44 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
-  return <HomeClient />;
+export default async function Home() {
+  let initialPosts: any[] = [];
+  let initialCommunities: any[] = [];
+
+  try {
+    await connectDB();
+
+    // Query 3 top/recent public posts, populated with authors
+    const postsResult = await Post.find(
+      { isSoftDeleted: { $ne: true }, isCommunityOnly: { $ne: true } },
+      { title: 1, content: 1, category: 1, author: 1, createdAt: 1 }
+    )
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .populate("author", "username name avatar")
+      .lean();
+
+    // Convert ObjectIds to strings to avoid serialization warnings in server/client boundaries
+    initialPosts = JSON.parse(JSON.stringify(postsResult));
+
+    // Query 4 active communities
+    const communitiesResult = await Community.find(
+      { isBanned: { $ne: true } },
+      { name: 1, slug: 1, description: 1 }
+    )
+      .sort({ membersCount: -1 })
+      .limit(4)
+      .lean();
+
+    initialCommunities = JSON.parse(JSON.stringify(communitiesResult));
+  } catch (err) {
+    console.error("Error loading server-side data for homepage SEO:", err);
+  }
+
+  return (
+    <HomeClient
+      initialPosts={initialPosts}
+      initialCommunities={initialCommunities}
+    />
+  );
 }

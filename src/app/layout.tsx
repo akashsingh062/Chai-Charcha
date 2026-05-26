@@ -69,20 +69,38 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const orgJsonLd = {
+  const schemaJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Chai Charcha",
-    "url": "https://chai-charcha.vercel.app",
-    "logo": "https://chai-charcha.vercel.app/chai.svg",
-    "sameAs": [
-      "https://github.com/akashsingh062/coderun"
-    ],
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://chai-charcha.vercel.app/search?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://chai-charcha.vercel.app/#website",
+        "name": "Chai Charcha",
+        "url": "https://chai-charcha.vercel.app/",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://chai-charcha.vercel.app/?s={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://chai-charcha.vercel.app/#organization",
+        "name": "Chai Charcha",
+        "url": "https://chai-charcha.vercel.app/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://chai-charcha.vercel.app/chai.svg"
+        },
+        "description": "India's premier open discussion community and charcha forum.",
+        "sameAs": [
+          "https://github.com/akashsingh062/coderun"
+        ]
+      }
+    ]
   };
 
   return (
@@ -95,7 +113,7 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(orgJsonLd).replace(/</g, "\\u003c"),
+            __html: JSON.stringify(schemaJsonLd).replace(/</g, "\\u003c"),
           }}
         />
         <script
