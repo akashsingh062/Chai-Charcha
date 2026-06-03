@@ -278,7 +278,7 @@ export default function CommunitiesClient() {
                     
                     <div className="flex-1">
                       {/* Header Banner Background */}
-                      <div className="h-16 w-full -mx-6 -mt-6 mb-4 relative overflow-hidden bg-linear-to-r from-orange/10 to-spicy-paprika/15 border-b border-(--card-border)/50">
+                      <div className="h-16 w-auto -mx-6 -mt-6 mb-4 relative overflow-hidden bg-linear-to-r from-orange/10 to-spicy-paprika/15 border-b border-(--card-border)/50">
                         {comm.banner && (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
