@@ -486,12 +486,26 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
       </div>
 
       {/* Title & Excerpt */}
-      <HeadingTag className="text-base sm:text-lg font-extrabold mt-3.5 tracking-tight text-(--foreground) leading-snug">
-        {thread.title}
-      </HeadingTag>
-      <p className="mt-2 text-xs sm:text-sm text-(--text-secondary) leading-relaxed line-clamp-3">
-        {thread.excerpt}
-      </p>
+      {isTitleH1 ? (
+        <HeadingTag className="text-base sm:text-lg font-extrabold mt-3.5 tracking-tight text-(--foreground) leading-snug">
+          {thread.title}
+        </HeadingTag>
+      ) : (
+        <HeadingTag className="text-base sm:text-lg font-extrabold mt-3.5 tracking-tight text-(--foreground) leading-snug">
+          <Link href={`/post/${thread.id}`} className="hover:text-orange transition-colors duration-200 cursor-pointer">
+            {thread.title}
+          </Link>
+        </HeadingTag>
+      )}
+      {isTitleH1 ? (
+        <p className="mt-2 text-xs sm:text-sm text-(--text-secondary) leading-relaxed whitespace-pre-wrap">
+          {thread.content || thread.excerpt}
+        </p>
+      ) : (
+        <p className="mt-2 text-xs sm:text-sm text-(--text-secondary) leading-relaxed line-clamp-3">
+          {thread.excerpt}
+        </p>
+      )}
 
       {/* Hashtags list */}
       {thread.tags && thread.tags.length > 0 && (

@@ -117,7 +117,7 @@ export default function FeedbackClient() {
       } else {
         setSubmitError(data.message || "Something went wrong. Please try again later.");
       }
-    } catch (err) {
+    } catch {
       setSubmitError("Failed to send feedback. Please check your internet connection and try again.");
     } finally {
       setIsSubmitting(false);

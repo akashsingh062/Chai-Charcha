@@ -1,9 +1,27 @@
 import React from "react";
 import Link from "next/link";
 
+export interface MarketingPost {
+  _id: string;
+  title: string;
+  content: string;
+  category?: string;
+  author?: {
+    username: string;
+    name: string;
+    avatar?: string;
+  } | null;
+}
+
+export interface MarketingCommunity {
+  name: string;
+  slug: string;
+  description?: string;
+}
+
 interface MarketingViewProps {
-  posts?: any[];
-  communities?: any[];
+  posts?: MarketingPost[];
+  communities?: MarketingCommunity[];
 }
 
 export const MarketingView: React.FC<MarketingViewProps> = ({ posts = [], communities = [] }) => {

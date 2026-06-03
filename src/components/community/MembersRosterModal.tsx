@@ -20,7 +20,7 @@ interface MembersRosterModalProps {
   membersList: CommunityUserInfo[];
   isModerator: boolean;
   isAdmin: boolean;
-  userData: any;
+  userData: { id: string } | null;
   slug: string;
   fetchMembersList: () => void;
   loadCommunityInfo: () => void;

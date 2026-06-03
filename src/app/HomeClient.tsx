@@ -6,7 +6,7 @@ import { Thread } from "@/types/post";
 import { FeedSidebar } from "@/components/home/FeedSidebar";
 import { FeedRightSidebar } from "@/components/home/FeedRightSidebar";
 import { DiscussionFeed } from "@/components/home/DiscussionFeed";
-import { MarketingView } from "@/components/home/MarketingView";
+import { MarketingView, MarketingPost, MarketingCommunity } from "@/components/home/MarketingView";
 import axiosInstance from "@/lib/axios";
 import { toast } from "@/store/useToastStore";
 import {
@@ -18,17 +18,13 @@ import {
 import { useRouter } from "next/navigation";
 
 interface HomeClientProps {
-  initialPosts?: any[];
-  initialCommunities?: any[];
+  initialPosts?: MarketingPost[];
+  initialCommunities?: MarketingCommunity[];
 }
 
 export default function HomeClient({ initialPosts = [], initialCommunities = [] }: HomeClientProps) {
   const { user, userData, setIsCreatePostOpen } = useAuth();
 
-  // If user is not logged in (e.g. unauthenticated, crawlers, SSR default), render MarketingView
-  if (!user) {
-    return <MarketingView posts={initialPosts} communities={initialCommunities} />;
-  }
   const router = useRouter();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("All");
@@ -40,6 +36,7 @@ export default function HomeClient({ initialPosts = [], initialCommunities = [] 
   const [visibleCount, setVisibleCount] = useState(10);
 
   const loadPosts = useCallback(async () => {
+    if (!user) return;
     try {
       setIsLoading(true);
       const url =
@@ -55,7 +52,7 @@ export default function HomeClient({ initialPosts = [], initialCommunities = [] 
     } finally {
       setIsLoading(false);
     }
-  }, [sortBy, feedTab]);
+  }, [sortBy, feedTab, user]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -313,6 +310,11 @@ export default function HomeClient({ initialPosts = [], initialCommunities = [] 
   const handleDeletePost = useCallback((id: string) => {
     setThreads((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  // If user is not logged in (e.g. unauthenticated, crawlers, SSR default), render MarketingView
+  if (!user) {
+    return <MarketingView posts={initialPosts} communities={initialCommunities} />;
+  }
 
   // Dynamic categories calculation
   const defaultCategories = [
