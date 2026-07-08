@@ -29,6 +29,7 @@ export async function GET(req: Request) {
       community?: { $in?: mongoose.Types.ObjectId[]; $nin?: mongoose.Types.ObjectId[] } | mongoose.Types.ObjectId | string;
       isCommunityOnly?: { $ne: boolean };
       isSoftDeleted?: { $ne: boolean };
+      author?: mongoose.Types.ObjectId;
     } = {};
     let isCurrentUserMod = false;
 
@@ -82,6 +83,13 @@ export async function GET(req: Request) {
       query.isSoftDeleted = { $ne: true };
     }
 
+    const authorId = searchParams.get("authorId");
+    if (authorId) {
+      if (mongoose.Types.ObjectId.isValid(authorId)) {
+        query.author = new mongoose.Types.ObjectId(authorId);
+      }
+    }
+
     // Exclude banned communities from any feed (only if ban is still active/not expired)
     const now = new Date();
     const bannedCommunities = await Community.find({
@@ -109,52 +117,25 @@ export async function GET(req: Request) {
       }
     }
 
-    // Recalculate trending scores of active posts (created in the last 48 hours) to ensure correct time decay
-    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
-    const activePosts = await Post.find({ createdAt: { $gte: fortyEightHoursAgo } });
-    if (activePosts.length > 0) {
-      await Promise.all(
-        activePosts.map(async (post) => {
-          post.trendingScore = calculateTrendingScore(post);
-          await post.save();
-        })
-      );
-    }
-
-    let sortCriteria: Record<string, 1 | -1> = { trendingScore: -1, createdAt: -1 };
-    if (sort === "recent") {
-      sortCriteria = { createdAt: -1 };
-    }
-
-    // Fetch posts populated with author and community
+    // Fetch posts populated with author and community, sorted by recent by default
     const dbPosts = await Post.find(query)
       .populate("author", "name username avatar role karma")
       .populate("community", "name slug description membersCount")
-      .sort(sortCriteria)
+      .sort({ createdAt: -1 })
       .lean() as unknown as DBPost[];
 
-    const postIds = dbPosts.map((p) => p._id);
+    let sortedDbPosts = [...dbPosts];
+    if (sort === "trending") {
+      sortedDbPosts = dbPosts.map((post) => {
+        const score = calculateTrendingScore(post);
+        return { ...post, trendingScore: score };
+      });
+      sortedDbPosts.sort((a, b) => (b.trendingScore || 0) - (a.trendingScore || 0));
+    }
 
-    // Fetch all comments for all these posts in one batch
-    const dbComments = await Comment.find({ postId: { $in: postIds } })
-      .populate("author", "name username avatar role karma")
-      .sort({ createdAt: 1 })
-      .lean() as unknown as DBComment[];
-
-    // Map comments by postId for fast retrieval
-    const commentsByPostId: Record<string, DBComment[]> = {};
-    dbComments.forEach((comment) => {
-      const pid = comment.postId.toString();
-      if (!commentsByPostId[pid]) {
-        commentsByPostId[pid] = [];
-      }
-      commentsByPostId[pid].push(comment);
-    });
-
-    // Format all posts
-    const posts = dbPosts.map((post) => {
-      const postComments = commentsByPostId[post._id.toString()] || [];
-      return formatPostForFrontend(post, postComments, userId);
+    // Format all posts (comments are fetched on-demand when expanded)
+    const posts = sortedDbPosts.map((post) => {
+      return formatPostForFrontend(post, [], userId);
     });
 
     return NextResponse.json({ posts });

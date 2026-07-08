@@ -26,16 +26,9 @@ const MyPostPage = () => {
         setIsLoading(true);
         setError(null);
       }, 0);
-      const res = await axiosInstance.get("/api/posts?sort=recent");
+      const res = await axiosInstance.get(`/api/posts?authorId=${sessionData.user.id}&sort=recent`);
       if (res.data?.posts) {
-        const myPosts = res.data.posts.filter((post: Thread) => {
-          return (
-            post.author?.id === sessionData.user.id ||
-            post.author?.username?.toLowerCase() === sessionData.user.username?.toLowerCase() ||
-            post.author?.name === sessionData.user.name
-          );
-        });
-        setPosts(myPosts);
+        setPosts(res.data.posts);
       }
     } catch (err) {
       console.error("Error fetching my posts:", err);

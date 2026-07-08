@@ -69,16 +69,21 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   useEffect(() => {
     if (!isExpanded) return;
 
-    const interval = setInterval(async () => {
+    const fetchThread = async () => {
       try {
         const res = await axiosInstance.get(`/api/posts/${thread.id}`);
         if (res.data?.post && onUpdateThread) {
           onUpdateThread(res.data.post);
         }
       } catch (err) {
-        console.error("Error polling thread comments:", err);
+        console.error("Error fetching/polling thread comments:", err);
       }
-    }, 4000);
+    };
+
+    // Fetch immediately on expansion
+    fetchThread();
+
+    const interval = setInterval(fetchThread, 4000);
 
     return () => clearInterval(interval);
   }, [isExpanded, thread.id, onUpdateThread]);

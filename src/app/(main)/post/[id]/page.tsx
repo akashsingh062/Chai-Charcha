@@ -32,6 +32,11 @@ interface PopulatedUser {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
+  if (!id) {
+    return {
+      title: "Charcha Discussion",
+    };
+  }
 
   try {
     await connectDB();
@@ -85,9 +90,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function ThreadPage({ params }: PageProps) {
-  const { id } = await params;
+export const unstable_instant = {
+  prefetch: 'static',
+  samples: [
+    { params: { id: '65f1234567890abcdef12345' } }
+  ]
+};
 
+export default async function ThreadPage({ params }: PageProps) {
+  return (
+    <Suspense fallback={
+      <div className="w-full flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange"></div>
+      </div>
+    }>
+      {params.then(({ id }) => (
+        <ThreadPageContent id={id} />
+      ))}
+    </Suspense>
+  );
+}
+
+async function ThreadPageContent({ id }: { id: string }) {
   await connectDB();
 
   // Fetch the session
@@ -222,13 +246,7 @@ export default async function ThreadPage({ params }: PageProps) {
           __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <Suspense fallback={
-        <div className="w-full flex items-center justify-center min-h-[50vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange"></div>
-        </div>
-      }>
-        <ThreadDetailClient initialThread={serializedPost} />
-      </Suspense>
+      <ThreadDetailClient initialThread={serializedPost} />
     </>
   );
 }

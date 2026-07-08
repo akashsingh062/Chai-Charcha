@@ -41,18 +41,10 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
     if (!user) return;
     try {
       setIsLoading(true);
-      const res = await axiosInstance.get("/api/posts?sort=recent");
+      const res = await axiosInstance.get(`/api/posts?authorId=${user._id}&sort=recent`);
       if (res.data?.posts) {
-        // Filter posts where author matches the profiled user
-        const filtered = res.data.posts.filter((post: Thread) => {
-          return (
-            post.author?.id === user._id ||
-            post.author?.username?.toLowerCase() === user.username.toLowerCase() ||
-            post.author?.name === user.name
-          );
-        });
-        setPosts(filtered);
-        onPostsCountChangeRef.current(filtered.length);
+        setPosts(res.data.posts);
+        onPostsCountChangeRef.current(res.data.posts.length);
       }
     } catch (err: unknown) {
       console.error("Error loading user profile posts:", err);

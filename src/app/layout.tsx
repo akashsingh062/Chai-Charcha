@@ -6,6 +6,7 @@ import Footer from "@/components/shared/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { GlobalCreatePostModal } from "@/components/shared/GlobalCreatePostModal";
 import { ToastContainer } from "@/components/shared/ToastContainer";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -131,13 +132,15 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <AuthProvider>
-          <Navbar />
-          {children}
-          <GlobalCreatePostModal />
-          <ToastContainer />
-          <Footer />
-        </AuthProvider>
+        <Suspense fallback={null}>
+          <AuthProvider>
+            <Navbar />
+            {children}
+            <GlobalCreatePostModal />
+            <ToastContainer />
+            <Footer />
+          </AuthProvider>
+        </Suspense>
       </body>
     </html>
   );
