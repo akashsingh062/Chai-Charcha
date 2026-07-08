@@ -1,0 +1,40 @@
+# Chai Charcha
+
+Chai Charcha is India's premier community-driven open discussion forum and charcha hub. Users engage in nested, rich discussions, explore active sub-communities, share career advice, evaluate startup ideas, and check reputational karma scores over virtual hot chai.
+
+## Core Navigation Routes
+
+- [Homepage](https://chai-charcha.vercel.app/) (`/`): The main landing page. If logged out, presents value pillars, marketing previews of top posts, and popular communities. If logged in, displays personalized and global discussion feeds (trending/recent), categories navigation, and sidebars.
+- [Explore Communities](https://chai-charcha.vercel.app/communities) (`/communities`): Lists active public and private sub-communities. Allows joining, viewing members count, and creating new community circles.
+- [Search Hub](https://chai-charcha.vercel.app/search) (`/search`): Global search page allowing users to search discussions, sub-communities, and member profiles matching query parameters (e.g. `/search?q=webdev`).
+- [Code of Conduct](https://chai-charcha.vercel.app/code-of-conduct) (`/code-of-conduct`): Community guidelines, moderation rules, and expected behavior.
+- [Terms & Conditions](https://chai-charcha.vercel.app/terms) (`/terms`): Platform usage terms.
+- [Privacy Policy](https://chai-charcha.vercel.app/privacy) (`/privacy`): User privacy and data handling rules.
+
+## Dynamic Route Context
+
+- **Sub-Communities** (`/c/[slug]`): Dynamic community details page showcasing community posts, members count, guidelines, and moderator status. Example: `/c/general`.
+- **Discussion Post Detail** (`/post/[id]`): Nested discussion threads. Displays public posts, comments, structured JSON-LD (DiscussionForumPosting, BreadcrumbList), and recursive reply nodes. Example: `/post/65f1234567890abcdef12345`.
+- **User Profiles** (`/profile?username=[username]`): Showcases member karma score, user bio, name, joined communities, and posts list. Example: `/profile?username=arjun`.
+
+## Machine-Readable Public APIs
+
+These JSON endpoints return data structured for crawlers and client consumption:
+
+- `GET /api/posts`: Lists posts.
+  - Query parameters:
+    - `sort` ("trending" | "recent", defaults to "trending")
+    - `authorId` (filter posts by author ID)
+    - `communityId` / `communitySlug` (filter by community)
+    - `feed` ("home" to filter by joined communities for active user)
+- `GET /api/posts/[id]`: Retrieve single post detail including populated author, community, and recursive comment trees.
+- `GET /api/communities`: Retrieve all active community details.
+  - Query parameters:
+    - `search` (filter by community name/description)
+- `GET /api/profile`: Retrieve user profile info.
+  - Query parameters:
+    - `all` ("true" to list all public profiles sorted by karma)
+    - `username` (retrieve specific user details by handle)
+- `GET /api/search`: Query suggestions.
+  - Query parameters:
+    - `q` (spell correction / search query)
