@@ -5,6 +5,7 @@ import { Post } from "@/lib/models/Post";
 import { Community } from "@/lib/models/Community";
 import "@/lib/models/User"; // Ensure the User model is registered for populate
 import { MarketingPost, MarketingCommunity } from "@/components/home/MarketingView";
+import { headers } from "next/headers";
 
 /**
  * Homepage — Server Component
@@ -54,6 +55,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
+  await headers();
   let initialPosts: MarketingPost[] = [];
   let initialCommunities: MarketingCommunity[] = [];
 
