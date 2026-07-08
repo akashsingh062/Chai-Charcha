@@ -60,7 +60,6 @@ const MyPostPage = () => {
     };
   }, [fetchMyPosts]);
 
-  // Upvote / Downvote handler
   const handleVote = async (id: string, type: "up" | "down") => {
     try {
       const res = await axiosInstance.post("/api/votes", {
@@ -86,7 +85,6 @@ const MyPostPage = () => {
     }
   };
 
-  // Add Comment handler
   const handleAddComment = async (threadId: string, text: string) => {
     try {
       const res = await axiosInstance.post("/api/comments", {
@@ -112,7 +110,6 @@ const MyPostPage = () => {
     }
   };
 
-  // Add nested reply handler
   const handleAddReply = async (threadId: string, commentId: string, text: string) => {
     try {
       const res = await axiosInstance.post("/api/comments", {
@@ -143,7 +140,6 @@ const MyPostPage = () => {
     }
   };
 
-  // Edit Comment handler
   const handleEditSubmit = async (threadId: string, commentId: string, text: string) => {
     try {
       const res = await axiosInstance.put(`/api/comments/${commentId}`, {
@@ -171,7 +167,6 @@ const MyPostPage = () => {
     }
   };
 
-  // Delete Comment handler
   const handleDeleteComment = async (threadId: string, commentId: string) => {
     try {
       const res = await axiosInstance.delete(`/api/comments/${commentId}`);
@@ -197,7 +192,6 @@ const MyPostPage = () => {
     }
   };
 
-  // Upvote Comment handler
   const handleCommentVote = async (threadId: string, commentId: string) => {
     try {
       const res = await axiosInstance.post("/api/votes", {
@@ -227,14 +221,12 @@ const MyPostPage = () => {
     }
   };
 
-  // In-place post update callback
   const handleUpdateThread = useCallback((updatedThread: Thread) => {
     setPosts((prev) =>
       prev.map((t) => (t.id === updatedThread.id ? updatedThread : t))
     );
   }, []);
 
-  // Post delete callback
   const handleDeletePost = useCallback((id: string) => {
     setPosts((prev) => prev.filter((t) => t.id !== id));
   }, []);

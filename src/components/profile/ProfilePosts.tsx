@@ -36,7 +36,6 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
     onPostsCountChangeRef.current = onPostsCountChange;
   }, [onPostsCountChange]);
 
-  // Fetch full user profile details from the DB
   const fetchUserPosts = useCallback(async () => {
     if (!user) return;
     try {
@@ -56,14 +55,13 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
   }, [user]);
 
   useEffect(() => {
-    // Wrap async fetch in a setTimeout to prevent cascading render warn
+    // Wrap async fetch in a setTimeout to prevent cascading render warnings
     const timer = setTimeout(() => {
       fetchUserPosts();
     }, 0);
     return () => clearTimeout(timer);
   }, [fetchUserPosts]);
 
-  // Handle post upvoting / downvoting
   const handleVote = async (id: string, type: "up" | "down") => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
@@ -95,7 +93,6 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
     }
   };
 
-  // Add Comment callback
   const handleAddComment = async (threadId: string, text: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
@@ -124,7 +121,6 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
     }
   };
 
-  // Add nested reply callback
   const handleAddReply = async (threadId: string, commentId: string, text: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
@@ -158,7 +154,6 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
     }
   };
 
-  // Edit Comment callback
   const handleEditSubmit = async (threadId: string, commentId: string, text: string) => {
     try {
       const res = await axiosInstance.put(`/api/comments/${commentId}`, {
@@ -185,7 +180,6 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
     }
   };
 
-  // Delete Comment callback
   const handleDeleteComment = async (threadId: string, commentId: string) => {
     try {
       const res = await axiosInstance.delete(`/api/comments/${commentId}`);
@@ -210,7 +204,6 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
     }
   };
 
-  // Comment Vote callback
   const handleCommentVote = async (threadId: string, commentId: string) => {
     if (!userData) {
       toast.warning("Please log in first to do that!");
@@ -243,14 +236,12 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
     }
   };
 
-  // Post update callback (e.g. from inline edits)
   const handleUpdateThread = useCallback((updatedThread: Thread) => {
     setPosts((prev) =>
       prev.map((p) => (p.id === updatedThread.id ? updatedThread : p))
     );
   }, []);
 
-  // Post delete callback
   const handleDeletePost = useCallback((id: string) => {
     setPosts((prev) => {
       const updated = prev.filter((p) => p.id !== id);

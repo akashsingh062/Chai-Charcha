@@ -114,14 +114,12 @@ export default async function ThreadPage({ params }: PageProps) {
 async function ThreadPageContent({ id }: { id: string }) {
   await connectDB();
 
-  // Fetch the session
   const session = await auth.api.getSession({
     headers: await headers(),
   });
   const userId = session?.user?.id || null;
   const userRole = session?.user?.role || null;
 
-  // Retrieve post and populate author & community
   const postDoc = await Post.findById(id)
     .populate("author", "name username avatar role karma")
     .populate("community", "name slug description avatar")
@@ -150,25 +148,19 @@ async function ThreadPageContent({ id }: { id: string }) {
     const isAuthor = authorDoc && authorDoc._id?.toString() === userId;
     const isAdminRole = userRole === "admin";
 
-    // If post is soft deleted and user has no privileges to see it, return 404
     if (!isAuthor && !isCurrentUserMod && !isAdminRole) {
       notFound();
     }
   }
 
-  // Fetch comments
   const dbComments = await Comment.find({ postId: id })
     .populate("author", "name username avatar role karma")
     .sort({ createdAt: 1 })
     .lean() as unknown as DBComment[];
 
-  // Format post for the frontend representation
   const formattedPost = formatPostForFrontend(postDoc as unknown as DBPost, dbComments, userId);
-
-  // Safely serialize database model fields for Client Component compatibility
   const serializedPost = JSON.parse(JSON.stringify(formattedPost));
 
-  // Build JSON-LD structured data for Google Rich Snippets
   const authorDoc = postDoc.author as unknown as PopulatedUser;
   const forumJsonLd = {
     "@context": "https://schema.org",

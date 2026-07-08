@@ -62,7 +62,6 @@ export default async function Home() {
   try {
     await connectDB();
 
-    // Query 3 top/recent public posts, populated with authors
     const postsResult = await Post.find(
       { isSoftDeleted: { $ne: true }, isCommunityOnly: { $ne: true } },
       { title: 1, content: 1, category: 1, author: 1, createdAt: 1 }
@@ -72,10 +71,8 @@ export default async function Home() {
       .populate("author", "username name avatar")
       .lean();
 
-    // Convert ObjectIds to strings to avoid serialization warnings in server/client boundaries
     initialPosts = JSON.parse(JSON.stringify(postsResult));
 
-    // Query 4 active communities
     const communitiesResult = await Community.find(
       { isBanned: { $ne: true } },
       { name: 1, slug: 1, description: 1 }

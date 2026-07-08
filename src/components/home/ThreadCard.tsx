@@ -46,7 +46,6 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [isSoftDeletingLoading, setIsSoftDeletingLoading] = useState(false);
 
-  // Editing States
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(thread.title);
   const [editContent, setEditContent] = useState(thread.content || thread.excerpt);
@@ -80,7 +79,6 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
       }
     };
 
-    // Fetch immediately on expansion
     fetchThread();
 
     const interval = setInterval(fetchThread, 4000);
@@ -88,12 +86,10 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
     return () => clearInterval(interval);
   }, [isExpanded, thread.id, onUpdateThread]);
 
-  // Authorization Check
   const isAuthor = userData?.id === thread.author.id;
   const isAdmin = userData?.role === "admin";
   const canModify = isAuthor || isAdmin;
 
-  // In-Place Update Handler
   const handleSave = async () => {
     const titleTrimmed = editTitle.trim();
     const contentTrimmed = editContent.trim();

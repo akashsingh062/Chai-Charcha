@@ -99,7 +99,6 @@ async function CommunityPageContent({ slug }: { slug: string }) {
     notFound();
   }
 
-  // Serialize Mongoose models for Client Component safety
   const serializedCommunity = JSON.parse(JSON.stringify(community));
 
   const forumJsonLd = {
