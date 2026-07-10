@@ -3,6 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  color-scheme: light;
   --background: #fffcf2; /* floral_white */
   --foreground: #252422; /* carbon_black */
   --card-background: #ffffff;
@@ -49,6 +50,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: #001524; /* ink_black */
   --foreground: #fffcf2; /* floral_white */
   --card-background: #000c15; /* ink-black-300 */
@@ -380,5 +382,24 @@ body {
   );
   animation: shimmer 1.8s infinite;
   content: '';
+}
+
+/* Custom Styled Select Dropdowns */
+select {
+  appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23403d39' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E") !important;
+  background-position: right 0.75rem center !important;
+  background-repeat: no-repeat !important;
+  background-size: 1.1rem !important;
+  padding-right: 2.25rem !important;
+}
+
+.dark select {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23ccc5b9' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E") !important;
+}
+
+select option {
+  background-color: var(--dropdown-bg) !important;
+  color: var(--foreground) !important;
 }
 

@@ -100,7 +100,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               className="w-full px-3.5 py-2.5 bg-ink-black/40 border border-stormy-teal/20 rounded-xl text-xs text-(--foreground) focus:outline-none focus:border-vivid-tangerine cursor-pointer"
             >
               {reasons.map((r) => (
-                <option key={r} value={r} className="bg-ink-black text-(--foreground)">
+                <option key={r} value={r}>
                   {r}
                 </option>
               ))}

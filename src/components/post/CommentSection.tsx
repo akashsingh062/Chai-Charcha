@@ -85,17 +85,12 @@ export const CommentSection = ({
             <select
               value={commentSort}
               onChange={(e) => setCommentSort(e.target.value as "top" | "newest" | "oldest")}
-              className="appearance-none bg-(--input-bg)/40 hover:bg-(--input-bg)/60 border border-(--input-border)/40 hover:border-orange/30 text-(--text-role) hover:text-(--foreground) py-1.5 pl-3 pr-8 rounded-lg text-[10px] font-bold outline-none cursor-pointer transition-all shadow-3xs"
+              className="bg-(--input-bg)/40 hover:bg-(--input-bg)/60 border border-(--input-border)/40 hover:border-orange/30 text-(--text-role) hover:text-(--foreground) py-1.5 pl-3 pr-8 rounded-lg text-[10px] font-bold outline-none cursor-pointer transition-all shadow-3xs"
             >
               <option value="top">Top Liked</option>
               <option value="newest">Newest</option>
               <option value="oldest">Oldest</option>
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-(--text-role)">
-              <svg className="fill-current h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-              </svg>
-            </div>
           </div>
         )}
       </div>
