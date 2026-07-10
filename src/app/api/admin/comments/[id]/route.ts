@@ -20,47 +20,13 @@ async function getNestedReplyIds(commentId: string): Promise<string[]> {
 }
 
 // PUT /api/admin/comments/[id] — Edit comment content
-export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+export async function PUT() {
   try {
-    const params = await props.params;
-    const { id: commentId } = params;
-    const { user: adminUser } = await requireModeratorOrAdmin();
-    await connectDB();
-
-    if (!mongoose.Types.ObjectId.isValid(commentId)) {
-      return NextResponse.json({ error: "Invalid comment ID" }, { status: 400 });
-    }
-
-    const body = await req.json();
-    const { content } = body;
-
-    if (!content || !content.trim()) {
-      return NextResponse.json({ error: "Comment content cannot be empty" }, { status: 400 });
-    }
-
-    const comment = await Comment.findById(commentId);
-    if (!comment) {
-      return NextResponse.json({ error: "Comment not found" }, { status: 404 });
-    }
-
-    const oldContent = comment.content;
-    comment.content = content;
-    await comment.save();
-
-    // Log action to AuditLog
-    await AuditLog.create({
-      admin: adminUser.id,
-      action: "update_comment",
-      targetType: "Comment",
-      targetId: comment._id,
-      details: {
-        changes: {
-          content: { old: oldContent, new: content },
-        },
-      },
-    });
-
-    return NextResponse.json({ message: "Comment updated successfully" });
+    await requireModeratorOrAdmin();
+    return NextResponse.json(
+      { error: "Forbidden. Administrators cannot edit user comments to protect freedom of speech." },
+      { status: 403 }
+    );
   } catch (error) {
     return adminErrorResponse(error);
   }

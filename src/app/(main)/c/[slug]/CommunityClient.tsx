@@ -618,6 +618,8 @@ export default function CommunityClient({
             onStartCharcha={() => {
               if (!userData) {
                 router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+              } else if (!isJoined) {
+                toast.error("You must join this community before posting.");
               } else {
                 setIsCreatePostOpen(true);
               }

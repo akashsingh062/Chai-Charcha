@@ -108,6 +108,21 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Safeguard: Administrators cannot edit user personal profile details to protect user privacy.
+    if (
+      (name !== undefined && name !== user.name) ||
+      (username !== undefined && username.toLowerCase() !== user.username) ||
+      (email !== undefined && email.toLowerCase() !== user.email) ||
+      (bio !== undefined && bio !== user.bio) ||
+      (avatar !== undefined && avatar !== user.avatar) ||
+      (banner !== undefined && banner !== user.banner)
+    ) {
+      return NextResponse.json(
+        { error: "Forbidden. Administrators cannot edit user personal profile details to protect their privacy." },
+        { status: 403 }
+      );
+    }
+
     // Safeguard: Admin cannot demote themselves from admin role
     if (userId === adminUser.id && role && role !== "admin") {
       return NextResponse.json(

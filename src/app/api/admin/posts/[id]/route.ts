@@ -54,63 +54,13 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
 }
 
 // PUT /api/admin/posts/[id] — Update post details (title, content, tags, category, isCommunityOnly)
-export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+export async function PUT() {
   try {
-    const params = await props.params;
-    const { id: postId } = params;
-    const { user: adminUser } = await requireModeratorOrAdmin();
-    await connectDB();
-
-    if (!mongoose.Types.ObjectId.isValid(postId)) {
-      return NextResponse.json({ error: "Invalid post ID" }, { status: 400 });
-    }
-
-    const body = await req.json();
-    const { title, content, tags, category, isCommunityOnly } = body;
-
-    const post = await Post.findById(postId);
-    if (!post) {
-      return NextResponse.json({ error: "Post not found" }, { status: 404 });
-    }
-
-    const changes: Record<string, { old: unknown; new: unknown }> = {};
-    const updates: Record<string, unknown> = {};
-
-    if (title !== undefined && title !== post.title) {
-      changes.title = { old: post.title, new: title };
-      updates.title = title;
-    }
-    if (content !== undefined && content !== post.content) {
-      changes.content = { old: post.content, new: content };
-      updates.content = content;
-    }
-    if (tags !== undefined && JSON.stringify(tags) !== JSON.stringify(post.tags)) {
-      changes.tags = { old: post.tags, new: tags };
-      updates.tags = tags;
-    }
-    if (category !== undefined && category !== post.category) {
-      changes.category = { old: post.category, new: category };
-      updates.category = category;
-    }
-    if (isCommunityOnly !== undefined && isCommunityOnly !== post.isCommunityOnly) {
-      changes.isCommunityOnly = { old: post.isCommunityOnly, new: isCommunityOnly };
-      updates.isCommunityOnly = isCommunityOnly;
-    }
-
-    if (Object.keys(updates).length > 0) {
-      await Post.findByIdAndUpdate(postId, { $set: updates });
-
-      // Log to AuditLog
-      await AuditLog.create({
-        admin: adminUser.id,
-        action: "update_post",
-        targetType: "Post",
-        targetId: post._id,
-        details: { changes },
-      });
-    }
-
-    return NextResponse.json({ message: "Post updated successfully" });
+    await requireModeratorOrAdmin();
+    return NextResponse.json(
+      { error: "Forbidden. Administrators cannot edit user posts to protect freedom of speech." },
+      { status: 403 }
+    );
   } catch (error) {
     return adminErrorResponse(error);
   }

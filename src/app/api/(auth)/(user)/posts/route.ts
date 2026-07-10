@@ -3,9 +3,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import connectDB from "@/lib/connectDB";
 import { Post } from "@/lib/models/Post";
-import { Comment } from "@/lib/models/Comment";
 import { postSchema } from "@/lib/Schemas/postSchema";
-import { formatPostForFrontend, DBPost, DBComment, calculateTrendingScore } from "@/lib/apiHelpers";
+import { formatPostForFrontend, DBPost, calculateTrendingScore } from "@/lib/apiHelpers";
 import { Community } from "@/lib/models/Community";
 import { User } from "@/lib/models/User";
 import mongoose from "mongoose";
@@ -182,7 +181,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if user is banned in the community, or if the community itself is banned
+    // Check if user is banned in the community, or if the community itself is banned, or if the user has not joined
     if (validatedData.data.community) {
       const comm = await Community.findById(validatedData.data.community);
       if (comm) {
@@ -192,6 +191,29 @@ export async function POST(req: Request) {
         }
         if (comm.bannedUsers && comm.bannedUsers.some((uid: unknown) => String(uid) === session.user.id)) {
           return NextResponse.json({ error: "You are banned from posting in this community." }, { status: 403 });
+        }
+
+        // Verify user has joined the community
+        const userObj = await User.findById(session.user.id).select("joinedCommunities");
+        if (!userObj) {
+          return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        let joined: string[] = [];
+        if (userObj.joinedCommunities) {
+          if (Array.isArray(userObj.joinedCommunities)) {
+            joined = userObj.joinedCommunities.map((id: unknown) => String(id));
+          } else if (typeof userObj.joinedCommunities === "string") {
+            try {
+              joined = JSON.parse(userObj.joinedCommunities).map((id: unknown) => String(id));
+            } catch {
+              joined = [];
+            }
+          }
+        }
+
+        if (!joined.includes(comm._id.toString())) {
+          return NextResponse.json({ error: "Forbidden. You must join this community before posting in it." }, { status: 403 });
         }
       }
     }

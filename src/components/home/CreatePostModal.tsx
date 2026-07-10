@@ -22,12 +22,21 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose, onSub
   useEffect(() => {
     const fetchComms = async () => {
       try {
-        const res = await axiosInstance.get("/api/communities");
-        if (res.data?.success && res.data?.communities) {
-          setCommunities(res.data.communities);
+        const [commsRes, profileRes] = await Promise.all([
+          axiosInstance.get("/api/communities"),
+          axiosInstance.get("/api/profile")
+        ]);
+
+        if (commsRes.data?.success && commsRes.data?.communities && profileRes.data?.user) {
+          const joinedIds: string[] = Array.isArray(profileRes.data.user.joinedCommunities)
+            ? profileRes.data.user.joinedCommunities.map((id: unknown) => String(id))
+            : [];
+
+          const joinedComms = commsRes.data.communities.filter((c: { _id: string }) => joinedIds.includes(c._id));
+          setCommunities(joinedComms);
           
           if (params?.slug) {
-            const active = res.data.communities.find((c: { _id: string; name: string; slug: string }) => c.slug === params.slug);
+            const active = joinedComms.find((c: { _id: string; name: string; slug: string }) => c.slug === params.slug);
             if (active) {
               setSelectedCommunityId(active._id);
             }

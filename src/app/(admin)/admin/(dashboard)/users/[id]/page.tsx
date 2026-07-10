@@ -73,14 +73,8 @@ export default function UserDetailPage() {
   const [success, setSuccess] = useState("");
 
   // Form states
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
   const [karma, setKarma] = useState(0);
-  const [bio, setBio] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [banner, setBanner] = useState("");
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [banDuration, setBanDuration] = useState("0");
@@ -93,14 +87,8 @@ export default function UserDetailPage() {
       const res = await axiosInstance.get(`/api/admin/users/${userId}`);
       const userData = res.data.user;
       setUser(userData);
-      setName(userData.name);
-      setUsername(userData.username);
-      setEmail(userData.email);
       setRole(userData.role);
       setKarma(userData.karma);
-      setBio(userData.bio);
-      setAvatar(userData.avatar || "");
-      setBanner(userData.banner || "");
     } catch (err: unknown) {
       console.error("Failed to load user details", err);
       const errorMsg = err && typeof err === "object" && "response" in err
@@ -124,12 +112,10 @@ export default function UserDetailPage() {
     setError(""); setSuccess(""); setSaving(true);
     try {
       await axiosInstance.put(`/api/admin/users/${userId}`, {
-        name, username, email, role, karma, bio,
-        avatar: avatar || undefined,
-        banner: banner || undefined,
+        role, karma,
       });
       setSuccess("User updated successfully");
-      toast.success("User profile saved");
+      toast.success("User settings saved");
       fetchUserDetails();
     } catch (err: unknown) {
       const errorMsg = err && typeof err === "object" && "response" in err
@@ -226,7 +212,7 @@ export default function UserDetailPage() {
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
       </svg>
     )},
-    { id: "edit" as const, label: "Edit Profile", icon: (
+    { id: "edit" as const, label: "Edit Settings", icon: (
       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 00-2 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
       </svg>
@@ -522,77 +508,35 @@ export default function UserDetailPage() {
           <div className="absolute top-0 right-0 w-48 h-48 bg-[#f97316]/5 rounded-full blur-3xl pointer-events-none" />
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-3 bg-[#f97316] rounded-full" />
-            <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">Edit User Profile Settings</h3>
+            <h3 className="text-xs font-extrabold text-white/40 uppercase tracking-widest">Edit User Administrative Settings</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {[
-              { label: "Display Name", value: name, setter: setName, type: "text", placeholder: "Enter name..." },
-              { label: "Username", value: username, setter: setUsername, type: "text", placeholder: "Enter username..." },
-              { label: "Email Address", value: email, setter: setEmail, type: "email", placeholder: "Enter email..." },
-              { label: "Karma Points", value: karma, setter: (v: string) => setKarma(Number(v)), type: "number", placeholder: "Enter karma..." },
-            ].map((field) => (
-              <div key={field.label} className="space-y-1.5">
-                <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">{field.label}</label>
-                <input
-                  type={field.type}
-                  value={field.value}
-                  placeholder={field.placeholder}
-                  onChange={(e) => (field.setter as (v: string) => void)(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 focus:bg-white/4 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Role selection */}
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">Account Role</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              disabled={!isAdmin}
-              className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="member">Member (Standard User)</option>
-              <option value="moderator">Moderator (Community Admin)</option>
-              <option value="admin">Administrator (Full Access)</option>
-            </select>
-          </div>
-
-          {/* Bio text area */}
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">Short Biography</label>
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              rows={3}
-              placeholder="Tell us about this user..."
-              className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200 resize-none"
-            />
-          </div>
-
-          {/* Asset URLs */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Karma Points */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">Avatar Image URL</label>
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">Karma Points</label>
               <input
-                type="text"
-                value={avatar}
-                onChange={(e) => setAvatar(e.target.value)}
-                placeholder="https://..."
-                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
+                type="number"
+                value={karma}
+                placeholder="Enter karma..."
+                onChange={(e) => setKarma(Number(e.target.value))}
+                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 focus:bg-white/4 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
               />
             </div>
+
+            {/* Role selection */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">Banner Background URL</label>
-              <input
-                type="text"
-                value={banner}
-                onChange={(e) => setBanner(e.target.value)}
-                placeholder="https://..."
-                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200"
-              />
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">Account Role</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                disabled={!isAdmin}
+                className="w-full px-4 py-3 bg-white/2 border border-white/8 hover:border-white/15 focus:border-[#f97316]/40 rounded-xl text-xs text-white focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="member">Member (Standard User)</option>
+                <option value="moderator">Moderator (Community Admin)</option>
+                <option value="admin">Administrator (Full Access)</option>
+              </select>
             </div>
           </div>
 
@@ -615,7 +559,7 @@ export default function UserDetailPage() {
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2v-3M9 9L15 3m0 0l-3 3m3-3v8" />
                   </svg>
-                  Save Profile changes
+                  Save Settings changes
                 </>
               )}
             </button>
