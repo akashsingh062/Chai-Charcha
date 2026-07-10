@@ -530,7 +530,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
       <div className="mt-5 pt-4 border-t border-(--divider-color) flex items-center justify-between text-xs text-dust-grey">
         
         {/* Interactive Upvote & Downvote component */}
-        <div className="flex items-center gap-1 bg-(--profile-bg) border border-(--profile-border) rounded-full p-0.5">
+        <div className="flex items-center gap-1 bg-(--profile-bg) border border-(--profile-border) rounded-full p-0.5 px-2">
           <button
             onClick={() => onVote(thread.id, "up")}
             className={`p-1.5 rounded-full transition-colors cursor-pointer ${
@@ -545,14 +545,18 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
             </svg>
           </button>
           
-          <span className={`px-1.5 font-bold font-mono text-center min-w-4 text-xs ${
-            thread.userVoted === "up"
-              ? "text-spicy-paprika font-black"
-              : thread.userVoted === "down"
-              ? "text-stormy-teal font-black"
-              : "text-(--text-role)"
+          <span className={`px-1 font-bold font-mono text-center text-xs ${
+            thread.userVoted === "up" ? "text-spicy-paprika font-black" : "text-(--text-role)"
           }`}>
-            {thread.upvotes}
+            {thread.upvotesCount || 0}
+          </span>
+
+          <div className="h-3.5 w-px bg-(--divider-color) mx-1.5"></div>
+
+          <span className={`px-1 font-bold font-mono text-center text-xs ${
+            thread.userVoted === "down" ? "text-stormy-teal font-black" : "text-(--text-role)"
+          }`}>
+            {thread.downvotesCount || 0}
           </span>
 
           <button

@@ -81,6 +81,8 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({ user, onPostsCountCh
               return {
                 ...p,
                 upvotes: res.data.score,
+                upvotesCount: res.data.upvotes,
+                downvotesCount: res.data.downvotes,
                 userVoted: res.data.userVoted,
               };
             }

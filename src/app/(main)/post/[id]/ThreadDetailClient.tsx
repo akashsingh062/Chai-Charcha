@@ -43,6 +43,8 @@ export const ThreadDetailClient: React.FC<ThreadDetailClientProps> = ({ initialT
         setThread((prev) => ({
           ...prev,
           upvotes: res.data.score,
+          upvotesCount: res.data.upvotes,
+          downvotesCount: res.data.downvotes,
           userVoted: res.data.userVoted,
         }));
       }

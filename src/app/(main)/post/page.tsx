@@ -75,6 +75,8 @@ const MyPostPage = () => {
             return {
               ...post,
               upvotes: res.data.score,
+              upvotesCount: res.data.upvotes,
+              downvotesCount: res.data.downvotes,
               userVoted: res.data.userVoted,
             };
           })

@@ -262,6 +262,8 @@ export default function CommunityClient({
             return {
               ...t,
               upvotes: res.data.score,
+              upvotesCount: res.data.upvotes,
+              downvotesCount: res.data.downvotes,
               userVoted: res.data.userVoted,
             };
           })

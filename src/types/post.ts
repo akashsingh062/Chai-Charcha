@@ -29,6 +29,8 @@ export interface Thread {
   category: string;
   tags: string[];
   upvotes: number;
+  upvotesCount?: number;
+  downvotesCount?: number;
   commentsCount: number;
   views?: number;
   trendingScore?: number;
