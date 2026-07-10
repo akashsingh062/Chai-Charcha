@@ -25,10 +25,11 @@ export async function GET(req: Request) {
     const userId = session?.user?.id || null;
 
     const query: {
-      community?: { $in?: mongoose.Types.ObjectId[]; $nin?: mongoose.Types.ObjectId[] } | mongoose.Types.ObjectId | string;
+      community?: { $in?: mongoose.Types.ObjectId[]; $nin?: mongoose.Types.ObjectId[] } | mongoose.Types.ObjectId | string | { $nin: mongoose.Types.ObjectId[] };
       isCommunityOnly?: { $ne: boolean };
       isSoftDeleted?: { $ne: boolean };
-      author?: mongoose.Types.ObjectId;
+      author?: mongoose.Types.ObjectId | { $in: mongoose.Types.ObjectId[] };
+      $or?: Record<string, unknown>[];
     } = {};
     let isCurrentUserMod = false;
 
@@ -55,6 +56,8 @@ export async function GET(req: Request) {
     }
 
     const feed = searchParams.get("feed");
+    const authorId = searchParams.get("authorId");
+
     if (feed === "home" && userId) {
       const currentUser = await User.findById(userId);
       if (currentUser) {
@@ -68,12 +71,16 @@ export async function GET(req: Request) {
             joined = [];
           }
         }
-        query.community = { $in: joined };
+        const followingIds = Array.isArray(currentUser.following) ? currentUser.following : [];
+        query.$or = [
+          { community: { $in: joined } },
+          { author: { $in: followingIds } }
+        ];
       }
     }
 
-    // If fetching global feed (neither community slug/id nor personalized joined-only feed)
-    if (!communityId && !communitySlug && feed !== "home") {
+    // If fetching global feed (neither community slug/id nor personalized joined-only feed nor fetching by authorId)
+    if (!communityId && !communitySlug && feed !== "home" && !authorId) {
       query.isCommunityOnly = { $ne: true };
     }
 
@@ -82,7 +89,6 @@ export async function GET(req: Request) {
       query.isSoftDeleted = { $ne: true };
     }
 
-    const authorId = searchParams.get("authorId");
     if (authorId) {
       if (mongoose.Types.ObjectId.isValid(authorId)) {
         query.author = new mongoose.Types.ObjectId(authorId);
