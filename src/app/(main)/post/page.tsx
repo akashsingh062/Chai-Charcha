@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Thread } from "@/types/post";
+import { Thread, Comment } from "@/types/post";
 import { ThreadCard } from "@/components/home/ThreadCard";
 import { authClient } from "@/lib/auth-client";
 import axiosInstance from "@/lib/axios";
@@ -99,6 +99,8 @@ const MyPostPage = () => {
           prevPosts.map((post) => {
             if (post.id !== threadId) return post;
             const currentComments = post.comments || [];
+            const exists = currentComments.some((c) => c.id === res.data.comment.id);
+            if (exists) return post;
             return {
               ...post,
               commentsCount: post.commentsCount + 1,
@@ -125,6 +127,16 @@ const MyPostPage = () => {
           prevPosts.map((post) => {
             if (post.id !== threadId) return post;
             const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const checkIfReplyExists = (nodes: Comment[], targetId: string): boolean => {
+              for (const n of nodes) {
+                if (n.id === targetId) return true;
+                if (n.replies && checkIfReplyExists(n.replies, targetId)) return true;
+              }
+              return false;
+            };
+            if (checkIfReplyExists(updatedComments, res.data.comment.id)) {
+              return post;
+            }
             const inserted = insertReply(updatedComments, commentId, res.data.comment);
             if (inserted) {
               return {

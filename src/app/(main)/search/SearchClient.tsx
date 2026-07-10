@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Thread } from "@/types/post";
+import { Thread, Comment } from "@/types/post";
 import { ThreadCard } from "@/components/home/ThreadCard";
 import axiosInstance from "@/lib/axios";
 import Link from "next/link";
@@ -246,7 +246,6 @@ function SearchPageContent() {
       });
 
       if (res.data?.success) {
-        toast.success(type === "up" ? "Charcha upvoted!" : "Charcha downvoted!");
         setThreads((prevThreads) =>
           prevThreads.map((t) => {
             if (t.id !== id) return t;
@@ -281,6 +280,8 @@ function SearchPageContent() {
           prevThreads.map((post) => {
             if (post.id !== threadId) return post;
             const currentComments = post.comments || [];
+            const exists = currentComments.some((c) => c.id === res.data.comment.id);
+            if (exists) return post;
             return {
               ...post,
               commentsCount: post.commentsCount + 1,
@@ -310,6 +311,16 @@ function SearchPageContent() {
           prevThreads.map((post) => {
             if (post.id !== threadId) return post;
             const updatedComments = JSON.parse(JSON.stringify(post.comments || []));
+            const checkIfReplyExists = (nodes: Comment[], targetId: string): boolean => {
+              for (const n of nodes) {
+                if (n.id === targetId) return true;
+                if (n.replies && checkIfReplyExists(n.replies, targetId)) return true;
+              }
+              return false;
+            };
+            if (checkIfReplyExists(updatedComments, res.data.comment.id)) {
+              return post;
+            }
             const inserted = insertReply(updatedComments, commentId, res.data.comment);
             if (inserted) {
               return {

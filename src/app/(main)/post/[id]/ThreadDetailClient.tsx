@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Thread } from "@/types/post";
+import { Thread, Comment } from "@/types/post";
 import { ThreadCard } from "@/components/home/ThreadCard";
 import axiosInstance from "@/lib/axios";
 import { toast } from "@/store/useToastStore";
@@ -39,7 +39,6 @@ export const ThreadDetailClient: React.FC<ThreadDetailClientProps> = ({ initialT
       });
 
       if (res.data?.success) {
-        toast.success(type === "up" ? "Charcha upvoted!" : "Charcha downvoted!");
         setThread((prev) => ({
           ...prev,
           upvotes: res.data.score,
@@ -67,12 +66,16 @@ export const ThreadDetailClient: React.FC<ThreadDetailClientProps> = ({ initialT
       });
 
       if (res.data?.comment) {
-        setThread((prev) => ({
-          ...prev,
-          commentsCount: prev.commentsCount + 1,
-          comments: [...(prev.comments || []), res.data.comment],
-        }));
-        toast.success("Comment added successfully!");
+        setThread((prev) => {
+          const currentComments = prev.comments || [];
+          const exists = currentComments.some((c) => c.id === res.data.comment.id);
+          if (exists) return prev;
+          return {
+            ...prev,
+            commentsCount: prev.commentsCount + 1,
+            comments: [...currentComments, res.data.comment],
+          };
+        });
       }
     } catch (err) {
       console.error("Error adding comment:", err);
@@ -97,6 +100,16 @@ export const ThreadDetailClient: React.FC<ThreadDetailClientProps> = ({ initialT
       if (res.data?.comment) {
         setThread((prev) => {
           const updatedComments = JSON.parse(JSON.stringify(prev.comments || []));
+          const checkIfReplyExists = (nodes: Comment[], targetId: string): boolean => {
+            for (const n of nodes) {
+              if (n.id === targetId) return true;
+              if (n.replies && checkIfReplyExists(n.replies, targetId)) return true;
+            }
+            return false;
+          };
+          if (checkIfReplyExists(updatedComments, res.data.comment.id)) {
+            return prev;
+          }
           const inserted = insertReply(updatedComments, commentId, res.data.comment);
           if (inserted) {
             return {
@@ -107,7 +120,6 @@ export const ThreadDetailClient: React.FC<ThreadDetailClientProps> = ({ initialT
           }
           return prev;
         });
-        toast.success("Reply added successfully!");
       }
     } catch (err) {
       console.error("Error adding reply:", err);
