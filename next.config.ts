@@ -42,15 +42,6 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      {
-        source: "/:all*(svg|jpg|png|webp|ico|woff|woff2|ttf|css|js)",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, must-revalidate",
-          },
-        ],
-      },
     ];
   },
 };
