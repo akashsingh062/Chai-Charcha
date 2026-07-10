@@ -160,7 +160,8 @@ export function calculateTrendingScore(post: {
   const hoursSincePost = (Date.now() - createdTime) / (1000 * 60 * 60);
 
   const netVotes = upvotesCount - downvotesCount;
-  const engagement = netVotes + commentCount;
+  // Add a base boost of 1.0 so new posts naturally outrank older posts with identical zero-engagement
+  const engagement = netVotes + commentCount + 1.0;
 
   // Gravity score decay formula
   // Score = Engagement / (Hours_Since_Post + 2)^1.5

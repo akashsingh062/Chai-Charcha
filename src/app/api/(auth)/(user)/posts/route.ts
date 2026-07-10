@@ -129,7 +129,14 @@ export async function GET(req: Request) {
         const score = calculateTrendingScore(post);
         return { ...post, trendingScore: score };
       });
-      sortedDbPosts.sort((a, b) => (b.trendingScore || 0) - (a.trendingScore || 0));
+      sortedDbPosts.sort((a, b) => {
+        const scoreDiff = (b.trendingScore || 0) - (a.trendingScore || 0);
+        if (scoreDiff !== 0) return scoreDiff;
+        // Secondary sort: newest first
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return timeB - timeA;
+      });
     }
 
     // Format all posts (comments are fetched on-demand when expanded)
