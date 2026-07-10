@@ -3,6 +3,7 @@ import { Comment } from "@/types/post";
 import { useAuth } from "@/context/AuthContext";
 import { ReportModal } from "../shared/ReportModal";
 import Link from "next/link";
+import { getCleanAvatarUrl, isAvatarUrl } from "@/lib/avatarHelper";
 
 export interface CommentNodeProps {
   comment: Comment;
@@ -81,9 +82,9 @@ export const CommentNode = ({
               href={`/profile?username=${comment.author.username}`}
               className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-black text-floral-white overflow-hidden shadow-md border-2 border-(--input-border)/60 hover:border-orange/50 transition-all duration-300 ${getAvatarGradient(comment.author.name)}`}
             >
-              {comment.author.avatar && (comment.author.avatar.startsWith("http") || comment.author.avatar.startsWith("/")) && !avatarError ? (
+              {isAvatarUrl(comment.author.avatar) && !avatarError ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={comment.author.avatar} alt={comment.author.name} className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
+                <img src={getCleanAvatarUrl(comment.author.avatar)} alt={comment.author.name} className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
               ) : (
                 comment.author.name ? comment.author.name.substring(0, 2).toUpperCase() : "UN"
               )}
@@ -92,9 +93,9 @@ export const CommentNode = ({
             <div 
               className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-black text-floral-white overflow-hidden shadow-md border-2 border-(--input-border)/60 group-hover:border-orange/50 transition-all duration-300 ${getAvatarGradient(comment.author.name)}`}
             >
-              {comment.author.avatar && (comment.author.avatar.startsWith("http") || comment.author.avatar.startsWith("/")) && !avatarError ? (
+              {isAvatarUrl(comment.author.avatar) && !avatarError ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={comment.author.avatar} alt={comment.author.name} className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
+                <img src={getCleanAvatarUrl(comment.author.avatar)} alt={comment.author.name} className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
               ) : (
                 comment.author.name ? comment.author.name.substring(0, 2).toUpperCase() : "UN"
               )}

@@ -9,6 +9,7 @@ import { toast } from "@/store/useToastStore";
 import { ConfirmModal } from "../shared/ConfirmModal";
 import { ReportModal } from "../shared/ReportModal";
 import Link from "next/link";
+import { getCleanAvatarUrl, isAvatarUrl } from "@/lib/avatarHelper";
 
 interface ThreadCardProps {
   thread: Thread;
@@ -55,6 +56,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
   const [editError, setEditError] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   const startEditing = () => {
     setEditTitle(thread.title);
@@ -341,20 +343,20 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
               className="flex h-8 w-8 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-2xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden hover:opacity-85 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer shrink-0"
               title={`View ${thread.author.name}'s Profile`}
             >
-              {thread.author.avatar && (thread.author.avatar.startsWith("http") || thread.author.avatar.startsWith("/")) ? (
+              {isAvatarUrl(thread.author.avatar) && !avatarError ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={thread.author.avatar} alt={thread.author.name} className="h-full w-full object-cover" />
+                <img src={getCleanAvatarUrl(thread.author.avatar)} alt={thread.author.name} className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
               ) : (
-                thread.author.avatar
+                thread.author.name ? thread.author.name.substring(0, 2).toUpperCase() : "UN"
               )}
             </Link>
           ) : (
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-2xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden shrink-0">
-              {thread.author.avatar && (thread.author.avatar.startsWith("http") || thread.author.avatar.startsWith("/")) ? (
+              {isAvatarUrl(thread.author.avatar) && !avatarError ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={thread.author.avatar} alt={thread.author.name} className="h-full w-full object-cover" />
+                <img src={getCleanAvatarUrl(thread.author.avatar)} alt={thread.author.name} className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
               ) : (
-                thread.author.avatar
+                thread.author.name ? thread.author.name.substring(0, 2).toUpperCase() : "UN"
               )}
             </div>
           )}

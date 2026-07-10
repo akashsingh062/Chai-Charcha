@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Thread } from "@/types/post";
 import { UserProfile } from "@/context/AuthContext";
 import { ThreadCard } from "./ThreadCard";
+import { getCleanAvatarUrl, isAvatarUrl } from "@/lib/avatarHelper";
 
 interface DiscussionFeedProps {
   filteredThreads: Thread[];
@@ -59,9 +60,9 @@ export const DiscussionFeed: React.FC<DiscussionFeedProps> = ({
       <div className="rounded-2xl border border-(--card-border) bg-(--card-background) p-4 shadow-sm transition-all duration-300">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden">
-            {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) && !avatarError ? (
+            {isAvatarUrl(userData?.avatar) && !avatarError ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={userData.avatar} alt={userData.name} className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
+              <img src={getCleanAvatarUrl(userData?.avatar)} alt={userData?.name || "User"} className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
             ) : (
               userData?.name ? userData.name.substring(0, 2).toUpperCase() : "JD"
             )}

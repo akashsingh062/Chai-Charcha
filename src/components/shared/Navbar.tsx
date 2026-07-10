@@ -7,6 +7,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { SearchBar } from "@/components/search/SearchBar";
 import axiosInstance from "@/lib/axios";
+import { getCleanAvatarUrl, isAvatarUrl } from "@/lib/avatarHelper";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -174,10 +175,10 @@ const Navbar = () => {
                     className="flex items-center gap-2 rounded-full border border-(--profile-border) bg-(--profile-bg) p-1.5 pr-3 transition-all duration-200 hover:border-(--profile-hover-border) hover:bg-(--profile-hover-bg) cursor-pointer"
                   >
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-(--profile-avatar-bg) text-xs font-bold text-(--profile-avatar-text) shadow-sm overflow-hidden">
-                      {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) && !avatarError ? (
+                      {isAvatarUrl(userData?.avatar) && !avatarError ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img 
-                          src={userData.avatar} 
+                          src={getCleanAvatarUrl(userData.avatar)} 
                           alt={userData.name} 
                           className="h-full w-full object-cover" 
                           onError={() => setAvatarError(true)} 
@@ -295,10 +296,10 @@ const Navbar = () => {
               <div className="flex flex-col gap-4 pt-2">
                 <div className="flex items-center gap-3 px-2 py-1">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-(--profile-avatar-bg) font-bold text-(--profile-avatar-text) text-sm overflow-hidden">
-                    {userData?.avatar && (userData.avatar.startsWith("http") || userData.avatar.startsWith("/")) && !avatarError ? (
+                    {isAvatarUrl(userData?.avatar) && !avatarError ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img 
-                        src={userData.avatar} 
+                        src={getCleanAvatarUrl(userData.avatar)} 
                         alt={userData.name} 
                         className="h-full w-full object-cover" 
                         onError={() => setAvatarError(true)} 

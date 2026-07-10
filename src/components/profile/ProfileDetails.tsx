@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axios";
 import { toast } from "@/store/useToastStore";
+import { getCleanAvatarUrl, isAvatarUrl } from "@/lib/avatarHelper";
 import { ReportModal } from "../shared/ReportModal";
 
 interface UserProfileData {
@@ -213,10 +214,10 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
         <div className="px-6 pb-6 relative">
           {/* Avatar Area */}
           <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-(--profile-avatar-bg) border-4 border-(--card-background) p-1 flex items-center justify-center shadow-xl shrink-0 overflow-hidden group -mt-12 sm:-mt-16 mb-5">
-            {user.avatar && !avatarError ? (
+            {isAvatarUrl(user.avatar) && !avatarError ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={user.avatar}
+                src={getCleanAvatarUrl(user.avatar)}
                 alt={`${user.name}'s Avatar`}
                 className="w-full h-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
                 onError={() => setAvatarError(true)}
