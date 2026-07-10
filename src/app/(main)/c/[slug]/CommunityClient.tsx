@@ -151,15 +151,23 @@ export default function CommunityClient({
     }
   }, [slug, sortBy]);
 
-  // Load everything on mount
+  // Load community metadata on slug mount/change
   useEffect(() => {
     if (!slug) return;
     const timer = setTimeout(() => {
       loadCommunityInfo();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [slug, loadCommunityInfo]);
+
+  // Load community posts when slug or sortBy changes
+  useEffect(() => {
+    if (!slug) return;
+    const timer = setTimeout(() => {
       loadCommunityPosts();
     }, 0);
     return () => clearTimeout(timer);
-  }, [slug, loadCommunityInfo, loadCommunityPosts]);
+  }, [slug, sortBy, loadCommunityPosts]);
 
   // Sync visible post counts
   useEffect(() => {

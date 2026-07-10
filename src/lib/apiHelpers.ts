@@ -134,7 +134,7 @@ export function formatPostForFrontend(post: DBPost, commentsList: DBComment[], u
     category: post.category || "General Charcha",
     tags: post.tags || [],
     upvotes: (post.upvotes?.length || 0) - (post.downvotes?.length || 0), // Net score
-    commentsCount: Array.isArray(commentsList) ? commentsList.length : 0,
+    commentsCount: (commentsList && commentsList.length > 0) ? commentsList.length : (post.commentCount || 0),
     timeAgo: formatTimeAgo(post.createdAt),
     createdAt: post.createdAt ? post.createdAt.toISOString() : undefined,
     userVoted,
