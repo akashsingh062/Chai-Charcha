@@ -130,6 +130,19 @@ export default function RootLayout({
             `
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').catch(function(err) {
+                    console.error('Service worker registration failed:', err);
+                  });
+                });
+              }
+            `
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col">
         <Suspense fallback={null}>
