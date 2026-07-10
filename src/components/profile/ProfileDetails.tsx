@@ -46,6 +46,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   const [isFollowing, setIsFollowing] = useState(false);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   const handleShareProfile = async () => {
     if (!user) return;
@@ -212,19 +213,17 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
         <div className="px-6 pb-6 relative">
           {/* Avatar Area */}
           <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-(--profile-avatar-bg) border-4 border-(--card-background) p-1 flex items-center justify-center shadow-xl shrink-0 overflow-hidden group -mt-12 sm:-mt-16 mb-5">
-            {user.avatar ? (
+            {user.avatar && !avatarError ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={user.avatar}
                 alt={`${user.name}'s Avatar`}
                 className="w-full h-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = `https://avatar.iran.liara.run/public/boy?username=${user.username}`;
-                }}
+                onError={() => setAvatarError(true)}
               />
             ) : (
               <span className="text-3xl font-extrabold text-(--profile-avatar-text) select-none">
-                {user.name.substring(0, 2).toUpperCase()}
+                {user.name ? user.name.substring(0, 2).toUpperCase() : "JD"}
               </span>
             )}
           </div>

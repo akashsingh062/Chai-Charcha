@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SearchSuggestion } from "@/types/search";
 
 interface SearchSuggestionItemProps {
@@ -16,6 +16,8 @@ export const SearchSuggestionItem: React.FC<SearchSuggestionItemProps> = ({
   onClick,
   onMouseEnter,
 }) => {
+  const [avatarError, setAvatarError] = useState(false);
+
   // Highlight occurrences of query string inside suggestion title (case-insensitive)
   const getHighlightedText = (text: string, highlight: string) => {
     if (!highlight.trim()) return <span>{text}</span>;
@@ -54,11 +56,11 @@ export const SearchSuggestionItem: React.FC<SearchSuggestionItemProps> = ({
       <div className="flex items-center gap-3 min-w-0">
         {suggestion.type === "user" ? (
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-(--profile-bg) text-[9px] font-black text-floral-white overflow-hidden shrink-0 border border-orange/45 shadow-sm">
-            {suggestion.avatar && (suggestion.avatar.startsWith("http") || suggestion.avatar.startsWith("/")) ? (
+            {suggestion.avatar && (suggestion.avatar.startsWith("http") || suggestion.avatar.startsWith("/")) && !avatarError ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={suggestion.avatar} alt={suggestion.title} className="h-full w-full object-cover" />
+              <img src={suggestion.avatar} alt={suggestion.title} className="h-full w-full object-cover" onError={() => setAvatarError(true)} />
             ) : (
-              suggestion.avatar || suggestion.title.replace("@", "").substring(0, 2).toUpperCase()
+              suggestion.title.replace("@", "").substring(0, 2).toUpperCase()
             )}
           </div>
         ) : suggestion.type === "community" ? (
