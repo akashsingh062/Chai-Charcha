@@ -77,20 +77,20 @@ export async function POST(req: Request) {
       if (voteType === "up") {
         if (hasUpvoted) {
           // Toggle off upvote
-          post.upvotes = post.upvotes.filter((id) => !id.equals(userIdObj));
+          (post.upvotes as unknown as mongoose.Types.Array<mongoose.Types.ObjectId>).pull(userIdObj);
         } else {
           // Add upvote, remove downvote if present
-          post.upvotes.push(userIdObj);
-          post.downvotes = post.downvotes.filter((id) => !id.equals(userIdObj));
+          (post.upvotes as unknown as mongoose.Types.Array<mongoose.Types.ObjectId>).addToSet(userIdObj);
+          (post.downvotes as unknown as mongoose.Types.Array<mongoose.Types.ObjectId>).pull(userIdObj);
         }
       } else if (voteType === "down") {
         if (hasDownvoted) {
           // Toggle off downvote
-          post.downvotes = post.downvotes.filter((id) => !id.equals(userIdObj));
+          (post.downvotes as unknown as mongoose.Types.Array<mongoose.Types.ObjectId>).pull(userIdObj);
         } else {
           // Add downvote, remove upvote if present
-          post.downvotes.push(userIdObj);
-          post.upvotes = post.upvotes.filter((id) => !id.equals(userIdObj));
+          (post.downvotes as unknown as mongoose.Types.Array<mongoose.Types.ObjectId>).addToSet(userIdObj);
+          (post.upvotes as unknown as mongoose.Types.Array<mongoose.Types.ObjectId>).pull(userIdObj);
         }
       }
 
@@ -150,10 +150,10 @@ export async function POST(req: Request) {
       // 2. Perform Comment upvotes array updates
       if (hasUpvoted) {
         // Toggle off upvote
-        comment.upvotes = comment.upvotes.filter((id) => !id.equals(userIdObj));
+        (comment.upvotes as unknown as mongoose.Types.Array<mongoose.Types.ObjectId>).pull(userIdObj);
       } else {
         // Add upvote
-        comment.upvotes.push(userIdObj);
+        (comment.upvotes as unknown as mongoose.Types.Array<mongoose.Types.ObjectId>).addToSet(userIdObj);
       }
 
       await comment.save();
