@@ -5,6 +5,8 @@ import connectDB from "@/lib/connectDB";
 import { Community } from "@/lib/models/Community";
 import { User } from "@/lib/models/User";
 import { Post } from "@/lib/models/Post";
+import { Comment } from "@/lib/models/Comment";
+import { Report } from "@/lib/models/Report";
 import { resolveImageLink } from "@/lib/resolveImage";
 
 // GET /api/communities/[slug] - Get metadata for a community, populated with creator info
@@ -199,11 +201,25 @@ export async function DELETE(
 
     const communityId = community._id;
 
-    // Remove the community
-    await Community.deleteOne({ _id: communityId });
+    // 1. Find all post IDs inside this community
+    const postIds = await Post.find({ community: communityId }).distinct("_id");
+    
+    // 2. Find all comment IDs under those posts
+    const commentIds = await Comment.find({ postId: { $in: postIds } }).distinct("_id");
 
-    // Delete all posts belonging to this community from DB
-    await Post.deleteMany({ community: communityId });
+    // 3. Cascade delete community, posts, comments, and reports
+    await Promise.all([
+      Community.deleteOne({ _id: communityId }),
+      Post.deleteMany({ community: communityId }),
+      Comment.deleteMany({ postId: { $in: postIds } }),
+      Report.deleteMany({
+        $or: [
+          { targetId: communityId, targetType: "Community" },
+          { targetId: { $in: postIds }, targetType: "Post" },
+          { targetId: { $in: commentIds }, targetType: "Comment" }
+        ]
+      })
+    ]);
 
     // Also update all users who had joined this community to remove it from joined list
     // User model holds joinedCommunities which is Mixed, but let's pull it out of arrays

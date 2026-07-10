@@ -4,6 +4,7 @@ import connectDB from "@/lib/connectDB";
 import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { AuditLog } from "@/lib/models/AuditLog";
+import { Report } from "@/lib/models/Report";
 import mongoose from "mongoose";
 
 // GET /api/admin/posts/[id] — Retrieve detailed post information
@@ -125,11 +126,20 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // Delete all comments of the post
-    await Comment.deleteMany({ postId });
+    // 1. Collect all comments of this post
+    const commentIds = await Comment.find({ postId }).distinct("_id");
 
-    // Hard delete the post
-    await Post.findByIdAndDelete(postId);
+    // 2. Cascade delete comments, reports (for post and comments)
+    await Promise.all([
+      Comment.deleteMany({ postId }),
+      Report.deleteMany({
+        $or: [
+          { targetId: new mongoose.Types.ObjectId(postId), targetType: "Post" },
+          { targetId: { $in: commentIds }, targetType: "Comment" }
+        ]
+      }),
+      Post.findByIdAndDelete(postId)
+    ]);
 
     // Log to AuditLog
     await AuditLog.create({

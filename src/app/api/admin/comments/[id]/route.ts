@@ -4,6 +4,7 @@ import connectDB from "@/lib/connectDB";
 import { Comment } from "@/lib/models/Comment";
 import { Post } from "@/lib/models/Post";
 import { AuditLog } from "@/lib/models/AuditLog";
+import { Report } from "@/lib/models/Report";
 import mongoose from "mongoose";
 
 // Helper to recursively gather all nested reply IDs
@@ -53,8 +54,11 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
     const nestedIds = await getNestedReplyIds(commentId);
     const allIdsToDelete = [commentId, ...nestedIds];
 
-    // 2. Perform deletion of all comments in the tree
-    await Comment.deleteMany({ _id: { $in: allIdsToDelete } });
+    // 2. Perform deletion of all comments in the tree and their associated reports
+    await Promise.all([
+      Comment.deleteMany({ _id: { $in: allIdsToDelete } }),
+      Report.deleteMany({ targetId: { $in: allIdsToDelete }, targetType: "Comment" })
+    ]);
 
     // 3. Remove this comment from its parent replies array (if it has a parent)
     if (comment.parentId) {

@@ -7,6 +7,7 @@ import { Comment } from "@/lib/models/Comment";
 import { postSchema } from "@/lib/Schemas/postSchema";
 import { formatPostForFrontend, DBPost, DBComment } from "@/lib/apiHelpers";
 import { Community } from "@/lib/models/Community";
+import { Report } from "@/lib/models/Report";
 import mongoose from "mongoose";
 
 // GET /api/posts/[id] - Get a single post populated with author and comment tree
@@ -171,13 +172,22 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden: You cannot delete this post" }, { status: 403 });
     }
 
-    // 1. Delete all comments associated with this post to prevent orphans
-    await Comment.deleteMany({ postId: id });
+    // 1. Collect all comments of this post
+    const commentIds = await Comment.find({ postId: id }).distinct("_id");
 
-    // 2. Delete the post document
-    await Post.findByIdAndDelete(id);
+    // 2. Cascade delete comments, reports (for post and comments)
+    await Promise.all([
+      Comment.deleteMany({ postId: id }),
+      Report.deleteMany({
+        $or: [
+          { targetId: new mongoose.Types.ObjectId(id), targetType: "Post" },
+          { targetId: { $in: commentIds }, targetType: "Comment" }
+        ]
+      }),
+      Post.findByIdAndDelete(id)
+    ]);
 
-    return NextResponse.json({ message: "Post and all its comments deleted successfully" });
+    return NextResponse.json({ message: "Post, its comments, and associated reports deleted successfully" });
   } catch (error) {
     console.error("Error deleting post:", error);
     const message = error instanceof Error ? error.message : "Internal Server Error";

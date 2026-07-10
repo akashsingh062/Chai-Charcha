@@ -120,8 +120,9 @@ export async function POST(req: Request) {
     const formattedComment = {
       id: populatedComment._id.toString(),
       author: {
-        name: populatedComment.author?.name || "Unknown",
-        avatar: populatedComment.author?.avatar || (populatedComment.author?.name ? populatedComment.author.name.substring(0, 2).toUpperCase() : "U"),
+        name: populatedComment.author?.name || "Deleted User",
+        username: populatedComment.author?.username || "deleted_user",
+        avatar: populatedComment.author?.avatar || "DU",
         role: populatedComment.author?.role || "Member",
       },
       content: populatedComment.content,

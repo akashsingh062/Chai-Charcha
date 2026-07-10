@@ -6,6 +6,10 @@ import { User } from "@/lib/models/User";
 import { profileUpdateSchema } from "@/lib/Schemas/profileUpdateSchema";
 import mongoose from "mongoose";
 import { resolveImageLink } from "@/lib/resolveImage";
+import { Community } from "@/lib/models/Community";
+import { Message } from "@/lib/models/Message";
+import { Notification } from "@/lib/models/Notification";
+import { Report } from "@/lib/models/Report";
 
 // GET /api/profile - Retrieve active user profile, a user by username, or list all profiles
 export async function GET(req: Request) {
@@ -177,19 +181,39 @@ export async function DELETE() {
 
     const userId = dbUser._id.toString();
 
-    // 1. Delete user from primary 'user' collection
-    await User.deleteOne({ _id: dbUser._id });
-
-    // 2. Cascade delete from better-auth native MongoDB collections (session and account)
+    // 1. Cascade cleanup user data and relations, keeping posts/comments intact but anonymized
     const db = mongoose?.connection?.db;
-    if (db) {
-      await db.collection("session").deleteMany({ userId });
-      await db.collection("account").deleteMany({ userId });
-    }
+    await Promise.all([
+      User.deleteOne({ _id: dbUser._id }),
+      db ? db.collection("session").deleteMany({ userId }) : Promise.resolve(),
+      db ? db.collection("account").deleteMany({ userId }) : Promise.resolve(),
+      Message.deleteMany({ $or: [{ sender: dbUser._id }, { recipient: dbUser._id }] }),
+      Notification.deleteMany({ $or: [{ recipient: dbUser._id }, { sender: dbUser._id }] }),
+      Report.deleteMany({ $or: [{ targetId: dbUser._id, targetType: "User" }, { reporter: dbUser._id }] }),
+      Community.updateMany(
+        {},
+        {
+          $pull: {
+            moderators: dbUser._id,
+            bannedUsers: dbUser._id,
+            pendingRequests: dbUser._id,
+          },
+        }
+      ),
+      User.updateMany(
+        {},
+        {
+          $pull: {
+            followers: dbUser._id,
+            following: dbUser._id,
+          },
+        }
+      )
+    ]);
 
     return NextResponse.json({
       success: true,
-      message: "Account and sessions deleted successfully",
+      message: "Account and associated data deleted successfully, posts and comments preserved as Deleted User",
     });
   } catch (error) {
     console.error("Error in profile DELETE route:", error);

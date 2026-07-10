@@ -6,6 +6,7 @@ import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { User } from "@/lib/models/User";
 import { AuditLog } from "@/lib/models/AuditLog";
+import { Report } from "@/lib/models/Report";
 import mongoose from "mongoose";
 
 // GET /api/admin/communities/[id] — Retrieve detailed community information
@@ -159,10 +160,20 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
     const posts = await Post.find({ community: communityId }).select("_id");
     const postIds = posts.map((p) => p._id);
 
-    // 2. Cascade delete comments and posts
+    // 2. Find all comment IDs under those posts
+    const commentIds = await Comment.find({ postId: { $in: postIds } }).distinct("_id");
+
+    // 3. Cascade delete comments, posts, and reports
     await Promise.all([
       Comment.deleteMany({ postId: { $in: postIds } }),
       Post.deleteMany({ community: communityId }),
+      Report.deleteMany({
+        $or: [
+          { targetId: communityId, targetType: "Community" },
+          { targetId: { $in: postIds }, targetType: "Post" },
+          { targetId: { $in: commentIds }, targetType: "Comment" }
+        ]
+      })
     ]);
 
     // 3. Remove community from user joinedCommunities lists

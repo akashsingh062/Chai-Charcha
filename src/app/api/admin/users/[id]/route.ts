@@ -5,6 +5,8 @@ import { User } from "@/lib/models/User";
 import { Post } from "@/lib/models/Post";
 import { Comment } from "@/lib/models/Comment";
 import { AuditLog } from "@/lib/models/AuditLog";
+import { Report } from "@/lib/models/Report";
+import { Message } from "@/lib/models/Message";
 import { Notification } from "@/lib/models/Notification";
 import mongoose from "mongoose";
 
@@ -251,15 +253,11 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
       ]);
     }
 
-    // 2. Cascade delete User's posts & comments
-    const postsToDelete = await Post.find({ author: userId }).select("_id");
-    const postIds = postsToDelete.map((p) => p._id);
-
-    // Delete comments belonging to those posts, plus comments written by the user
+    // 2. Cascade delete associated transient data, keeping posts & comments intact (anonymized)
     await Promise.all([
-      Comment.deleteMany({ postId: { $in: postIds } }),
-      Comment.deleteMany({ author: userId }),
-      Post.deleteMany({ author: userId }),
+      Message.deleteMany({ $or: [{ sender: userId }, { recipient: userId }] }),
+      Notification.deleteMany({ $or: [{ recipient: userId }, { sender: userId }] }),
+      Report.deleteMany({ $or: [{ targetId: new mongoose.Types.ObjectId(userId), targetType: "User" }, { reporter: userId }] }),
     ]);
 
     // 3. Remove user reference from community membership lists (moderators, bannedUsers, pendingRequests)

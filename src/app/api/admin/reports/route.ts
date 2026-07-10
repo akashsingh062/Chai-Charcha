@@ -73,6 +73,10 @@ export async function GET(req: Request) {
               authorName = postAuthor.name;
               authorUsername = postAuthor.username;
               authorAvatar = postAuthor.avatar || "";
+            } else {
+              authorName = "Deleted User";
+              authorUsername = "deleted_user";
+              authorAvatar = "DU";
             }
           } else if (r.targetType === "Comment") {
             contentPreview = target.content || "";
@@ -82,12 +86,16 @@ export async function GET(req: Request) {
               authorName = commentAuthor.name;
               authorUsername = commentAuthor.username;
               authorAvatar = commentAuthor.avatar || "";
+            } else {
+              authorName = "Deleted User";
+              authorUsername = "deleted_user";
+              authorAvatar = "DU";
             }
           } else if (r.targetType === "User") {
-            contentPreview = `User Account: ${target.name} (@${target.username})`;
-            authorName = target.name || "Unknown";
-            authorUsername = target.username || "";
-            authorAvatar = target.avatar || "";
+            contentPreview = `User Account: ${target.name || "Deleted User"} (@${target.username || "deleted_user"})`;
+            authorName = target.name || "Deleted User";
+            authorUsername = target.username || "deleted_user";
+            authorAvatar = target.avatar || "DU";
           } else if (r.targetType === "Community") {
             contentPreview = `Community: c/${target.name} - ${target.description}`;
             // Find community creator
@@ -96,6 +104,10 @@ export async function GET(req: Request) {
               authorName = creatorUser.name;
               authorUsername = creatorUser.username;
               authorAvatar = creatorUser.avatar || "";
+            } else {
+              authorName = "Deleted User";
+              authorUsername = "deleted_user";
+              authorAvatar = "DU";
             }
           }
         }

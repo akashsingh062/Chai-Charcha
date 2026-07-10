@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import connectDB from "@/lib/connectDB";
 import { Comment } from "@/lib/models/Comment";
 import { Post } from "@/lib/models/Post";
+import { Report } from "@/lib/models/Report";
 import { z } from "zod";
 import { formatTimeAgo, updatePostTrendingScore } from "@/lib/apiHelpers";
 
@@ -92,8 +93,9 @@ export async function PUT(
     const formattedComment = {
       id: populatedComment._id.toString(),
       author: {
-        name: populatedComment.author?.name || "Unknown",
-        avatar: populatedComment.author?.avatar || (populatedComment.author?.name ? populatedComment.author.name.substring(0, 2).toUpperCase() : "U"),
+        name: populatedComment.author?.name || "Deleted User",
+        username: populatedComment.author?.username || "deleted_user",
+        avatar: populatedComment.author?.avatar || "DU",
         role: populatedComment.author?.role || "Member",
       },
       content: populatedComment.content,
@@ -146,8 +148,11 @@ export async function DELETE(
     const childIds = await collectAllChildCommentIds(id);
     const allIdsToDelete = [id, ...childIds];
 
-    // Delete all collected comments
-    await Comment.deleteMany({ _id: { $in: allIdsToDelete } });
+    // Delete all collected comments and their associated reports
+    await Promise.all([
+      Comment.deleteMany({ _id: { $in: allIdsToDelete } }),
+      Report.deleteMany({ targetId: { $in: allIdsToDelete }, targetType: "Comment" })
+    ]);
 
     // If it has a parent comment, pull its ID from the parent's replies list
     if (comment.parentId) {
