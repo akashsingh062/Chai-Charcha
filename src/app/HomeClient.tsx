@@ -55,8 +55,10 @@ export default function HomeClient({ initialPosts = [], initialCommunities = [] 
   }, [sortBy, feedTab, user]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadPosts();
+    const timer = setTimeout(() => {
+      loadPosts();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [loadPosts]);
 
   useEffect(() => {
