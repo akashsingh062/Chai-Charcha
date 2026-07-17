@@ -124,7 +124,7 @@ export const CommentNode = ({
                     {comment.author.name}
                   </span>
                 )}
-                {comment.author.name === "Akash Singh" && (
+                {comment.author.name === "Akash Singh" && comment.author.role !== "admin" && (
                   <span className="text-[7.5px] bg-linear-to-r from-orange/20 to-spicy-paprika/20 text-orange border border-orange/30 px-1.5 py-0.5 rounded-sm font-black uppercase tracking-wider">
                     You
                   </span>
