@@ -11,6 +11,7 @@ export interface MarketingPost {
     name: string;
     avatar?: string;
   } | null;
+  createdAt?: string;
 }
 
 export interface MarketingCommunity {
@@ -66,7 +67,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({ posts = [], commun
           </Link>
           
           <Link
-            href="#public-preview"
+            href="/?browse=true"
             className="flex items-center justify-center rounded-full border border-(--btn-secondary-border) hover:bg-(--btn-secondary-hover-bg) px-8 py-4 text-base font-semibold transition-all duration-200"
           >
             Browse Discussions

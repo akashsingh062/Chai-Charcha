@@ -15,18 +15,47 @@ import {
   removeComment,
   updateCommentVote,
 } from "@/components/post/commentHelpers";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface HomeClientProps {
   initialPosts?: MarketingPost[];
   initialCommunities?: MarketingCommunity[];
 }
 
-export default function HomeClient({ initialPosts = [], initialCommunities = [] }: HomeClientProps) {
+export default function HomeClient({ 
+  initialPosts = [],
+  initialCommunities = []
+}: HomeClientProps) {
   const { user, userData, setIsCreatePostOpen } = useAuth();
 
   const router = useRouter();
-  const [threads, setThreads] = useState<Thread[]>([]);
+  const searchParams = useSearchParams();
+  const shouldBrowse = searchParams?.get("browse") === "true";
+
+  const [threads, setThreads] = useState<Thread[]>(() => {
+    return (initialPosts || []).map((post) => ({
+      id: post._id,
+      title: post.title,
+      excerpt: post.content ? (post.content.length > 150 ? post.content.substring(0, 150) + "..." : post.content) : "",
+      content: post.content,
+      category: post.category || "General Charcha",
+      author: {
+        id: "",
+        name: post.author?.name || "Anonymous",
+        username: post.author?.username || "anonymous",
+        avatar: post.author?.avatar || "",
+        role: "member",
+        reputation: 0,
+      },
+      tags: [],
+      upvotes: [],
+      upvotesCount: 0,
+      downvotesCount: 0,
+      commentsCount: 0,
+      timeAgo: "recently",
+      createdAt: post.createdAt,
+    } as unknown as Thread));
+  });
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery] = useState<string>("");
   const [selectedTag, setSelectedTag] = useState<string>("");
@@ -36,11 +65,10 @@ export default function HomeClient({ initialPosts = [], initialCommunities = [] 
   const [visibleCount, setVisibleCount] = useState(10);
 
   const loadPosts = useCallback(async () => {
-    if (!user) return;
     try {
       setIsLoading(true);
       const url =
-        feedTab === "home"
+        feedTab === "home" && user
           ? `/api/posts?feed=home&sort=${sortBy}`
           : `/api/posts?sort=${sortBy}`;
       const res = await axiosInstance.get(url);
@@ -326,10 +354,11 @@ export default function HomeClient({ initialPosts = [], initialCommunities = [] 
     setThreads((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // If user is not logged in (e.g. unauthenticated, crawlers, SSR default), render MarketingView
-  if (!user) {
+  // If user is not logged in and not browsing, render MarketingView
+  if (!user && !shouldBrowse) {
     return <MarketingView posts={initialPosts} communities={initialCommunities} />;
   }
+
 
   // Dynamic categories calculation
   const defaultCategories = [
